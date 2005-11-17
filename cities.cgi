@@ -2,27 +2,35 @@
 use strict;
 use warnings;
 #
+# This is a CGI script that acts as a proxy for the cities game.
+# The intent is to extract details out of pages, such as persistant mapping
+# and event log file
+#
 
+##########################################################################
+#
+# Configure it.
+#
+# (nothing much right now)
+#
 my $baseurl = "http://cities.totl.net";
 
+##########################################################################
+#
+# Libs we need.
 use Data::Dumper;
-
 use CGI ':all';
 use CGI::Carp qw(fatalsToBrowser);
-
 use LWP::UserAgent;
-
-#use HTML::TokeParser;
 use HTML::TreeBuilder;
 
-####
-#### First, extract some details about how we were called
-
+##########################################################################
+#
+# Determine exactly what options were used to call this script
 my $q = new CGI;
 
-print $q->header;
-#print "<pre>\n";
-#
+#TODO
+
 #print "method=", request_method(), "\n";
 #print "url_param()= ";
 #print join ",", $q->url_param;
@@ -31,45 +39,29 @@ print $q->header;
 #print join ",", $q->url_param('x');
 #print "\n";
 
-####
-#### Next duplicate that call to the real cities game
+#get gamesession cookie
 
-# Create a user agent object
+##########################################################################
+#
+# Duplicate the options and call the real game
 my $ua = LWP::UserAgent->new;
 $ua->agent("citiesproxy/1.0 ");
 
-# Create a request
+# construct URL from params
 my $req = HTTP::Request->new(GET => $baseurl."/cgi-bin/game");
+# set cookie
+# set post params
 
-# Pass request to the user agent and get a response back
 my $res = $ua->request($req);
 
-# Check the outcome of the response
 if (!$res->is_success) {
         print $res->status_line, "\n";
         exit;
 }
 
-## Simple Parse the content..
-#my $p = HTML::TokeParser->new(\$res->content);
+##########################################################################
 #
-#while (my $token = $p->get_token) {
-#	if( $token->[0] eq 'S' ) {
-#		print $token->[4];
-#	} elsif( $token->[0] eq 'E' ) {
-#		print $token->[2];
-#	} elsif( $token->[0] eq 'T' ) {
-#		print $token->[1];
-#	} elsif( $token->[0] eq 'C' ) {
-#		print $token->[1];
-#	} elsif( $token->[0] eq 'D' ) {
-#		print $token->[1];
-#	} elsif( $token->[0] eq 'PI' ) {
-#		print $token->[2];
-#	}
-#}
-
-# Parse the HTML document into a tree
+# Create a document tree from the returned data
 my $tree = HTML::TreeBuilder->new;
 $tree->ignore_ignorable_whitespace(0);
 $tree->no_space_compacting(1);
@@ -77,6 +69,10 @@ $tree->store_comments(1);
 $tree->parse($res->content);
 $tree->eof;
 $tree->elementify;
+
+##########################################################################
+#
+# Adjust any relative URLs to point to the real game
 
 # Modify things and generally act wierd
 my $link = $tree->look_down(
@@ -87,11 +83,25 @@ if ($link) {
 	$link->attr('href',$baseurl.$link->attr('href'));
 }
 
+##########################################################################
+#
+# Extract saliant data from the information and store it.
+
+##########################################################################
+#
+# Modify the tree to include data from our database
+
+##########################################################################
+#
 # Output our changed HTML document
+print $q->header;
 print $tree->as_HTML;
 
 $tree=$tree->delete;
 
+##########################################################################
+#
+# Original text for comparison...
 #print "\n=====================================\n";
 #print $res->content;
 

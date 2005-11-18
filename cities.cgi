@@ -23,6 +23,8 @@ use CGI ':all';
 use CGI::Carp qw(fatalsToBrowser);
 use LWP::UserAgent;
 use HTML::TreeBuilder;
+use HTTP::Cookies;
+
 
 ##########################################################################
 #
@@ -39,7 +41,28 @@ my $q = new CGI;
 #print join ",", $q->url_param('x');
 #print "\n";
 
+my $request_method=$q->request_method();
+my $paramstr;
+for my $i ($q->param) {
+	if ($paramstr) {
+		$paramstr .= "&";
+	}
+	$paramstr .= $i.'='.$q->param($i);
+}
+
+my $urlparamstr;
+for my $i ($q->url_param) {
+	if ($urlparamstr) {
+		$urlparamstr .= "&";
+	}
+	$urlparamstr .= $i.'='.$q->url_param($i);
+}
+
 #get gamesession cookie
+#my $gamesession = $q->cookie('gamesession');
+#$cookie_jar->set_cookie( $version, $key, $val, $path, $domain, $port,
+#       $path_spec, $secure, $maxage, $discard, \%rest )
+
 
 ##########################################################################
 #
@@ -47,9 +70,18 @@ my $q = new CGI;
 my $ua = LWP::UserAgent->new;
 $ua->agent("citiesproxy/1.0 ");
 
-# construct URL from params
-my $req = HTTP::Request->new(GET => $baseurl."/cgi-bin/game");
-# set cookie
+# construct the correct URL from our params
+my $url = $baseurl.'/cgi-bin/game';
+if ($urlparamstr ne 'keywords=') {
+	$url .= '?'.$urlparamstr;
+}
+
+my $req = HTTP::Request->new($request_method => $url);
+if ($request_method eq 'POST') {
+	$req->content_type('application/x-www-form-urlencoded');
+	$req->content($paramstr);
+}
+# set cookie -- $cookie_jar->add_cookie_header( $req )
 # set post params
 
 my $res = $ua->request($req);
@@ -58,6 +90,19 @@ if (!$res->is_success) {
         print $res->status_line, "\n";
         exit;
 }
+
+my $cookie_jar = HTTP::Cookies->new();
+$cookie_jar->extract_cookies($res);
+
+my $callback_data;
+sub cookie_callback() {
+#	my ($version,$key,$val,$path,$domain,$port,$path_spec,
+#	    $secure,$expires,$discard,$hash) = @_;
+	$callback_data = join ",",@_;
+}
+$cookie_jar->scan( \&cookie_callback );
+
+
 
 ##########################################################################
 #
@@ -72,15 +117,51 @@ $tree->elementify;
 
 ##########################################################################
 #
-# Adjust any relative URLs to point to the real game
+# Adjust URLs to point to the right places
+my $selfurl = url(-relative=>1);
 
 # Modify things and generally act wierd
-my $link = $tree->look_down(
-	"_tag", "link",
-	"rel", "stylesheet"
-);
-if ($link) {
-	$link->attr('href',$baseurl.$link->attr('href'));
+
+#stylesheets
+for my $i ($tree->look_down(
+		"_tag", "link",
+		"rel", "stylesheet")) {
+	$i->attr('href',$baseurl.$i->attr('href'));
+}
+
+#images
+for my $i ($tree->look_down(
+		"_tag", "img",
+		"src", qr%^/%)) {
+	$i->attr('src',$baseurl.$i->attr('src'));
+}
+
+#links
+for my $i ($tree->look_down(
+		"_tag", "a",
+		"href", qr/^game/)) {
+	my $link = $i->attr('href');
+	$link =~ s/^game/$selfurl/;
+	$i->attr('href',$link);
+}
+for my $i ($tree->look_down(
+		"_tag", "a",
+		"href", qr%^/%)) {
+	$i->attr('href',$selfurl."?XURL=".$i->attr('href'));
+}
+
+#forms
+for my $i ($tree->look_down(
+		"_tag", "form",
+		"action","/cgi-bin/game")) {
+	$i->attr('action',$selfurl);
+}
+
+#foo! textarea
+for my $i ($tree->look_down(
+		"_tag", "textarea",
+		"class","textin")) {
+	$i->push_content("\nfoo!");
 }
 
 ##########################################################################
@@ -95,6 +176,13 @@ if ($link) {
 #
 # Output our changed HTML document
 print $q->header;
+# ( -cookie=>$cookie )
+
+#print "<pre>\n";
+#print $paramstr."\n";
+#print $urlparamstr."\n";
+#print "</pre>\n";
+
 print $tree->as_HTML;
 
 $tree=$tree->delete;
@@ -104,4 +192,7 @@ $tree=$tree->delete;
 # Original text for comparison...
 #print "\n=====================================\n";
 #print $res->content;
+
+print Dumper($cookie_jar);
+print "\n".$callback_data;
 

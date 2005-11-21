@@ -59,7 +59,7 @@ for my $i ($q->url_param) {
 }
 
 #get gamesession cookie
-#my $gamesession = $q->cookie('gamesession');
+my $get_gamesession_cookie = $q->cookie('gamesession');
 #$cookie_jar->set_cookie( $version, $key, $val, $path, $domain, $port,
 #       $path_spec, $secure, $maxage, $discard, \%rest )
 
@@ -94,11 +94,22 @@ if (!$res->is_success) {
 my $cookie_jar = HTTP::Cookies->new();
 $cookie_jar->extract_cookies($res);
 
-my $callback_data;
+my $callback_debug;
+my $send_gamesession_cookie;
 sub cookie_callback() {
-#	my ($version,$key,$val,$path,$domain,$port,$path_spec,
-#	    $secure,$expires,$discard,$hash) = @_;
-	$callback_data = join ",",@_;
+	my ($version,$key,$val,$path,$domain,$port,$path_spec,
+	    $secure,$expires,$discard,$hash) = @_;
+	$callback_debug = join(",",@_)."\n";
+
+	if ($key eq 'gamesession') {
+		$send_gamesession_cookie = $q->cookie(
+			-name=>$key,
+			-value=>$val,
+			-path=>$path,
+			-domain=>$domain,
+			-expires=>$expires,
+		);
+	}
 }
 $cookie_jar->scan( \&cookie_callback );
 
@@ -136,19 +147,19 @@ for my $i ($tree->look_down(
 	$i->attr('src',$baseurl.$i->attr('src'));
 }
 
-#links
-for my $i ($tree->look_down(
-		"_tag", "a",
-		"href", qr/^game/)) {
-	my $link = $i->attr('href');
-	$link =~ s/^game/$selfurl/;
-	$i->attr('href',$link);
-}
-for my $i ($tree->look_down(
-		"_tag", "a",
-		"href", qr%^/%)) {
-	$i->attr('href',$selfurl."?XURL=".$i->attr('href'));
-}
+##links
+#for my $i ($tree->look_down(
+#		"_tag", "a",
+#		"href", qr/^game/)) {
+#	my $link = $i->attr('href');
+#	$link =~ s/^game/$selfurl/;
+#	$i->attr('href',$link);
+#}
+#for my $i ($tree->look_down(
+#		"_tag", "a",
+#		"href", qr%^/%)) {
+#	$i->attr('href',$selfurl."?XURL=".$i->attr('href'));
+#}
 
 #forms
 for my $i ($tree->look_down(
@@ -175,8 +186,9 @@ for my $i ($tree->look_down(
 ##########################################################################
 #
 # Output our changed HTML document
-print $q->header;
-# ( -cookie=>$cookie )
+print $q->header(
+	-cookie=>$send_gamesession_cookie,
+	);
 
 #print "<pre>\n";
 #print $paramstr."\n";
@@ -194,5 +206,8 @@ $tree=$tree->delete;
 #print $res->content;
 
 print Dumper($cookie_jar);
-print "\n".$callback_data;
+print "\n".$callback_debug;
+print "\n";
+print "get ". Dumper($get_gamesession_cookie) ."\n";
+print "send ". Dumper($send_gamesession_cookie) ."\n";
 

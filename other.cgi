@@ -67,7 +67,7 @@ if ($urlparamstr eq 'keywords=') {
 }
 
 if (! defined $realpage) {
-	print "No real page requested\n";
+	print "404 No real page requested\n";
 	exit;
 }
 
@@ -156,8 +156,7 @@ for my $i ($tree->look_down(
 
 #links
 for my $i ($tree->look_down(
-		"_tag", "a",
-		"href", qr%^/cgi-bin/%)) {
+		"_tag", "a", )) {
 	my $href = $i->attr('href');
 	if ($href eq '/cgi-bin/game') {
 		# FIXME - handle game calls differently

@@ -31,38 +31,38 @@ use HTTP::Cookies;
 # Determine exactly what options were used to call this script
 my $q = new CGI;
 
-#TODO
-
-#print "method=", request_method(), "\n";
-#print "url_param()= ";
-#print join ",", $q->url_param;
-#print "\n";
-#print "x= ";
-#print join ",", $q->url_param('x');
-#print "\n";
-
 my $request_method=$q->request_method();
-my $paramstr;
-for my $i ($q->param) {
-	if ($paramstr) {
-		$paramstr .= "&";
-	}
-	$paramstr .= $i.'='.$q->param($i);
+if (!$request_method) {
+	print "You must be testing me\n";
+	$request_method="TEST";
 }
 
-my $urlparamstr;
+my $postparamstr;
+for my $i ($q->param) {
+	if ($postparamstr) {
+		$postparamstr .= "&";
+	}
+	$postparamstr .= $i.'='.$q->param($i);
+}
+
+my $urlparamstr="";
 for my $i ($q->url_param) {
 	if ($urlparamstr) {
 		$urlparamstr .= "&";
 	}
-	$urlparamstr .= $i.'='.$q->url_param($i);
+	$urlparamstr .= $i.'='. ($q->url_param($i)||'');
+}
+if ($urlparamstr eq 'keywords=') {
+	undef $urlparamstr;
 }
 
 #get gamesession cookie
-my $get_gamesession_cookie = $q->cookie('gamesession');
-#$cookie_jar->set_cookie( $version, $key, $val, $path, $domain, $port,
-#       $path_spec, $secure, $maxage, $discard, \%rest )
-
+my $user_gamesession_cookie = $q->cookie('gamesession');
+my $user_cookies = HTTP::Cookies->new();
+if ($user_gamesession_cookie) {
+	$user_cookies->set_cookie( 0, 'gamesession', $user_gamesession_cookie,
+		'/',$baseurl,'',1,'',1447902633,'');
+}
 
 ##########################################################################
 #
@@ -72,17 +72,16 @@ $ua->agent("citiesproxy/1.0 ");
 
 # construct the correct URL from our params
 my $url = $baseurl.'/cgi-bin/game';
-if ($urlparamstr ne 'keywords=') {
+if ($urlparamstr) {
 	$url .= '?'.$urlparamstr;
 }
 
 my $req = HTTP::Request->new($request_method => $url);
 if ($request_method eq 'POST') {
 	$req->content_type('application/x-www-form-urlencoded');
-	$req->content($paramstr);
+	$req->content($postparamstr);
 }
-# set cookie -- $cookie_jar->add_cookie_header( $req )
-# set post params
+$user_cookies->add_cookie_header($req);
 
 my $res = $ua->request($req);
 
@@ -91,18 +90,18 @@ if (!$res->is_success) {
         exit;
 }
 
-my $cookie_jar = HTTP::Cookies->new();
-$cookie_jar->extract_cookies($res);
+my $req_cookies = HTTP::Cookies->new();
+$req_cookies->extract_cookies($res);
 
 my $callback_debug;
-my $send_gamesession_cookie;
+my $send_cookie;
 sub cookie_callback() {
 	my ($version,$key,$val,$path,$domain,$port,$path_spec,
 	    $secure,$expires,$discard,$hash) = @_;
 	$callback_debug = join(",",@_)."\n";
 
 	if ($key eq 'gamesession') {
-		$send_gamesession_cookie = $q->cookie(
+		$send_cookie = $q->cookie(
 			-name=>$key,
 			-value=>$val,
 			-path=>$path,
@@ -111,7 +110,7 @@ sub cookie_callback() {
 		);
 	}
 }
-$cookie_jar->scan( \&cookie_callback );
+$req_cookies->scan( \&cookie_callback );
 
 
 
@@ -187,13 +186,8 @@ for my $i ($tree->look_down(
 #
 # Output our changed HTML document
 print $q->header(
-	-cookie=>$send_gamesession_cookie,
+	-cookie=>$send_cookie,
 	);
-
-#print "<pre>\n";
-#print $paramstr."\n";
-#print $urlparamstr."\n";
-#print "</pre>\n";
 
 print $tree->as_HTML;
 
@@ -205,9 +199,13 @@ $tree=$tree->delete;
 #print "\n=====================================\n";
 #print $res->content;
 
-print Dumper($cookie_jar);
-print "\n".$callback_debug;
-print "\n";
-print "get ". Dumper($get_gamesession_cookie) ."\n";
-print "send ". Dumper($send_gamesession_cookie) ."\n";
+print "\n\n==========================================================\n";
+print "cookie debugging\n";
+print "cookie from user:\tcookie('gamesession')=".$user_gamesession_cookie."\n";
+print "cookie to server:\t".Dumper($user_cookies)."\n";
+print "req to server:\t".Dumper($req)."\n";
+print "cookie from server:\t".Dumper($req_cookies)."\n";
+print "callback_debug:\t".$callback_debug."\n";
+print "cookie to user:\t".Dumper($send_cookie)."\n";
+
 

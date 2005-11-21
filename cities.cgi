@@ -104,8 +104,8 @@ sub cookie_callback() {
 		$send_cookie = $q->cookie(
 			-name=>$key,
 			-value=>$val,
-			-path=>$path,
-			-domain=>$domain,
+#			-path=>$path,
+#			-domain=>$domain,
 			-expires=>$expires,
 		);
 	}
@@ -204,6 +204,7 @@ print "cookie debugging\n";
 print "cookie from user:\tcookie('gamesession')=".$user_gamesession_cookie."\n";
 print "cookie to server:\t".Dumper($user_cookies)."\n";
 print "req to server:\t".Dumper($req)."\n";
+print "res from server:\t".Dumper($res)."\n";
 print "cookie from server:\t".Dumper($req_cookies)."\n";
 print "callback_debug:\t".$callback_debug."\n";
 print "cookie to user:\t".Dumper($send_cookie)."\n";

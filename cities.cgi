@@ -77,7 +77,7 @@ if ($request_method eq 'POST') {
 	$req->content($postparamstr);
 }
 if ($user_gamesession_cookie) {
-	$req->header(Cookie => $user_gamesession_cookie);
+	$req->header(Cookie => 'gamesession='.$user_gamesession_cookie);
 }
 
 my $res = $ua->request($req);
@@ -200,7 +200,7 @@ print "\n\n==========================================================\n";
 print "cookie debugging\n";
 print "cookie from user:\tcookie('gamesession')=".$user_gamesession_cookie."\n";
 print "req to server:\t".Dumper($req)."\n";
-print "res from server:\t".Dumper($res)."\n";
+#print "res from server:\t".Dumper($res)."\n";
 print "cookie from server:\t".Dumper($req_cookies)."\n";
 print "callback_debug:\t".$callback_debug."\n";
 print "cookie to user:\t".Dumper($send_cookie)."\n";

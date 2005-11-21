@@ -3,8 +3,9 @@ use strict;
 use warnings;
 #
 # This is a CGI script that acts as a proxy for the cities game.
-# The intent is to extract details out of pages, such as persistant mapping
-# and event log file
+# 
+# This script handles all 'other' pages (essentially anything that is not
+# /cgi-bin/game
 #
 
 ##########################################################################
@@ -46,7 +47,16 @@ for my $i ($q->param) {
 }
 
 my $urlparamstr="";
+my $realpage;
 for my $i ($q->url_param) {
+	if (! defined $i) {
+		# HUH?
+		next;
+	}
+	if ($i eq 'realpage') {
+		$realpage=$q->url_param($i);
+		next;
+	}
 	if ($urlparamstr) {
 		$urlparamstr .= "&";
 	}
@@ -54,6 +64,11 @@ for my $i ($q->url_param) {
 }
 if ($urlparamstr eq 'keywords=') {
 	undef $urlparamstr;
+}
+
+if (! defined $realpage) {
+	print "No real page requested\n";
+	exit;
 }
 
 #get gamesession cookie
@@ -66,7 +81,7 @@ my $ua = LWP::UserAgent->new;
 $ua->agent("citiesproxy/1.0 ");
 
 # construct the correct URL from our params
-my $url = $baseurl.'/cgi-bin/game';
+my $url = $baseurl.$realpage;
 if ($urlparamstr) {
 	$url .= '?'.$urlparamstr;
 }
@@ -90,19 +105,15 @@ if (!$res->is_success) {
 my $req_cookies = HTTP::Cookies->new();
 $req_cookies->extract_cookies($res);
 
-my $callback_debug;
 my $send_cookie;
 sub cookie_callback() {
 	my ($version,$key,$val,$path,$domain,$port,$path_spec,
 	    $secure,$expires,$discard,$hash) = @_;
-	$callback_debug = join(",",@_)."\n";
 
 	if ($key eq 'gamesession') {
 		$send_cookie = $q->cookie(
 			-name=>$key,
 			-value=>$val,
-#			-path=>$path,
-#			-domain=>$domain,
 			-expires=>$expires,
 		);
 	}
@@ -143,14 +154,19 @@ for my $i ($tree->look_down(
 	$i->attr('src',$baseurl.$i->attr('src'));
 }
 
-##links
-#for my $i ($tree->look_down(
-#		"_tag", "a",
-#		"href", qr/^game/)) {
-#	my $link = $i->attr('href');
-#	$link =~ s/^game/$selfurl/;
-#	$i->attr('href',$link);
-#}
+#links
+for my $i ($tree->look_down(
+		"_tag", "a",
+		"href", qr%^/cgi-bin/%)) {
+	my $href = $i->attr('href');
+	if ($href eq '/cgi-bin/game') {
+		# FIXME - handle game calls differently
+		next;
+	}
+	$href = $selfurl . '?realpage=' . $href;
+	$i->attr('href',$href);
+}
+
 #for my $i ($tree->look_down(
 #		"_tag", "a",
 #		"href", qr%^/%)) {
@@ -189,20 +205,5 @@ print $q->header(
 print $tree->as_HTML;
 
 $tree=$tree->delete;
-
-##########################################################################
-#
-# Original text for comparison...
-#print "\n=====================================\n";
-#print $res->content;
-
-print "\n\n==========================================================\n";
-print "cookie debugging\n";
-print "cookie from user:\tcookie('gamesession')=".$user_gamesession_cookie."\n";
-print "req to server:\t".Dumper($req)."\n";
-#print "res from server:\t".Dumper($res)."\n";
-print "cookie from server:\t".Dumper($req_cookies)."\n";
-print "callback_debug:\t".$callback_debug."\n";
-print "cookie to user:\t".Dumper($send_cookie)."\n";
 
 

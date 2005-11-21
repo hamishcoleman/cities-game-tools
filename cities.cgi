@@ -58,11 +58,6 @@ if ($urlparamstr eq 'keywords=') {
 
 #get gamesession cookie
 my $user_gamesession_cookie = $q->cookie('gamesession');
-my $user_cookies = HTTP::Cookies->new();
-if ($user_gamesession_cookie) {
-	$user_cookies->set_cookie( 0, 'gamesession', $user_gamesession_cookie,
-		'/',$baseurl,'',1,'',1447902633,'');
-}
 
 ##########################################################################
 #
@@ -81,7 +76,9 @@ if ($request_method eq 'POST') {
 	$req->content_type('application/x-www-form-urlencoded');
 	$req->content($postparamstr);
 }
-$user_cookies->add_cookie_header($req);
+if ($user_gamesession_cookie) {
+	$req->header(Cookie => $user_gamesession_cookie);
+}
 
 my $res = $ua->request($req);
 
@@ -202,7 +199,6 @@ $tree=$tree->delete;
 print "\n\n==========================================================\n";
 print "cookie debugging\n";
 print "cookie from user:\tcookie('gamesession')=".$user_gamesession_cookie."\n";
-print "cookie to server:\t".Dumper($user_cookies)."\n";
 print "req to server:\t".Dumper($req)."\n";
 print "res from server:\t".Dumper($res)."\n";
 print "cookie from server:\t".Dumper($req_cookies)."\n";

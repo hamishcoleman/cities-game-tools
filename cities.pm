@@ -1,6 +1,9 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+#
+# _LOGNAME_/_PASSWORD_
+#
 
 =head1 NAME
 
@@ -39,9 +42,10 @@ sub adjusturls($$) {
 		my $href = $i->attr('href');
 
 		if ($href eq '/cgi-bin/game') {
-			# FIXME - handle game calls differently
-			$i->attr('href',$gameurl 
-			    . "?realpage=http://cities.totl.net/cgi-bin/game");
+			$i->attr('href',$gameurl );
+			next;
+		} elsif ($href eq 'game') {
+			$i->attr('href',$gameurl );
 			next;
 		}
 

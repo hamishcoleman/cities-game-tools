@@ -36,23 +36,7 @@ if (!$query->request_method) {
 	print "You must be testing me\n";
 }
 
-# Check that the user has actually asked for something
-#
-my $realpage=url_param('realpage');
-if (! defined $realpage) {
-	# FIXME - error message
-	print $query->header;
-	print "404 No real page requested\n";
-	exit;
-}
-$query->delete('realpage');
-
-if ($realpage !~ m%http://cities.totl.net/%) {
-	# FIXME - error message
-	print $query->header;
-	print "404 Whatchatalknboutwillis\n";
-	exit;
-}
+my $realpage=$baseurl . '/cgi-bin/game';
 
 ### DIG HERE
 my ($res,$send_cookie,$tree) = gettreefromurl($query,$realpage);
@@ -77,16 +61,25 @@ if ($res->content_type ne 'text/html') {
 
 adjusturls($tree,$realpage);
 
-##foo! textarea
-#for my $i ($tree->look_down(
-#		"_tag", "textarea",
-#		"class","textin")) {
-#	$i->push_content("\nfoo!");
-#}
+#foo! textarea
+for my $i ($tree->look_down(
+		"_tag", "textarea",
+		"class","textin")) {
+	$i->push_content("\nfoo!");
+}
 
 ##########################################################################
 #
 # Extract saliant data from the information and store it.
+
+#get game time or GMT
+#get co-ordinates (in future, guess co-ordinates?)
+#get textarea
+#log all the above
+
+#get map
+#get surroundings
+#update database with map details
 
 ##########################################################################
 #

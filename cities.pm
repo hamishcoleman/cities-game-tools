@@ -58,6 +58,9 @@ sub adjusturls($$) {
 		} elsif ($href =~ m%^game(\?.*)%) {
 			$i->attr('href',$gameurl . $1);
 			next;
+		} elsif ($href =~ m%^(\?.*)%) {
+			$i->attr('href',$gameurl . $1);
+			next;
 		}
 
 		# Handle other urls with the "other.cgi" handler

@@ -80,7 +80,8 @@ my $textin = $tree->look_down(
 		'class','textin'
 	);
 if (defined $textin) {
-	$gamelog = $textin->as_trimmed_text();
+	#$gamelog = $textin->as_trimmed_text();
+	$gamelog = $textin->as_text();
 	if ($gamelog) {
 		print LOG "LOG: $gamelog\n";
 	}

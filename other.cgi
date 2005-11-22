@@ -48,7 +48,7 @@ if (! defined $realpage) {
 }
 $query->delete('realpage');
 
-if ($realpage !~ m%http://cities.totl.net/%) {
+if ($realpage !~ m%$baseurl/%) {
 	# FIXME - error message
 	print $query->header;
 	print "404 Whatchatalknboutwillis\n";
@@ -77,21 +77,6 @@ if ($res->content_type ne 'text/html') {
 # Adjust URLs to point to the right places
 
 adjusturls($tree,$realpage);
-
-##foo! textarea
-#for my $i ($tree->look_down(
-#		"_tag", "textarea",
-#		"class","textin")) {
-#	$i->push_content("\nfoo!");
-#}
-
-##########################################################################
-#
-# Extract saliant data from the information and store it.
-
-##########################################################################
-#
-# Modify the tree to include data from our database
 
 ##########################################################################
 #

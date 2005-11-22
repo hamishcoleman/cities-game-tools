@@ -13,7 +13,7 @@ use proxy;
 ##########################################################################
 #
 # Adjust URLs to point to the right places
-sub adjusturls(\$$) {
+sub adjusturls($$) {
 	my ($tree,$realpage) = @_;
 
 	my $selfurl = url(-relative=>1);

@@ -31,116 +31,36 @@ use cities;
 ##########################################################################
 #
 # Determine exactly what options were used to call this script
-my $q = new CGI;
+my $query = new CGI;
 
-my $request_method=$q->request_method();
-if (!$request_method) {
+if (!$query->request_method) {
 	print "You must be testing me\n";
-	$request_method="TEST";
-}
-
-my $postparamstr;
-for my $i ($q->param) {
-	if ($postparamstr) {
-		$postparamstr .= "&";
-	}
-	$postparamstr .= $i.'='.$q->param($i);
-}
-
-my $urlparamstr="";
-my $realpage;
-for my $i ($q->url_param) {
-	if (! defined $i) {
-		# HUH?
-		next;
-	}
-	if ($i eq 'realpage') {
-		$realpage=$q->url_param($i);
-		next;
-	}
-	if ($urlparamstr) {
-		$urlparamstr .= "&";
-	}
-	$urlparamstr .= $i.'='. ($q->url_param($i)||'');
-}
-if ($urlparamstr eq 'keywords=') {
-	undef $urlparamstr;
 }
 
 # Check that the user has actually asked for something
 #
+my $realpage=url_param('realpage');
 if (! defined $realpage) {
-	print $q->header;
+	print $query->header;
 	print "404 No real page requested\n";
 	exit;
 }
+$query->delete('realpage');
 
-#get gamesession cookie
-my $user_gamesession_cookie = $q->cookie('gamesession');
-
-##########################################################################
-#
-# Duplicate the options and call the real game
-my $ua = LWP::UserAgent->new;
-$ua->agent("citiesproxy/1.0 ");
-
-# construct the correct URL from our params
-my $url = $realpage;
-if ($urlparamstr) {
-	$url .= '?'.$urlparamstr;
-}
-
-my $req = HTTP::Request->new($request_method => $url);
-if ($request_method eq 'POST') {
-	$req->content_type('application/x-www-form-urlencoded');
-	$req->content($postparamstr);
-}
-if ($user_gamesession_cookie) {
-	$req->header(Cookie => 'gamesession='.$user_gamesession_cookie);
-}
-
-my $res = $ua->request($req);
+### DIG HERE
+my ($res,$send_cookie,$tree) = gettreefromurl($query,$realpage);
 
 if (!$res->is_success) {
         print $res->status_line, "\n";
         exit;
 }
 
-my $req_cookies = HTTP::Cookies->new();
-$req_cookies->extract_cookies($res);
-
-my $send_cookie;
-sub cookie_callback() {
-	my ($version,$key,$val,$path,$domain,$port,$path_spec,
-	    $secure,$expires,$discard,$hash) = @_;
-
-	if ($key eq 'gamesession') {
-		$send_cookie = $q->cookie(
-			-name=>$key,
-			-value=>$val,
-			-expires=>$expires,
-		);
-	}
-}
-$req_cookies->scan( \&cookie_callback );
-
 if ($res->content_type ne 'text/html') {
 	# awooga, awooga, this is not a parseable document...
-	print $q->header($res->content_type);
+	print $query->header($res->content_type);
 	print $res->content;
 	exit;
 }
-
-##########################################################################
-#
-# Create a document tree from the returned data
-my $tree = HTML::TreeBuilder->new;
-$tree->ignore_ignorable_whitespace(0);
-$tree->no_space_compacting(1);
-$tree->store_comments(1);
-$tree->parse($res->content);
-$tree->eof;
-$tree->elementify;
 
 ##########################################################################
 #
@@ -203,7 +123,7 @@ for my $i ($tree->look_down(
 ##########################################################################
 #
 # Output our changed HTML document
-print $q->header(
+print $query->header(
 	-cookie=>$send_cookie,
 	);
 

@@ -63,6 +63,12 @@ sub gettreefromurl($$) {
 			# HUH?
 			next;
 		}
+		# FIXME - magic param name
+		# Unfortunatly, the ->delete method I was using in the caller
+		# does not adjust the url_param() values ...
+		if ($i eq 'realpage') {
+			next;
+		}
 		if ($urlparamstr) {
 			$urlparamstr .= "&";
 		}

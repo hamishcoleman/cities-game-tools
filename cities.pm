@@ -36,19 +36,31 @@ sub adjusturls($$) {
 		$i->attr('src',resolve_url($realpage,$i->attr('src')));
 	}
 
+	#forms
+	for my $i ($tree->look_down(
+			"_tag", "form",
+			"action","/cgi-bin/game")) {
+		$i->attr('action',$gameurl );
+	}
+
 	#links
 	for my $i ($tree->look_down(
 			"_tag", "a", )) {
 		my $href = $i->attr('href');
 
+		# Handle the game page specially
 		if ($href eq '/cgi-bin/game') {
 			$i->attr('href',$gameurl );
 			next;
 		} elsif ($href eq 'game') {
 			$i->attr('href',$gameurl );
 			next;
+		} elsif ($href =~ m%^game(\?.*)%) {
+			$i->attr('href',$gameurl . $1);
+			next;
 		}
 
+		# Handle other urls with the "other.cgi" handler
 		my $ref = resolve_url($realpage,$href);
 		# FIXME - cities link hardcoded
 		if ($ref =~ m%^http://cities.totl.net/%) {
@@ -57,12 +69,6 @@ sub adjusturls($$) {
 	}
 }
 
-##forms
-#for my $i ($tree->look_down(
-#		"_tag", "form",
-#		"action","/cgi-bin/game")) {
-#	$i->attr('action',$selfurl);
-#}
 
 
 1;

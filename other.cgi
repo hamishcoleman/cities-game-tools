@@ -67,46 +67,9 @@ if ($res->content_type ne 'text/html') {
 ##########################################################################
 #
 # Adjust URLs to point to the right places
-my $selfurl = url(-relative=>1);
 
-# Modify things and generally act wierd
+adjusturls($tree,$realpage);
 
-#stylesheets
-for my $i ($tree->look_down(
-		"_tag", "link",
-		"rel", "stylesheet")) {
-	$i->attr('href',resolve_url($realpage,$i->attr('href')));
-}
-
-#images
-for my $i ($tree->look_down(
-		"_tag", "img" )) {
-	$i->attr('src',resolve_url($realpage,$i->attr('src')));
-}
-
-#links
-for my $i ($tree->look_down(
-		"_tag", "a", )) {
-	my $href = $i->attr('href');
-
-	if ($href eq '/cgi-bin/game') {
-		# FIXME - handle game calls differently
-		next;
-	}
-
-	my $ref = resolve_url($realpage,$href);
-	if ($ref =~ m%^http://cities.totl.net/%) {
-		$i->attr('href',$selfurl . '?realpage='.$ref);
-	}
-}
-
-##forms
-#for my $i ($tree->look_down(
-#		"_tag", "form",
-#		"action","/cgi-bin/game")) {
-#	$i->attr('action',$selfurl);
-#}
-#
 ##foo! textarea
 #for my $i ($tree->look_down(
 #		"_tag", "textarea",

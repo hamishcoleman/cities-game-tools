@@ -50,11 +50,13 @@ $query->delete('realpage');
 ### DIG HERE
 my ($res,$send_cookie,$tree) = gettreefromurl($query,$realpage);
 
+# there was an error of some kind
 if (!$res->is_success) {
         print $res->status_line, "\n";
         exit;
 }
 
+# The data was not HTML, so we have no tree to process
 if ($res->content_type ne 'text/html') {
 	# awooga, awooga, this is not a parseable document...
 	print $query->header($res->content_type);

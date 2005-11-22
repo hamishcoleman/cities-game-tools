@@ -66,7 +66,10 @@ if ($urlparamstr eq 'keywords=') {
 	undef $urlparamstr;
 }
 
+# Check that the user has actually asked for something
+#
 if (! defined $realpage) {
+	print $q->header;
 	print "404 No real page requested\n";
 	exit;
 }
@@ -81,7 +84,7 @@ my $ua = LWP::UserAgent->new;
 $ua->agent("citiesproxy/1.0 ");
 
 # construct the correct URL from our params
-my $url = $baseurl.$realpage;
+my $url = $realpage;
 if ($urlparamstr) {
 	$url .= '?'.$urlparamstr;
 }
@@ -120,7 +123,12 @@ sub cookie_callback() {
 }
 $req_cookies->scan( \&cookie_callback );
 
-
+if ($res->content_type ne 'text/html') {
+	# awooga, awooga, this is not a parseable document...
+	print $q->header($res->content_type);
+	print $res->content;
+	exit;
+}
 
 ##########################################################################
 #
@@ -138,20 +146,35 @@ $tree->elementify;
 # Adjust URLs to point to the right places
 my $selfurl = url(-relative=>1);
 
+sub resolve_url($$) {
+	my ($context,$ref) = @_;
+
+	# FIXME - surely there is someone who has written a URL expansion lib
+
+	if ($ref =~ m%^http://%) {
+		return $ref;
+	} elsif ($ref =~ m%^/%) {
+		my ($base) = ($context =~ m%^([^:]+://[^/]+)/%);
+		return $base . $ref;
+	} else {
+		my ($dir) = ($context =~ m%^(.*/)%);
+		return $dir . $ref;
+	}
+}
+
 # Modify things and generally act wierd
 
 #stylesheets
 for my $i ($tree->look_down(
 		"_tag", "link",
 		"rel", "stylesheet")) {
-	$i->attr('href',$baseurl.$i->attr('href'));
+	$i->attr('href',resolve_url($realpage,$i->attr('href')));
 }
 
 #images
 for my $i ($tree->look_down(
-		"_tag", "img",
-		"src", qr%^/%)) {
-	$i->attr('src',$baseurl.$i->attr('src'));
+		"_tag", "img" )) {
+	$i->attr('src',resolve_url($realpage,$i->attr('src')));
 }
 
 #links
@@ -162,8 +185,25 @@ for my $i ($tree->look_down(
 		# FIXME - handle game calls differently
 		next;
 	}
-	$href = $selfurl . '?realpage=' . $href;
-	$i->attr('href',$href);
+
+	my $ref = resolve_url($realpage,$href);
+	if ($ref =~ m%^http://cities.totl.net/%) {
+		$i->attr('href',$selfurl . '?realpage='.$ref);
+	}
+		
+#	# FIXME - surely there is someone who has written a URL expansion lib
+#	if ($href =~ m%^http://%) {
+#		# ASSUMPTION - any fully qualified link is outside the game
+#		#$href = $selfurl . '?realpage=' . $href;
+#		next;
+#	} elsif ($href =~ m%^/%) {
+#		$href = $selfurl . '?realpage=' . $baseurl . $href;
+#	} else {
+#		my ($realdir) = ($realpage =~ m%^(.*/)[^/]+%);
+#		$href = $selfurl . '?realpage=' . $realdir . $href;
+#	}
+#		
+#	$i->attr('href',$href);
 }
 
 #for my $i ($tree->look_down(
@@ -172,19 +212,19 @@ for my $i ($tree->look_down(
 #	$i->attr('href',$selfurl."?XURL=".$i->attr('href'));
 #}
 
-#forms
-for my $i ($tree->look_down(
-		"_tag", "form",
-		"action","/cgi-bin/game")) {
-	$i->attr('action',$selfurl);
-}
-
-#foo! textarea
-for my $i ($tree->look_down(
-		"_tag", "textarea",
-		"class","textin")) {
-	$i->push_content("\nfoo!");
-}
+##forms
+#for my $i ($tree->look_down(
+#		"_tag", "form",
+#		"action","/cgi-bin/game")) {
+#	$i->attr('action',$selfurl);
+#}
+#
+##foo! textarea
+#for my $i ($tree->look_down(
+#		"_tag", "textarea",
+#		"class","textin")) {
+#	$i->push_content("\nfoo!");
+#}
 
 ##########################################################################
 #

@@ -41,11 +41,19 @@ if (!$query->request_method) {
 #
 my $realpage=url_param('realpage');
 if (! defined $realpage) {
+	# FIXME - error message
 	print $query->header;
 	print "404 No real page requested\n";
 	exit;
 }
 $query->delete('realpage');
+
+if (! $realpage =~ m%http://cities.totl.net/%) {
+	# FIXME - error message
+	print $query->header;
+	print "404 Whatchatalknboutwillis\n";
+	exit;
+}
 
 ### DIG HERE
 my ($res,$send_cookie,$tree) = gettreefromurl($query,$realpage);

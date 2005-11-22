@@ -26,6 +26,7 @@ use LWP::UserAgent;
 use HTML::TreeBuilder;
 use HTTP::Cookies;
 
+use cities;
 
 ##########################################################################
 #
@@ -146,22 +147,6 @@ $tree->elementify;
 # Adjust URLs to point to the right places
 my $selfurl = url(-relative=>1);
 
-sub resolve_url($$) {
-	my ($context,$ref) = @_;
-
-	# FIXME - surely there is someone who has written a URL expansion lib
-
-	if ($ref =~ m%^http://%) {
-		return $ref;
-	} elsif ($ref =~ m%^/%) {
-		my ($base) = ($context =~ m%^([^:]+://[^/]+)/%);
-		return $base . $ref;
-	} else {
-		my ($dir) = ($context =~ m%^(.*/)%);
-		return $dir . $ref;
-	}
-}
-
 # Modify things and generally act wierd
 
 #stylesheets
@@ -181,6 +166,7 @@ for my $i ($tree->look_down(
 for my $i ($tree->look_down(
 		"_tag", "a", )) {
 	my $href = $i->attr('href');
+
 	if ($href eq '/cgi-bin/game') {
 		# FIXME - handle game calls differently
 		next;
@@ -190,27 +176,7 @@ for my $i ($tree->look_down(
 	if ($ref =~ m%^http://cities.totl.net/%) {
 		$i->attr('href',$selfurl . '?realpage='.$ref);
 	}
-		
-#	# FIXME - surely there is someone who has written a URL expansion lib
-#	if ($href =~ m%^http://%) {
-#		# ASSUMPTION - any fully qualified link is outside the game
-#		#$href = $selfurl . '?realpage=' . $href;
-#		next;
-#	} elsif ($href =~ m%^/%) {
-#		$href = $selfurl . '?realpage=' . $baseurl . $href;
-#	} else {
-#		my ($realdir) = ($realpage =~ m%^(.*/)[^/]+%);
-#		$href = $selfurl . '?realpage=' . $realdir . $href;
-#	}
-#		
-#	$i->attr('href',$href);
 }
-
-#for my $i ($tree->look_down(
-#		"_tag", "a",
-#		"href", qr%^/%)) {
-#	$i->attr('href',$selfurl."?XURL=".$i->attr('href'));
-#}
 
 ##forms
 #for my $i ($tree->look_down(

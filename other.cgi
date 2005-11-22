@@ -48,7 +48,7 @@ if (! defined $realpage) {
 }
 $query->delete('realpage');
 
-if (! $realpage =~ m%http://cities.totl.net/%) {
+if ($realpage !~ m%http://cities.totl.net/%) {
 	# FIXME - error message
 	print $query->header;
 	print "404 Whatchatalknboutwillis\n";

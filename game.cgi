@@ -61,20 +61,42 @@ if ($res->content_type ne 'text/html') {
 
 adjusturls($tree,$realpage);
 
-#foo! textarea
-for my $i ($tree->look_down(
-		"_tag", "textarea",
-		"class","textin")) {
-	$i->push_content("\nfoo!");
-}
 
 ##########################################################################
 #
 # Extract saliant data from the information and store it.
 
-#get game time or GMT
+my $gametime;
+my $gameX;
+my $gameY;
+my $gamelog;
+
+
+
+my $textin = $tree->look_down(
+		'_tag', 'textarea',
+		'class','textin'
+	);
+if (defined $textin) {
+	$gamelog = $textin->as_trimmed_text();
+} else {
+	$gamelog = '';
+}
+
+# Look for a Marker stone
+for my $i ($tree->look_down(
+		'_tag', 'div',
+		'class', 'controls')) {
+	my $text = $i->as_trimmed_text();
+	if ($text =~ m/gives the exact location.* ([^ ]+) and ([^ ]+).$/) {
+		$gameY=$1;
+		$gameX=$2;
+		$textin->push_content("LOC:$gameY $gameX\n");
+	}
+}
+
 #get co-ordinates (in future, guess co-ordinates?)
-#get textarea
+#get game time or GMT
 #log all the above
 
 #get map
@@ -96,4 +118,6 @@ print $tree->as_HTML;
 
 $tree=$tree->delete;
 
+print "==================================================\n";
+print $gamelog;
 

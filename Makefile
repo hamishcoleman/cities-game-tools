@@ -10,3 +10,7 @@ test:
 	touch ~hamish/WWW/test/gamelog.txt
 	chmod a+rw ~hamish/WWW/test/gamelog.txt
 
+prof1:
+	perl -d:DProf ./showmap.cgi
+	dprofpp
+

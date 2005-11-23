@@ -99,7 +99,7 @@ for my $i ($tree->look_down(
 		if ($2 eq 'W') { $gameX = -$1; } else { $gameX=$1; }
 		if ($4 eq 'S') { $gameY = -$3; } else { $gameY=$3; }
 		print LOG "LOC: $gameX, $gameY\n";
-	} elsif ($text =~ m/(\d+)([EW]) (\d+)([NS])./) {
+	} elsif ($text =~ m/(\d+)([EW]) (\d+)([NS])/) {
 		# Natural location ability
 		# TODO - check that this reads the GPS
 		if ($2 eq 'W') { $gameX = -$1; } else { $gameX=$1; }
@@ -107,7 +107,7 @@ for my $i ($tree->look_down(
 		print LOG "LOC: $gameX, $gameY\n";
 	}
 
-	if ($text =~ m/(\d\d?:\d\d[ap]m)./) {
+	if ($text =~ m/(\d\d?:\d\d[ap]m)/) {
 		# Found a clock
 		$gametime = $1;
 		print LOG "TIME: $gametime\n";
@@ -135,7 +135,7 @@ if (defined $surroundings) {
 			}
 			print LOG 'SUR: ',
 				int($col/2)-1 , ', ' ,
-				-int($row/2)-1 , ', "' ,
+				-(int($row/2)-1) , ', "' ,
 				$loc->attr('class') , '", "' ,
 				$div->as_trimmed_text() , "\"\n";
 		}
@@ -164,7 +164,7 @@ if (defined $map) {
 			}
 			print LOG 'MAP: ',
 				$col-5 , ', ' ,
-				-$row-5 , ', "' ,
+				-($row-5) , ', "' ,
 				$loc->attr('class') , "\"\n";
 		}
 	}

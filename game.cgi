@@ -135,7 +135,7 @@ if (defined $surroundings) {
 			}
 			print LOG 'SUR: ',
 				int($col/2)-1 , ', ' ,
-				int($row/2)-1 , ', "' ,
+				-int($row/2)-1 , ', "' ,
 				$loc->attr('class') , '", "' ,
 				$div->as_trimmed_text() , "\"\n";
 		}
@@ -164,7 +164,7 @@ if (defined $map) {
 			}
 			print LOG 'MAP: ',
 				$col-5 , ', ' ,
-				$row-5 , ', "' ,
+				-$row-5 , ', "' ,
 				$loc->attr('class') , "\"\n";
 		}
 	}

@@ -11,6 +11,6 @@ test:
 	chmod a+rw ~hamish/WWW/test/gamelog.txt
 
 prof1:
-	perl -d:DProf ./showmap.cgi
+	perl -d:DProf ./showmap.cgi >/dev/null
 	dprofpp
 

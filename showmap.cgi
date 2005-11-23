@@ -43,29 +43,15 @@ my $query = new CGI;
 my $x=20000;
 my $y=20000;
 
-my $max_x=-20000;
-my $max_y=-20000;
-my $min_x=20000;
-my $min_y=20000;
+my $max_x;
+my $max_y;
+my $min_x;
+my $min_y;
 
-sub setminmax($$) {
-	my ($x,$y) = @_;
-
-	if ($x>$max_x) {
-		$max_x=$x;
-	}
-	if ($y>$max_y) {
-		$max_y=$y;
-	}
-	if ($x<$min_x) {
-		$min_x=$x;
-	}
-	if ($y<$min_y) {
-		$min_y=$y;
-	}
-}
 
 my %map;
+# storage for minimums and maximums
+my %map_x;
 
 open LOG,$logfile or die "could not open $logfile $!\n";
 
@@ -75,7 +61,6 @@ while(<LOG>) {
 	if ( $_ =~ m/^LOC: (-?\d+), (-?\d+)/ ) {
 		$x=$1;
 		$y=$2;
-		setminmax($x,$y);
 		#print "LOC: $x, $y\n";
 	} elsif ( $_ =~ m/^SUR: (-?\d+), (-?\d+), "([^"]+)", "([^"]+)"/) {
 		my $thisx = $x+$1;
@@ -85,7 +70,7 @@ while(<LOG>) {
 		$class =~ s/location //;
 		$map{$thisy}{$thisx}{class} = $class;
 		$map{$thisy}{$thisx}{name} = $name;
-		setminmax($thisx,$thisy);
+		$map_x{$thisx}=1;
 		#$map{$thisy}{$thisx}{lines} .= " $.";
 		#print "SUR: $thisx, $thisy, '$class', '$name'\n";
 	} elsif ( $_ =~ m/^MAP: (-?\d+), (-?\d+), "([^"]+)"/) {
@@ -94,23 +79,19 @@ while(<LOG>) {
 		my $class = $3;
 		$class =~ s/ map_loc//;
 		$map{$thisy}{$thisx}{class} = $class;
-		setminmax($thisx,$thisy);
+		$map_x{$thisx}=1;
 		#print "MAP: $thisx, $thisy, '$class'\n";
 	} elsif ( $_ =~ m/^You go North./) {
 		$y++;
-		setminmax($x,$y);
 		#print "LOC: $x, $y\n";
 	} elsif ( $_ =~ m/^You go South./) {
 		$y--;
-		setminmax($x,$y);
 		#print "LOC: $x, $y\n";
 	} elsif ( $_ =~ m/^You go East./) {
 		$x++;
-		setminmax($x,$y);
 		#print "LOC: $x, $y\n";
 	} elsif ( $_ =~ m/^You go West./) {
 		$x--;
-		setminmax($x,$y);
 		#print "LOC: $x, $y\n";
 	} elsif ( $_ =~ m/^OLD: (-?\d+), (-?\d+), "([^"]+)", "([^"]+)"/) {
 		# An old location that I have preloaded from my notes
@@ -121,15 +102,22 @@ while(<LOG>) {
 		$class =~ s/location //;
 		$map{$thisy}{$thisx}{class} = $class;
 		$map{$thisy}{$thisx}{name} = $name;
-		setminmax($thisx,$thisy);
+		$map_x{$thisx}=1;
 		#print $_,"\n";
 		#print "OLD: $thisx, $thisy, '$class', '$name'\n";
 	}
 }
-
 close(LOG);
 
 print $query->header();
+
+my @xvals = sort {$a<=>$b} keys %map_x;
+my @yvals = sort {$a<=>$b} keys %map;
+
+$min_x=shift(@xvals);
+$max_x=pop(@xvals);
+$min_y=shift(@yvals);
+$max_y=pop(@xvals);
 
 #print "map size [$min_x,$min_y] - [$max_x,$max_y]\n";
 #print "last location: $x, $y\n";

@@ -127,9 +127,16 @@ while ($row>$min_y-1) {
 				$map{$row}{$col}{class},
 				' map_loc">';
 			my $name = $map{$row}{$col}{name};
+			my $empty=1;
 			if (defined $name && defined $shortname{$name}) {
 				print $shortname{$name};
-			} else {
+				$empty=0;
+			}
+			if ($col==$x && $row==$y) {
+				print "<b>X</b>";
+				$empty=0;
+			}
+			if ($empty) {
 				print "&nbsp;"
 			}
 			print '</td>';

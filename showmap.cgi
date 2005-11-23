@@ -7,6 +7,7 @@ use warnings;
 # TODO:
 # - write out the current map as an inputfile
 # - write out the current map as a perl struct, then load it on startup
+# - 
 #
 #
 use CGI ':all';
@@ -196,7 +197,7 @@ while ($row>$min_y-1) {
 			print '</td>';
 		} else {
 			# we know no information regarding this square
-			print '<td class="map_loc">?</td>';
+			print '<td>&nbsp;</td>';
 		}
 	}
 

@@ -18,10 +18,10 @@ my $logfile = '/home/hamish/WWW/test/gamelog.txt';
 
 # Map key translations
 my %shortname = (
-	Alchemist => 'A',
+#	Alchemist => 'A',
 	'Eastern Market Office' => 'o',
 	'Eastern Market' => 'm',
-	'Guard Tower' => 'G',
+#	'Guard Tower' => 'G',
 	Healer => 'H',
 	Hospital => 'H',
 	Marker => '.',
@@ -29,10 +29,10 @@ my %shortname = (
 #	Ruin
 	'Southern Marker' => '.',
 	'Standing Stone' => 'S',
-	'Trading Post' => 'T',
-#	Trail
+#	'Trading Post' => 'T',
+	Trail => '~',
 #	Well
-	'Wizards Tower' => 'W',
+#	'Wizards Tower' => 'W',
 
 	# An unknown city square
 	'Unknown Building' => '?',

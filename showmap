@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+#
+#
+#
+use Data::Dumper;
+
+my $logfile = '/home/hamish/WWW/test/gamelog.txt';
+
+my $x=200;
+my $y=200;
+
+my %map;
+
+open LOG,$logfile or die "could not open $logfile $!\n";
+
+while(<LOG>) {
+	chomp;
+	if ( $_ =~ m/^LOC: (-?\d+), (-?\d+)/ ) {
+		x=$1;
+		y=$2;
+	}
+#	} elsif ( $_ =~ m/^SUR: (-?\d+), (-?\d+), "([^"]+)", "([^"]+)"/) {
+#		$map{$x+$1}{$y+$2}{class} = $3;
+#		$map{$x+$1}{$y+$2}{name} = $4;
+#	} elsif ( $_ =~ m/^MAP: (-?\d+), (-?\d+), "([^"]+)"/) {
+#		$map{$x+$1}{$y+$2}{class} = $3;
+#	}
+}
+
+print $x, "\n";
+print $y, "\n";
+print Dumper(\%map);
+

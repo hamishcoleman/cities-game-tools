@@ -171,7 +171,11 @@ for my $col ($min_x..$max_x) {
 }
 print " </td>\n";
 
-print " </table> </body> </html>\n";
+print "</table>\n";
+
+# TODO - print out the key
+
+print "</body></html>\n";
 
 #print "map size [$min_x,$min_y] - [$max_x,$max_y]\n";
 #print "last location: $x, $y\n";

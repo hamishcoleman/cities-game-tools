@@ -141,31 +141,31 @@ $max_y=pop(@xvals);
 #print "last location: $x, $y\n";
 #print Dumper(\%map);
 
-print "<html><head><title>Cities Map</title>\n",
-	 '<link href="http://cities.totl.net/game.css" media="screen" rel="stylesheet" type="text/css">', "\n",
+print "<html><head><title>Cities Map</title>",
+	 '<link href="http://cities.totl.net/game.css" media="screen" rel="stylesheet" type="text/css">',
 	"</head><body>\n",
 	"<table border=0 cellpadding=0 cellspacing=0>\n";
 
 # Stick an index along the top
-print " <tr>\n";
+print "<tr>";
 for my $col ($min_x..$max_x) {
 	if ($col%10==0) {
-		print "  <td>$col</td>\n";
+		print "<td>$col</td>";
 	} else {
-		print "  <td></td>\n";
+		print "<td></td>";
 	}
 }
-print " </td>\n";
+print "</tr>\n";
 
 my $row=$max_y;
 while ($row>$min_y-1) {
-	print " <tr>\n";
+	print "<tr>";
 	
 	# Index the left
 	if ($row%10==0) {
-		print "  <td>$row</td>\n";
+		print "<td>$row</td>";
 	} else {
-		print "  <td></td>\n";
+		print "<td></td>";
 	}
 
 	for my $col ($min_x..$max_x) {
@@ -209,23 +209,23 @@ while ($row>$min_y-1) {
 
 	# Index the right
 	if ($row%10==0) {
-		print "<td>$row</td>\n";
+		print "<td>$row</td>";
 	}
 
-	print " </tr>\n";
+	print "</tr>\n";
 	$row--;
 }
 
 # Stick an index along the bottom
-print " <tr>\n";
+print "<tr>";
 for my $col ($min_x..$max_x) {
 	if ($col%10==0) {
-		print "  <td>$col</td>\n";
+		print "<td>$col</td>";
 	} else {
-		print "  <td></td>\n";
+		print "<td></td>";
 	}
 }
-print " </td>\n";
+print "</td>\n";
 
 print "</table>\n";
 

@@ -21,6 +21,8 @@ my %shortname = (
 	Monastry => 'M',
 	'Southern Marker' => '.',
 
+	# An unknown city square
+	'Unknown Building' => '?',
 );
 
 my $query = new CGI;
@@ -69,7 +71,7 @@ while(<LOG>) {
 		$class =~ s/location //;
 		$map{$thisy}{$thisx}{class} = $class;
 		$map{$thisy}{$thisx}{name} = $name;
-		$map{$thisy}{$thisx}{lines} .= " $.";
+		#$map{$thisy}{$thisx}{lines} .= " $.";
 		setminmax($thisx,$thisy);
 		#print "SUR: $thisx, $thisy, '$class', '$name'\n";
 	} elsif ( $_ =~ m/^MAP: (-?\d+), (-?\d+), "([^"]+)"/) {
@@ -92,6 +94,16 @@ while(<LOG>) {
 	} elsif ( $_ =~ m/^You go West./) {
 		$x--;
 		#print "LOC: $x, $y\n";
+	} elsif ( $_ =~ m/^OLD: (-?\d+), (-?\d+), "([^"]+)", "([^"]+)"/) {
+		# An old location that I have preloaded from my notes
+		my $thisx = $1;
+		my $thisy = $2;
+		my $class = $3;
+		my $name = $4;
+		$class =~ s/location //;
+		$map{$thisy}{$thisx}{class} = $class;
+		$map{$thisy}{$thisx}{name} = $name;
+		setminmax($thisx,$thisy);
 	}
 	setminmax($x,$y);
 }
@@ -128,25 +140,35 @@ while ($row>$min_y-1) {
 	}
 
 	for my $col ($min_x..$max_x) {
-		if (defined $map{$row}{$col}{class}) {
-			print '<td class="',
-				$map{$row}{$col}{class},
-				' map_loc">';
-			my $name = $map{$row}{$col}{name};
+		my $class = $map{$row}{$col}{class};
+		my $name = $map{$row}{$col}{name};
+		if (defined $class) {
+			print '<td class="', $class, ' map_loc">';
 			my $empty=1;
+
+			# Mark unknown city squares
+			if ($class eq 'loc_city' && !defined $name) {
+				$name = 'Unknown Building';
+			}
+
+			# If we have a map key for this location, use it
 			if (defined $name && defined $shortname{$name}) {
 				print $shortname{$name};
 				$empty=0;
-			}
+			} 
+			# Show my last position
 			if ($col==$x && $row==$y) {
 				print "<b>X</b>";
 				$empty=0;
 			}
+
+			# no grid square should be empty
 			if ($empty) {
 				print "&nbsp;"
 			}
 			print '</td>';
 		} else {
+			# we know no information regarding this square
 			print '<td class="map_loc">?</td>';
 		}
 	}

@@ -177,6 +177,14 @@ close(LOG);
 #
 # Modify the tree to include data from our database
 
+# simple insert of standing stones onto the map
+for my $i ($tree->look_down(
+		'_tag', 'td',
+		'class', 'loc_stone map_loc')) {
+	$i->push_content("S");
+}
+
+
 ##########################################################################
 #
 # Output our changed HTML document

@@ -16,10 +16,17 @@ my %shortname = (
 	'Eastern Market Office' => 'o',
 	'Eastern Market' => 'm',
 	'Guard Tower' => 'G',
+	Healer => 'H',
 	Hospital => 'H',
 	Marker => '.',
 	Monastry => 'M',
+#	Ruin
 	'Southern Marker' => '.',
+	'Standing Stone' => 'S',
+	'Trading Post' => 'T',
+#	Trail
+#	Well
+	'Wizards Tower' => 'W',
 
 	# An unknown city square
 	'Unknown Building' => '?',
@@ -62,6 +69,7 @@ while(<LOG>) {
 	if ( $_ =~ m/^LOC: (-?\d+), (-?\d+)/ ) {
 		$x=$1;
 		$y=$2;
+		setminmax($x,$y);
 		#print "LOC: $x, $y\n";
 	} elsif ( $_ =~ m/^SUR: (-?\d+), (-?\d+), "([^"]+)", "([^"]+)"/) {
 		my $thisx = $x+$1;
@@ -71,8 +79,8 @@ while(<LOG>) {
 		$class =~ s/location //;
 		$map{$thisy}{$thisx}{class} = $class;
 		$map{$thisy}{$thisx}{name} = $name;
-		#$map{$thisy}{$thisx}{lines} .= " $.";
 		setminmax($thisx,$thisy);
+		#$map{$thisy}{$thisx}{lines} .= " $.";
 		#print "SUR: $thisx, $thisy, '$class', '$name'\n";
 	} elsif ( $_ =~ m/^MAP: (-?\d+), (-?\d+), "([^"]+)"/) {
 		my $thisx = $x+$1;
@@ -84,15 +92,19 @@ while(<LOG>) {
 		#print "MAP: $thisx, $thisy, '$class'\n";
 	} elsif ( $_ =~ m/^You go North./) {
 		$y++;
+		setminmax($x,$y);
 		#print "LOC: $x, $y\n";
 	} elsif ( $_ =~ m/^You go South./) {
 		$y--;
+		setminmax($x,$y);
 		#print "LOC: $x, $y\n";
 	} elsif ( $_ =~ m/^You go East./) {
 		$x++;
+		setminmax($x,$y);
 		#print "LOC: $x, $y\n";
 	} elsif ( $_ =~ m/^You go West./) {
 		$x--;
+		setminmax($x,$y);
 		#print "LOC: $x, $y\n";
 	} elsif ( $_ =~ m/^OLD: (-?\d+), (-?\d+), "([^"]+)", "([^"]+)"/) {
 		# An old location that I have preloaded from my notes
@@ -104,13 +116,18 @@ while(<LOG>) {
 		$map{$thisy}{$thisx}{class} = $class;
 		$map{$thisy}{$thisx}{name} = $name;
 		setminmax($thisx,$thisy);
+		#print $_,"\n";
+		#print "OLD: $thisx, $thisy, '$class', '$name'\n";
 	}
-	setminmax($x,$y);
 }
 
 close(LOG);
 
 print $query->header();
+
+#print "map size [$min_x,$min_y] - [$max_x,$max_y]\n";
+#print "last location: $x, $y\n";
+#print Dumper(\%map);
 
 print "<html><head><title>Cities Map</title>\n",
 	 '<link href="http://cities.totl.net/game.css" media="screen" rel="stylesheet" type="text/css">', "\n",
@@ -198,9 +215,5 @@ print "</table>\n";
 # TODO - print out the key
 
 print "</body></html>\n";
-
-#print "map size [$min_x,$min_y] - [$max_x,$max_y]\n";
-#print "last location: $x, $y\n";
-#print Dumper(\%map);
 
 

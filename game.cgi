@@ -75,6 +75,8 @@ my $gameX='';
 my $gameY='';
 my $gamelog='';
 
+#
+# Extract the log contents
 my $textin = $tree->look_down(
 		'_tag', 'textarea',
 		'class','textin'
@@ -83,24 +85,37 @@ if (defined $textin) {
 	#$gamelog = $textin->as_trimmed_text();
 	$gamelog = $textin->as_text();
 	if ($gamelog) {
-		print LOG "LOG: $gamelog\n";
+		print LOG "$gamelog";
 	}
 }
 
-# Look for a Marker stone
+# Extract various abilities and controls
 for my $i ($tree->look_down(
 		'_tag', 'div',
 		'class', 'controls')) {
 	my $text = $i->as_trimmed_text();
 	if ($text =~ m/gives the exact location.* ([\d]+)([EW]) and ([\d]+)([NS])/) {
+		# Found a Marker stone
+		if ($2 eq 'W') { $gameX = -$1; } else { $gameX=$1; }
+		if ($4 eq 'S') { $gameY = -$3; } else { $gameY=$3; }
+		print LOG "LOC: $gameX, $gameY\n";
+	} elsif ($text =~ m/(\d+)([EW]) (\d+)([NS])./) {
+		# Natural location ability
+		# TODO - check that this reads the GPS
 		if ($2 eq 'W') { $gameX = -$1; } else { $gameX=$1; }
 		if ($4 eq 'S') { $gameY = -$3; } else { $gameY=$3; }
 		print LOG "LOC: $gameX, $gameY\n";
 	}
-}
-#get co-ordinates (in future, guess co-ordinates?)
 
-#get game time or GMT
+	if ($text =~ m/(\d\d?:\d\d[ap]m)./) {
+		# Found a clock
+		$gametime = $1;
+		print LOG "TIME: $gametime\n";
+	}
+	#TODO - substitute a time guess?
+}
+
+#(in future, guess co-ordinates based on movement?)
 
 #print LOG "$gametime: $gameY,$gameX: $gamelog\n";
 
@@ -127,7 +142,34 @@ if (defined $surroundings) {
 	}
 }
 
-#get map
+#Look for the map and read it
+# FIXME - handle a small map
+my $map;
+for my $i ($tree->look_down(
+		'_tag', 'table',
+		'border', '0',
+		'cellpadding', '0',
+		'cellspacing', '0')) {
+	if ($i->address('.0.0')->attr('class') =~ m/map_loc/) {
+		$map = $i;
+	}
+}
+
+if (defined $map) {
+	for my $row (0..10) {
+		for my $col (0..10) {
+			my $loc = $map->address(".$row.$col");
+			if (!defined $loc) {
+				next;
+			}
+			print LOG 'MAP: ',
+				$col-5 , ', ' ,
+				$row-5 , ', "' ,
+				$loc->attr('class') , "\"\n";
+		}
+	}
+}
+
 #update database with map details
 
 close(LOG);

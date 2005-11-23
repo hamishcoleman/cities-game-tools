@@ -93,7 +93,7 @@ while(<LOG>) {
 	} elsif ( $_ =~ m/^You go West./) {
 		$x--;
 		#print "LOC: $x, $y\n";
-	} elsif ( $_ =~ m/^OLD: (-?\d+), (-?\d+), "([^"]+)", "([^"]+)"/) {
+	} elsif ( $_ =~ m/^OLD: (-?\d+), (-?\d+), "([^"]*)", "([^"]*)"/) {
 		# An old location that I have preloaded from my notes
 		my $thisx = $1;
 		my $thisy = $2;
@@ -102,6 +102,16 @@ while(<LOG>) {
 		$class =~ s/location //;
 		$map{$thisy}{$thisx}{class} = $class;
 		$map{$thisy}{$thisx}{name} = $name;
+		$map_x{$thisx}=1;
+		#print $_,"\n";
+		#print "OLD: $thisx, $thisy, '$class', '$name'\n";
+	} elsif ( $_ =~ m/^OLD: (-?\d+), (-?\d+), "([^"]*)"/) {
+		# An old location that I have preloaded from my notes
+		my $thisx = $1;
+		my $thisy = $2;
+		my $class = $3;
+		$class =~ s/location //;
+		$map{$thisy}{$thisx}{class} = $class;
 		$map_x{$thisx}=1;
 		#print $_,"\n";
 		#print "OLD: $thisx, $thisy, '$class', '$name'\n";

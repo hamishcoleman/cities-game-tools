@@ -4,6 +4,11 @@ use warnings;
 #
 # Print out a HTML map from the log file
 #
+# TODO:
+# - write out the current map as an inputfile
+# - write out the current map as a perl struct, then load it on startup
+#
+#
 use CGI ':all';
 use CGI::Carp qw(fatalsToBrowser);
 use Data::Dumper;
@@ -162,6 +167,11 @@ while ($row>$min_y-1) {
 		if (defined $class) {
 			print '<td class="', $class, ' map_loc">';
 			my $empty=1;
+
+			# Mark crazy standing stones...
+			if ($class eq 'loc_stone' && !defined $name) {
+				$name = 'Standing Stone';
+			}
 
 			# Mark unknown city squares
 			if ($class eq 'loc_city' && !defined $name) {

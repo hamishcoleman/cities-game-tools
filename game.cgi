@@ -159,17 +159,37 @@ for my $i ($tree->look_down(
 	}
 }
 
+# TODO - look for the text "Small Map:"
+
 if (defined $map) {
-	for my $row (0..10) {
-		for my $col (0..10) {
-			my $loc = $map->address(".$row.$col");
-			if (!defined $loc) {
-				next;
+
+	if (defined $map->address(".10.10")) {
+		# its a Map
+		for my $row (0..10) {
+			for my $col (0..10) {
+				my $loc = $map->address(".$row.$col");
+				if (!defined $loc) {
+					next;
+				}
+				print LOG 'MAP: ',
+					$col-5 , ', ' ,
+					-($row-5) , ', "' ,
+					$loc->attr('class') , "\"\n";
 			}
-			print LOG 'MAP: ',
-				$col-5 , ', ' ,
-				-($row-5) , ', "' ,
-				$loc->attr('class') , "\"\n";
+		}
+	} else {
+		# its a Small Map
+		for my $row (0..4) {
+			for my $col (0..4) {
+				my $loc = $map->address(".$row.$col");
+				if (!defined $loc) {
+					next;
+				}
+				print LOG 'MAP: ',
+					$col-2 , ', ' ,
+					-($row-2) , ', "' ,
+					$loc->attr('class') , "\"\n";
+			}
 		}
 	}
 }

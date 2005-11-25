@@ -139,7 +139,7 @@ my @yvals = sort {$a<=>$b} keys %map;
 $min_x=shift(@xvals);
 $max_x=pop(@xvals);
 $min_y=shift(@yvals);
-$max_y=pop(@xvals);
+$max_y=pop(@yvals);
 
 #print "map size [$min_x,$min_y] - [$max_x,$max_y]\n";
 #print "last location: $x, $y\n";

@@ -150,6 +150,10 @@ for my $i ($tree->look_down(
 		'border', '0',
 		'cellpadding', '0',
 		'cellspacing', '0')) {
+	if (! defined $i ) {
+		# huh?
+		next;
+	}
 	if ($i->address('.0.0')->attr('class') =~ m/map_loc/) {
 		$map = $i;
 	}

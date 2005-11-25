@@ -19,6 +19,7 @@ my $logfile = '/home/hamish/WWW/test/gamelog.txt';
 # Map key translations
 my %shortname = (
 #	Alchemist => 'A',
+	'Cottage Hospital' => 'H',
 	'Eastern Market Office' => 'o',
 	'Eastern Market' => 'm',
 	'Eastern Marker' => '.',
@@ -31,8 +32,11 @@ my %shortname = (
 	'Night Shrine' => '*',
 	'Nightfall Shrine' => '*',
 	'Northern Marker' => '.',
+	'Road Marker' => '.',
 #	Ruin
 	'Shrine of the Light' => '*',
+	'Southern Market Office' => 'o',
+	'Southern Market' => 'm',
 	'Southern Marker' => '.',
 	'Standing Stone' => 'S',
 	'Stone Circle' => '*',

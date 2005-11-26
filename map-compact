@@ -106,4 +106,5 @@ while ($row>$min_y-1) {
 	$row--;
 }
 
+print "LOC: $x, $y\n";
 

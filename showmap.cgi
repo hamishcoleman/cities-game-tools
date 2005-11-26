@@ -27,6 +27,7 @@ my %shortname = (
 	Healer => 'H',
 	'Healing Field' => 'H',
 	Hospital => 'H',
+	'Kill or Cure' => 'H',
 	Marker => '.',
 	Monastry => 'M',
 	'Night Shrine' => '*',

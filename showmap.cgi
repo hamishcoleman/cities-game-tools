@@ -23,6 +23,7 @@ my %shortname = (
 	'Eastern Market Office' => 'o',
 	'Eastern Market' => 'm',
 	'Eastern Marker' => '.',
+	'First Aid Point' => 'H',
 #	'Guard Tower' => 'G',
 	Healer => 'H',
 	'Healing Field' => 'H',
@@ -68,6 +69,7 @@ my %map_x;
 
 open LOG,$logfile or die "could not open $logfile $!\n";
 
+# Read the log file
 while(<LOG>) {
 	#print $_;
 	chomp;
@@ -170,13 +172,18 @@ while ($row>$min_y-1) {
 	if ($row%10==0) {
 		print "<td>$row</td>";
 	} else {
-		print "<td></td>";
+		print "<td>&nbsp;</td>";
 	}
 
+	my $skip = 0;
 	for my $col ($min_x..$max_x) {
 		my $class = $map{$row}{$col}{class};
 		my $name = $map{$row}{$col}{name};
 		if (defined $class) {
+			if ($skip) {
+				print "<td colspan=$skip></td>";
+				$skip=0;
+			}
 			print '<td class="', $class, ' map_loc">';
 			my $empty=1;
 
@@ -208,8 +215,15 @@ while ($row>$min_y-1) {
 			print '</td>';
 		} else {
 			# we know no information regarding this square
-			print '<td>&nbsp;</td>';
+			$skip++;
+			#print '<td>&nbsp;</td>';
 		}
+	}
+
+	# 
+	if ($skip) {
+		print "<td colspan=$skip></td>";
+		$skip=0;
 	}
 
 	# Index the right

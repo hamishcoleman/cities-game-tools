@@ -2,6 +2,11 @@
 use strict;
 use warnings;
 
+#
+# FIXME - these should be configured by the user and not specific to cities
+my $magic_cookie = 'gamesession';
+my $magic_urlparam = 'realpage';
+
 =head1 NAME
 
 cities.pm - set of routines from my cities proxy that provide a HTTP proxy
@@ -36,7 +41,7 @@ use LWP::UserAgent;
 use HTML::TreeBuilder;
 use HTTP::Cookies;
 
-sub gettreefromurl($$) {
+sub getreqfromquery($$) {
 	my ($q,$realpage) = @_;
 
 	######################################################################
@@ -64,9 +69,9 @@ sub gettreefromurl($$) {
 			next;
 		}
 		# FIXME - magic param name
-		# Unfortunatly, the ->delete method I was using in the caller
+		# Unfortunatly, the ->delete method I was using on the query
 		# does not adjust the url_param() values ...
-		if ($i eq 'realpage') {
+		if ($i eq $magic_urlparam) {
 			next;
 		}
 		if ($urlparamstr) {
@@ -74,18 +79,18 @@ sub gettreefromurl($$) {
 		}
 		$urlparamstr .= $i.'='. ($q->url_param($i)||'');
 	}
+
+	# defeat CGI.pm's automatic ISINDEX treatment
 	if ($urlparamstr eq 'keywords=') {
 		undef $urlparamstr;
 	}
 
 	#get gamesession cookie
-	my $user_gamesession_cookie = $q->cookie('gamesession');
+	my $user_gamesession_cookie = $q->cookie($magic_cookie);
 
 	######################################################################
 	#
-	# Duplicate the options and call the real game
-	my $ua = LWP::UserAgent->new;
-	$ua->agent("citiesproxy/1.0 ");
+	# Duplicate the options and get ready to call the real game
 
 	# construct the correct URL from our params
 	my $url = $realpage;
@@ -100,8 +105,22 @@ sub gettreefromurl($$) {
 	}
 
 	if ($user_gamesession_cookie) {
-		$req->header(Cookie => 'gamesession='.$user_gamesession_cookie);
+		$req->header(Cookie => $magic_cookie.'='.$user_gamesession_cookie);
 	}
+
+	return $req;
+}
+
+sub gettreefromurl($$) {
+	my ($q,$realpage) = @_;
+
+	my $req = getreqfromquery($q,$realpage);
+
+	######################################################################
+	#
+	# call the real game
+	my $ua = LWP::UserAgent->new;
+	$ua->agent("citiesproxy/1.0 ");
 
 	my $res = $ua->request($req);
 
@@ -117,8 +136,7 @@ sub gettreefromurl($$) {
 		my ($version,$key,$val,$path,$domain,$port,$path_spec,
 		    $secure,$expires,$discard,$hash) = @_;
 
-		# WARN - cookie name hardcoded
-		if ($key eq 'gamesession') {
+		if ($key eq $magic_cookie) {
 			$send_cookie = $q->cookie(
 				-name=>$key,
 				-value=>$val,

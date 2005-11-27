@@ -9,15 +9,6 @@ use warnings;
 
 ##########################################################################
 #
-# Configure it.
-#
-# (nothing much right now)
-#
-my $baseurl = "http://cities.totl.net";
-my $logfile = "/home/hamish/WWW/test/gamelog.txt";
-
-##########################################################################
-#
 # Libs we need.
 use Data::Dumper;
 use CGI ':all';
@@ -37,7 +28,7 @@ if (!$query->request_method) {
 	print "You must be testing me\n";
 }
 
-my $realpage=$baseurl . '/cgi-bin/game';
+my $realpage=$cities::baseurl . '/cgi-bin/game';
 
 ### DIG HERE
 my ($res,$send_cookie,$tree) = gettreefromurl($query,$realpage);
@@ -68,7 +59,7 @@ adjusturls($tree,$realpage);
 # Extract saliant data from the information and store it.
 
 # FIXME - error checking
-open(LOG,">>$logfile");
+open(LOG,">>$cities::logfile");
 
 my $gametime=''; 
 my $gameX='';

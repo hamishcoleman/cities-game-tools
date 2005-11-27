@@ -5,6 +5,16 @@ use warnings;
 # _LOGNAME_/_PASSWORD_
 #
 
+##########################################################################
+#
+# Configure it.
+#
+# (nothing much right now)
+#
+glob $cities::baseurl = "http://cities.totl.net";
+glob $cities::logfile = "/home/hamish/WWW/cities/gamelog.txt";
+
+
 =head1 NAME
 
 cities.pm - set of common routines from my cities proxy

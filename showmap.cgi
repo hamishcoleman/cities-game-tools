@@ -14,7 +14,7 @@ use CGI ':all';
 use CGI::Carp qw(fatalsToBrowser);
 use Data::Dumper;
 
-my $logfile = '/home/hamish/WWW/test/gamelog.txt';
+use cities;
 
 # Map key translations
 my %shortname = (
@@ -68,7 +68,7 @@ my %map;
 # storage for minimums and maximums
 my %map_x;
 
-open LOG,$logfile or die "could not open $logfile $!\n";
+open LOG,$cities::logfile or die "could not open $cities::logfile $!\n";
 
 # Read the log file
 while(<LOG>) {

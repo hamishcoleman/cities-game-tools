@@ -10,14 +10,6 @@ use warnings;
 
 ##########################################################################
 #
-# Configure it.
-#
-# (nothing much right now)
-#
-my $baseurl = "http://cities.totl.net";
-
-##########################################################################
-#
 # Libs we need.
 use Data::Dumper;
 use CGI ':all';
@@ -48,7 +40,7 @@ if (! defined $realpage) {
 }
 $query->delete('realpage');
 
-if ($realpage !~ m%$baseurl/%) {
+if ($realpage !~ m%$cities::baseurl/%) {
 	# FIXME - error message
 	print $query->header;
 	print "404 Whatchatalknboutwillis\n";

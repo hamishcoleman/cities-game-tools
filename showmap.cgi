@@ -83,9 +83,16 @@ while(<LOG>) {
 		my $thisy = $y+$2;
 		my $class = $3;
 		my $name = $4;
+		my $visited=0;
+		if ($1 == 0 && $2 == 0) {
+			$visited=1;
+		}
 		$class =~ s/location //;
 		$map{$thisy}{$thisx}{class} = $class;
 		$map{$thisy}{$thisx}{name} = $name;
+		if ($visited) {
+			$map{$thisy}{$thisx}{visited}++
+		}
 		$map_x{$thisx}=1;
 		#$map{$thisy}{$thisx}{lines} .= " $.";
 		#print "SUR: $thisx, $thisy, '$class', '$name'\n";
@@ -211,7 +218,13 @@ while ($row>$min_y-1) {
 			if ($col==$x && $row==$y) {
 				print "<b>X</b>";
 				$empty=0;
+			} elsif ($class eq 'loc_desert' && $map{$row}{$col}{visited}) {
+				# mark the paths though the desert
+				# (this assumes that I only walk where it is safe ... )
+				print '+';
+				$empty=0;
 			}
+
 
 			# no grid square should be empty
 			if ($empty) {

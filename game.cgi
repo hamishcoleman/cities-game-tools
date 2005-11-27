@@ -13,9 +13,6 @@ use warnings;
 use Data::Dumper;
 use CGI ':all';
 use CGI::Carp qw(fatalsToBrowser);
-use LWP::UserAgent;
-use HTML::TreeBuilder;
-use HTTP::Cookies;
 
 use cities;
 
@@ -33,19 +30,7 @@ my $realpage=$cities::baseurl . '/cgi-bin/game';
 ### DIG HERE
 my ($res,$send_cookie,$tree) = gettreefromurl($query,$realpage);
 
-# there was an error of some kind
-if (!$res->is_success) {
-        print $res->status_line, "\n";
-        exit;
-}
-
-# The data was not HTML, so we have no tree to process
-if ($res->content_type ne 'text/html') {
-	# awooga, awooga, this is not a parseable document...
-	print $query->header($res->content_type);
-	print $res->content;
-	exit;
-}
+handle_simple_cases($res);
 
 ##########################################################################
 #
@@ -85,6 +70,8 @@ for my $i ($tree->look_down(
 		'_tag', 'div',
 		'class', 'controls')) {
 	my $text = $i->as_trimmed_text();
+
+	# id="location"
 	if ($text =~ m/gives the exact location.* ([\d]+)([EW]) and ([\d]+)([NS])/) {
 		# Found a Marker stone
 		if ($2 eq 'W') { $gameX = -$1; } else { $gameX=$1; }
@@ -134,7 +121,6 @@ if (defined $surroundings) {
 }
 
 #Look for the map and read it
-# FIXME - handle a small map
 my $map;
 for my $i ($tree->look_down(
 		'_tag', 'table',
@@ -203,9 +189,7 @@ for my $i ($tree->look_down(
 ##########################################################################
 #
 # Output our changed HTML document
-print $query->header(
-	-cookie=>$send_cookie,
-	);
+print $query->header( -cookie=>$send_cookie, );
 
 print $tree->as_HTML;
 

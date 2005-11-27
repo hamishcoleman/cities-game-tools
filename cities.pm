@@ -82,6 +82,24 @@ sub adjusturls($$) {
 	}
 }
 
+sub handle_simple_cases($) {
+	my ($res) = @_;
+	
+	# there was an error of some kind
+	if (!$res->is_success) {
+		print $res->status_line, "\n";
+		exit;
+	}
+	
+	# The data was not HTML, so we have no tree to process
+	if ($res->content_type ne 'text/html') {
+		# awooga, awooga, this is not a parseable document...
+		my $query = new CGI;
+		print $query->header($res->content_type);
+		print $res->content;
+		exit;
+	}
+}
 
 
 1;

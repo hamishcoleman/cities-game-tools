@@ -14,9 +14,6 @@ use warnings;
 use Data::Dumper;
 use CGI ':all';
 use CGI::Carp qw(fatalsToBrowser);
-use LWP::UserAgent;
-use HTML::TreeBuilder;
-use HTTP::Cookies;
 
 use cities;
 
@@ -38,7 +35,9 @@ if (! defined $realpage) {
 	print "404 No real page requested\n";
 	exit;
 }
-$query->delete('realpage');
+
+# This only works if it is not a POST, and even then, it never alters the url_param()
+#$query->delete('realpage');
 
 if ($realpage !~ m%$cities::baseurl/%) {
 	# FIXME - error message
@@ -50,19 +49,7 @@ if ($realpage !~ m%$cities::baseurl/%) {
 ### DIG HERE
 my ($res,$send_cookie,$tree) = gettreefromurl($query,$realpage);
 
-# there was an error of some kind
-if (!$res->is_success) {
-        print $res->status_line, "\n";
-        exit;
-}
-
-# The data was not HTML, so we have no tree to process
-if ($res->content_type ne 'text/html') {
-	# awooga, awooga, this is not a parseable document...
-	print $query->header($res->content_type);
-	print $res->content;
-	exit;
-}
+handle_simple_cases($res);
 
 ##########################################################################
 #
@@ -73,9 +60,7 @@ adjusturls($tree,$realpage);
 ##########################################################################
 #
 # Output our changed HTML document
-print $query->header(
-	-cookie=>$send_cookie,
-	);
+print $query->header( -cookie=>$send_cookie );
 
 print $tree->as_HTML;
 

@@ -27,6 +27,7 @@ my %shortname = (
 #	'Guard Tower' => 'G',
 	Healer => 'H',
 	'Healing Field' => 'H',
+	'Herbert the Healer' => 'H',
 	Hospital => 'H',
 	'Kill or Cure' => 'H',
 	Marker => '.',
@@ -144,22 +145,26 @@ $max_x=pop(@xvals);
 $min_y=shift(@yvals);
 $max_y=pop(@yvals);
 
-#print "map size [$min_x,$min_y] - [$max_x,$max_y]\n";
-#print "last location: $x, $y\n";
-#print Dumper(\%map);
 
 print "<html><head><title>Cities Map</title>",
 	 '<link href="http://cities.totl.net/game.css" media="screen" rel="stylesheet" type="text/css">',
-	"</head><body>\n",
-	"<table border=0 cellpadding=0 cellspacing=0>\n";
+	"</head><body>\n";
+
+print "<p>map size [$min_x,$max_y] - [$max_x,$min_y]</p>\n";
+print "<p>last location: $x, $y</p>\n";
+#print Dumper(\%map);
+
+print "<table border=0 cellpadding=0 cellspacing=0>\n";
 
 # Stick an index along the top
 print "<tr>";
+my $skip = 1;
 for my $col ($min_x..$max_x) {
 	if ($col%10==0) {
-		print "<td>$col</td>";
+		print "<td align='right' colspan=$skip>$col</td>";
+		$skip=1;
 	} else {
-		print "<td></td>";
+		$skip++;
 	}
 }
 print "</tr>\n";
@@ -237,14 +242,16 @@ while ($row>$min_y-1) {
 
 # Stick an index along the bottom
 print "<tr>";
+$skip=1;
 for my $col ($min_x..$max_x) {
 	if ($col%10==0) {
-		print "<td>$col</td>";
+		print "<td align='right' colspan=$skip>$col</td>";
+		$skip=1;
 	} else {
-		print "<td></td>";
+		$skip++;
 	}
 }
-print "</td>\n";
+print "</tr>\n";
 
 print "</table>\n";
 

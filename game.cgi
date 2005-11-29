@@ -80,6 +80,7 @@ for my $i ($tree->look_down(
 	} elsif ($text =~ m/(\d+)([EW]) (\d+)([NS])/) {
 		# Natural location ability
 		# TODO - check that this reads the GPS
+		# FIXME - this reads the guide to time and space :-(
 		if ($2 eq 'W') { $gameX = -$1; } else { $gameX=$1; }
 		if ($4 eq 'S') { $gameY = -$3; } else { $gameY=$3; }
 		print LOG "LOC: $gameX, $gameY\n";
@@ -127,11 +128,8 @@ for my $i ($tree->look_down(
 		'border', '0',
 		'cellpadding', '0',
 		'cellspacing', '0')) {
-	if (! defined $i ) {
-		# huh?
-		next;
-	}
-	if ($i->address('.0.0')->attr('class') =~ m/map_loc/) {
+	my $map = $i->address('.0.0')->attr('class');
+	if (defined $map && $map =~ m/map_loc/) {
 		$map = $i;
 	}
 }

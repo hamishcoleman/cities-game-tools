@@ -87,7 +87,10 @@ sub handle_simple_cases($) {
 	
 	# there was an error of some kind
 	if (!$res->is_success) {
-		print $res->status_line, "\n";
+		# FIXME - this is not right...
+		print $query->header;
+		print $res->status_line, "\n\n";
+		print $res->content;
 		exit;
 	}
 	

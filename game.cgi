@@ -128,8 +128,12 @@ for my $i ($tree->look_down(
 		'border', '0',
 		'cellpadding', '0',
 		'cellspacing', '0')) {
-	my $map = $i->address('.0.0')->attr('class');
-	if (defined $map && $map =~ m/map_loc/) {
+	my $element = $i->address('.0.0');
+	if (!defined $element) {
+		next;
+	}
+	my $maybe = $element->attr('class');
+	if (defined $maybe && $maybe =~ m/map_loc/) {
 		$map = $i;
 	}
 }

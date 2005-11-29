@@ -217,7 +217,7 @@ while ($row>$min_y-1) {
 				$empty=0;
 			} 
 			# Show my last position
-			if ($col==$x && $row==$y) {
+			if ($x && $y && $col==$x && $row==$y) {
 				print "<b>X</b>";
 				$empty=0;
 			} elsif ($class eq 'loc_desert' && $name eq 'Great Desert' 

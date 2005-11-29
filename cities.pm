@@ -88,6 +88,7 @@ sub handle_simple_cases($) {
 	# there was an error of some kind
 	if (!$res->is_success) {
 		# FIXME - this is not right...
+		my $query = new CGI;
 		print $query->header;
 		print $res->status_line, "\n\n";
 		print $res->content;

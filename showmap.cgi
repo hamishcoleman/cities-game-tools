@@ -35,6 +35,8 @@ my %shortname = (
 	'Night Shrine' => '*',
 	'Nightfall Shrine' => '*',
 	'Northern Marker' => '.',
+	'Northern Market' => 'm',
+	'Northern Market Office' => 'o',
 	'Road Marker' => '.',
 #	Ruin
 	'Shrine of the Light' => '*',
@@ -94,7 +96,7 @@ while(<LOG>) {
 			$map{$thisy}{$thisx}{visited}++
 		}
 		$map_x{$thisx}=1;
-		#$map{$thisy}{$thisx}{lines} .= " $.";
+		$map{$thisy}{$thisx}{lines} .= " $.";
 		#print "SUR: $thisx, $thisy, '$class', '$name'\n";
 	} elsif ( $_ =~ m/^MAP: (-?\d+), (-?\d+), "([^"]+)"/) {
 		my $thisx = $x+$1;
@@ -218,7 +220,8 @@ while ($row>$min_y-1) {
 			if ($col==$x && $row==$y) {
 				print "<b>X</b>";
 				$empty=0;
-			} elsif ($class eq 'loc_desert' && $map{$row}{$col}{visited}) {
+			} elsif ($class eq 'loc_desert' && $name eq 'Great Desert' 
+					&& $map{$row}{$col}{visited}) {
 				# mark the paths though the desert
 				# (this assumes that I only walk where it is safe ... )
 				print '+';

@@ -45,7 +45,7 @@ my %shortname = (
 	'Southern Marker' => '.',
 	'Standing Stone' => 'S',
 	'Stone Circle' => '*',
-#	'Trading Post' => 'T',
+	'Trading Post' => 'T',
 	Trail => '~',
 	'Western Marker' => '.',
 #	Well
@@ -160,7 +160,7 @@ print "<html><head><title>Cities Map</title>",
 	"</head><body>\n";
 
 print "<p>map size [$min_x,$max_y] - [$max_x,$min_y]</p>\n";
-print "<p>last location: $x, $y</p>\n";
+print "<p>LOC: $x, $y</p>\n";
 #print Dumper(\%map);
 
 print "<table border=0 cellpadding=0 cellspacing=0>\n";
@@ -201,34 +201,37 @@ while ($row>$min_y-1) {
 			print '<td class="', $class, ' map_loc">';
 			my $empty=1;
 
-			# Mark crazy standing stones...
-			if ($class eq 'loc_stone' && !defined $name) {
-				$name = 'Standing Stone';
-			}
-
-			# Mark unknown city squares
-			if ($class eq 'loc_city' && !defined $name) {
-				$name = 'Unknown Building';
-			}
-
-			# If we have a map key for this location, use it
-			if (defined $name && defined $shortname{$name}) {
-				print $shortname{$name};
-				$empty=0;
-			} 
 			# Show my last position
 			# FIXME - something is uninitialized here...
 			if ($col==$x && $row==$y) {
 				print "<b>X</b>";
 				$empty=0;
-			} elsif ($class eq 'loc_desert' && $name eq 'Great Desert' 
-					&& $map{$row}{$col}{visited}) {
+			}
+
+			# Mark crazy standing stones...
+			if ($empty && $class eq 'loc_stone' && !defined $name) {
+				$name = 'Standing Stone';
+			}
+
+			# Mark unknown city squares
+			if ($empty && $class eq 'loc_city' && !defined $name) {
+				$name = 'Unknown Building';
+			}
+
+			# If we have a map key for this location, use it
+			if ($empty && defined $name && defined $shortname{$name}) {
+				print $shortname{$name};
+				$empty=0;
+			} 
+
+			if ($empty && $map{$row}{$col}{visited}) {
+			#if ($class eq 'loc_desert' && $name eq 'Great Desert' 
+			#		&& $map{$row}{$col}{visited}) {
 				# mark the paths though the desert
 				# (this assumes that I only walk where it is safe ... )
 				print '+';
 				$empty=0;
 			}
-
 
 			# no grid square should be empty
 			if ($empty) {

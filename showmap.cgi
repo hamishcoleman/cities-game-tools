@@ -20,6 +20,7 @@ use cities;
 my %shortname = (
 #	Alchemist => 'A',
 	'Cottage Hospital' => 'H',
+	'Doctor' => 'H',
 	'Eastern Market Office' => 'o',
 	'Eastern Market' => 'm',
 	'Eastern Marker' => '.',

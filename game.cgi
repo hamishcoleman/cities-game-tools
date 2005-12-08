@@ -139,10 +139,25 @@ for my $i ($tree->look_down(
 }
 
 # TODO - look for the text "Small Map:"
+# TODO - look for the text "Big Map:"
 
 if (defined $map) {
 
-	if (defined $map->address(".10.10")) {
+	if (defined $map->address(".20.20")) {
+		# its a Map
+		for my $row (0..20) {
+			for my $col (0..20) {
+				my $loc = $map->address(".$row.$col");
+				if (!defined $loc) {
+					next;
+				}
+				print LOG 'MAP: ',
+					$col-10 , ', ' ,
+					-($row-10) , ', "' ,
+					$loc->attr('class') , "\"\n";
+			}
+		}
+	} elsif (defined $map->address(".10.10")) {
 		# its a Map
 		for my $row (0..10) {
 			for my $col (0..10) {

@@ -81,6 +81,10 @@ while(<LOG>) {
 		$x=$1;
 		$y=$2;
 		#print "LOC: $x, $y\n";
+	} elsif ( $_ =~ m/^VISIT: (-?\d+), (-?\d+)/) {
+		my $thisx = $1;
+		my $thisy = $2;
+		$map{$thisy}{$thisx}{visited}++;
 	} elsif ( $_ =~ m/^SUR: (-?\d+), (-?\d+), "([^"]+)", "([^"]+)"/) {
 		my $thisx = $x+$1;
 		my $thisy = $y+$2;
@@ -94,7 +98,7 @@ while(<LOG>) {
 		$map{$thisy}{$thisx}{class} = $class;
 		$map{$thisy}{$thisx}{name} = $name;
 		if ($visited) {
-			$map{$thisy}{$thisx}{visited}++
+			$map{$thisy}{$thisx}{visited}++;
 		}
 		$map_x{$thisx}=1;
 		$map{$thisy}{$thisx}{lines} .= " $.";

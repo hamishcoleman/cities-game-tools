@@ -143,17 +143,17 @@ for my $i ($tree->look_down(
 
 if (defined $map) {
 
-	if (defined $map->address(".20.20")) {
-		# its a Map
-		for my $row (0..20) {
-			for my $col (0..20) {
+	if (defined $map->address(".14.14")) {
+		# its a Big Map, but not a really big map (oh woe is my 20x20)
+		for my $row (0..14) {
+			for my $col (0..14) {
 				my $loc = $map->address(".$row.$col");
 				if (!defined $loc) {
 					next;
 				}
 				print LOG 'MAP: ',
-					$col-10 , ', ' ,
-					-($row-10) , ', "' ,
+					$col-7 , ', ' ,
+					-($row-7) , ', "' ,
 					$loc->attr('class') , "\"\n";
 			}
 		}

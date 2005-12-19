@@ -162,7 +162,8 @@ $max_y=pop(@yvals);
 
 
 print "<html><head><title>Cities Map</title>",
-	 '<link href="http://cities.totl.net/game.css" media="screen" rel="stylesheet" type="text/css">',
+#	 '<link href="http://cities.totl.net/game.css" media="screen" rel="stylesheet" type="text/css">',
+	 '<link href="game.css" media="screen" rel="stylesheet" type="text/css">',
 	"</head><body>\n";
 
 print "<p>map size [$min_x,$max_y] - [$max_x,$min_y]</p>\n";

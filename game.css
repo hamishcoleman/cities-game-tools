@@ -235,11 +235,6 @@
 	padding: 4px;
 	background-image: url(http://cities.totl.net/images/grass.jpg);
 }
-.location , .map_loc
-{
-	background-image: url(http://cities.totl.net/images/snow.png);
-	color: black;
-}
 .loc_city {
 	padding: 2px;
 	border-width: 4px;

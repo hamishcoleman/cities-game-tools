@@ -46,6 +46,14 @@ sub adjusturls($$) {
 		$i->attr('src',resolve_url($realpage,$i->attr('src')));
 	}
 
+	# um, not an img but displays an img ??
+	for my $i ($tree->look_down(
+			"_tag", "input" )) {
+		if ($i->attr('src')) {
+			$i->attr('src',resolve_url($realpage,$i->attr('src')));
+		}
+	}
+
 	#forms
 	for my $i ($tree->look_down(
 			"_tag", "form",

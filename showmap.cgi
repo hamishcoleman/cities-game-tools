@@ -25,6 +25,7 @@ my %shortname = (
 	'Eastern Market' => 'm',
 	'Eastern Marker' => '.',
 	'First Aid Point' => 'H',
+	'Graveyard' => 'g',
 #	'Guard Tower' => 'G',
 	Healer => 'H',
 	'Healing Field' => 'H',

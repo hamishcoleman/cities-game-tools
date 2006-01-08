@@ -156,10 +156,10 @@ print $query->header();
 my @xvals = sort {$a<=>$b} keys %map_x;
 my @yvals = sort {$a<=>$b} keys %map;
 
-$min_x=shift(@xvals);
-$max_x=pop(@xvals);
-$min_y=shift(@yvals);
-$max_y=pop(@yvals);
+$min_x=$ARGV[0] || shift(@xvals);
+$max_x=$ARGV[1] || pop(@xvals);
+$min_y=$ARGV[2] || shift(@yvals);
+$max_y=$ARGV[3] || pop(@yvals);
 
 
 print "<html><head><title>Cities Map</title>",

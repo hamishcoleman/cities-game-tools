@@ -161,6 +161,7 @@ $max_x=$ARGV[1] || pop(@xvals);
 $min_y=$ARGV[2] || shift(@yvals);
 $max_y=$ARGV[3] || pop(@yvals);
 
+my $want_visits = ! $ARGV[4];
 
 print "<html><head><title>Cities Map</title>",
 #	 '<link href="http://cities.totl.net/game.css" media="screen" rel="stylesheet" type="text/css">',
@@ -232,7 +233,7 @@ while ($row>$min_y-1) {
 				$empty=0;
 			} 
 
-			if ($empty && $map{$row}{$col}{visited}) {
+			if ($want_visits && $empty && $map{$row}{$col}{visited}) {
 			#if ($class eq 'loc_desert' && $name eq 'Great Desert' 
 			#		&& $map{$row}{$col}{visited}) {
 				# mark the paths though the desert

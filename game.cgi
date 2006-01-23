@@ -7,6 +7,9 @@ use warnings;
 # This script handles the /cgi-bin/game page
 #
 
+# TODO - dont read locations that are part of the text of palintirs
+#	(or other things non GPS/Intrinsic related ...)
+
 ##########################################################################
 #
 # Libs we need.
@@ -99,22 +102,39 @@ for my $i ($tree->look_down(
 #print LOG "$gametime: $gameY,$gameX: $gamelog\n";
 
 #get surroundings
+# FIXME, the table is the child of a TD id="viewport"
 my $surroundings = $tree->look_down(
 		'_tag', 'table',
 		'width','500'
 	);
+
+my %direction_mapping = (
+	c  => "0, 0, ",
+	n  => "0, 1, ",
+	s  => "0, -1, ",
+	e  => "1, 0, ",
+	w  => "-1, 0, ",
+
+	nw => "-1, 1, ",
+	sw => "-1, -1, ",
+	ne => "1, 1, ",
+	se => "1, -1, ",
+);
+
 if (defined $surroundings) {
 	#print LOG $surroundings->address('.3.3.0')->as_trimmed_text() . "\n";
 	for my $row (1, 3, 5) {
 		for my $col (1, 3, 5) {
 			my $loc = $surroundings->address(".$row.$col");
+			my $direction = $loc->attr('id');
 			my $div = $loc->address(".0");
 			if (!defined $div) {
 				next;
 			}
 			print LOG 'SUR: ',
-				int($col/2)-1 , ', ' ,
-				-(int($row/2)-1) , ', "' ,
+#				int($col/2)-1 , ', ' ,
+#				-(int($row/2)-1) , ', "' ,
+				$direction_mapping{$direction}, '"',
 				$loc->attr('class') , '", "' ,
 				$div->as_trimmed_text() , "\"\n";
 		}
@@ -209,6 +229,9 @@ for my $i ($tree->look_down(
 print $query->header( -cookie=>$send_cookie, );
 
 print $tree->as_HTML;
+
+#print "<!-- \n";
+#print Dumper($res), "\n\n", Dumper($tree);
 
 $tree=$tree->delete;
 

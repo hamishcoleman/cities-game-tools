@@ -154,8 +154,8 @@ sub gettreefromurl($$) {
 	#
 	# Create a document tree from the returned data
 	my $tree = HTML::TreeBuilder->new;
-	$tree->ignore_ignorable_whitespace(0);
-	$tree->no_space_compacting(1);
+	#$tree->ignore_ignorable_whitespace(0);
+	#$tree->no_space_compacting(1);
 	$tree->store_comments(1);
 	$tree->parse($res->content);
 	$tree->eof;

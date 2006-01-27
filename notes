@@ -1,0 +1,75 @@
+
+storage:
+	also need a map realm so hidden/crazy/unknown areas can be mapped
+	map@-1,-1 =>
+		date = DATE LAST VISITED
+		name = LOCATION NAME
+		terrain = LOCATION CLASS
+		source = USERNAME
+	map@-1,-1.5 =>
+		date = DATE LAST SEEN
+		terrain = LOCATION CLASS
+		source = USERNAME
+		monster = MONSTER NAME
+		path = yes/unknown/no - IS THIS DIRECTION TRAVELABLE
+		safe = safe/danger! - DESERT SAFETY
+	user@_LOGNAME_ =>
+		date = DATE LAST SEEN
+		loc = LOCATION LAST SEEN
+		log ?
+
+scrape:
+	displayname		"Duke _LOGNAME_ MD"
+	ap
+	maxap
+	hp
+	maxhp
+	xp
+	gold
+	messages
+	inventory ->	hash of value,text pairs
+	inventory_selected	"FlyingBoot"
+	abilities ->
+		long
+		lat
+		time
+	location ->
+		act_getwood	"Get Wood (10AP)"
+	item ->
+		map ->
+			-7,-7	"map_loc"
+	viewport ->
+		-1,-1	->
+			class	"location loc_city"
+			name	"Trading Post"
+			player -> name,alignment,active,hat,badge,hp/maxhp
+		-0.5,-1	->
+			class	"road road_Swamp road_h"
+			monster	->
+				class	"monster monster_water"
+				name	"Penguin"
+				hp	30
+			travel	safe,unsafe
+			reachable	monster,yes
+
+actor:
+	find out where we are (use GPS if needed)
+	locate nearest square that has not been visited
+	(when searching, exclude any square relatively behind an unpassable road)
+	(when excluding, exclude the two neighbour squares, unless they are included
+	 by one of the other cardinal directions)
+
+	set task list to "goto" this square
+	while not at this square
+		calculate direction to move (use some randomness)
+		is it unpassable?  note this down and change chosen direction
+
+		is there a monster?  if the monster's HP exceeds 75% of ours, change
+					chosen direction (could use damage table ...)
+			if our HP is less than 50%, change task to "heal".
+			select the "best" weapon on hand, excluding any weapon with a
+			damage rating above that of the monster.
+		end monster			
+
+		step towards square (attacking if required)
+	end while

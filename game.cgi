@@ -123,7 +123,7 @@ my %direction_mapping = (
 
 if (defined $surroundings) {
 	#print LOG $surroundings->address('.3.3.0')->as_trimmed_text() . "\n";
-	for my $row (1, 3, 5) {
+	for my $row (1, 5, 9) {
 		for my $col (1, 3, 5) {
 			my $loc = $surroundings->address(".$row.$col");
 			my $direction = $loc->attr('id');

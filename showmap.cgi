@@ -21,6 +21,8 @@ my %shortname = (
 #	Alchemist => 'A',
 	'Cottage Hospital' => 'H',
 	'Doctor' => 'H',
+	'E. Market Outlet' => 'm',
+	'E. Market Local Office' => 'o',
 	'Eastern Market Office' => 'o',
 	'Eastern Market' => 'm',
 	'Eastern Marker' => '.',
@@ -32,18 +34,24 @@ my %shortname = (
 	'Healing Field' => 'H',
 	'Herbert the Healer' => 'H',
 	Hospital => 'H',
+	'Ice Station' => 'I',
 	'Jude' => 'H',
 	'Kill or Cure' => 'H',
 	Marker => '.',
 	Monastry => 'M',
 	'Night Shrine' => '*',
 	'Nightfall Shrine' => '*',
+	'N. Market Outlet' => 'm',
+	'N. Market Local Office' => 'o',
 	'Northern Marker' => '.',
 	'Northern Market' => 'm',
 	'Northern Market Office' => 'o',
+	'Oil Platform' => 'O',
 	'Road Marker' => '.',
 #	Ruin
 	'Shrine of the Light' => '*',
+	'S. Market Outlet' => 'm',
+	'S. Market Local Office' => 'o',
 	'Southern Market Office' => 'o',
 	'Southern Market' => 'm',
 	'Southern Marker' => '.',
@@ -51,6 +59,8 @@ my %shortname = (
 	'Stone Circle' => '*',
 	'Trading Post' => 'T',
 	Trail => '~',
+	'W. Market Outlet' => 'm',
+	'W. Market Local Office' => 'o',
 	'Western Marker' => '.',
 #	Well
 #	'Wizards Tower' => 'W',
@@ -88,7 +98,7 @@ while(<LOG>) {
 		my $thisx = $1;
 		my $thisy = $2;
 		$map{$thisy}{$thisx}{visited}++;
-	} elsif ( $_ =~ m/^SUR: (-?\d+), (-?\d+), "([^"]+)", "([^"]+)"/) {
+	} elsif ( $_ =~ m/^SUR: (-?\d+), (-?\d+), "([^"]+)", "([^"]*)"/) {
 		my $thisx = $x+$1;
 		my $thisy = $y+$2;
 		my $class = $3;
@@ -99,7 +109,9 @@ while(<LOG>) {
 		}
 		$class =~ s/location //;
 		$map{$thisy}{$thisx}{class} = $class;
-		$map{$thisy}{$thisx}{name} = $name;
+		if ($name) {
+			$map{$thisy}{$thisx}{name} = $name;
+		}
 		if ($visited) {
 			$map{$thisy}{$thisx}{visited}++;
 		}
@@ -172,6 +184,12 @@ print "<html><head><title>Cities Map</title>",
 print "<p>map size [$min_x,$max_y] - [$max_x,$min_y]</p>\n";
 print "<p>LOC: $x, $y</p>\n";
 #print Dumper(\%map);
+
+print "<table border=1><tr><th>icon</th><th>Full Name</th></tr>\n";
+for my $i (sort {$shortname{$a} cmp $shortname{$b}} keys %shortname) {
+	print "<tr><th>$shortname{$i}</th><td>$i</td></tr>\n";
+}
+print "</table>\n";
 
 print "<table border=0 cellpadding=0 cellspacing=0>\n";
 

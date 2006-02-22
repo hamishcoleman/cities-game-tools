@@ -131,12 +131,28 @@ if (defined $surroundings) {
 			if (!defined $div) {
 				next;
 			}
+
+			# we dont want ephermal details clogging up the map
+			# FIXME, use a regexp for 'loc_dark'
+			if ($loc->attr('class') eq 'location loc_dark') {
+				next;
+			}
+
 			print LOG 'SUR: ',
 #				int($col/2)-1 , ', ' ,
 #				-(int($row/2)-1) , ', "' ,
 				$direction_mapping{$direction}, '"',
-				$loc->attr('class') , '", "' ,
-				$div->as_trimmed_text() , "\"\n";
+				$loc->attr('class') , '"';
+
+			# FIXME - detect this better, also not required anymore
+			# "(dark)" is not in a div ..!?
+			if ( $div eq '(dark)' ) {
+				print LOG ", \"\"\n";
+			} else {
+				print LOG
+					', "',
+					$div->as_trimmed_text() , "\"\n";
+			}
 		}
 	}
 }

@@ -35,6 +35,7 @@ my %shortname = (
 	'Herbert the Healer' => 'H',
 	Hospital => 'H',
 	'Ice Station' => 'I',
+	'Ice Trail' => '~',
 	'Jude' => 'H',
 	'Kill or Cure' => 'H',
 	Marker => '.',

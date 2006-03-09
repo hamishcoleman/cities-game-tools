@@ -58,6 +58,7 @@ my %shortname = (
 	'Southern Marker' => '.',
 	'Standing Stone' => 'S',
 	'Stone Circle' => '*',
+	'Track' => '~',
 	'Trading Post' => 'T',
 	Trail => '~',
 	'W. Market Outlet' => 'm',
@@ -124,6 +125,10 @@ while(<LOG>) {
 		my $thisy = $y+$2;
 		my $class = $3;
 		$class =~ s/ map_loc//;
+		if (defined $map{$thisy}{$thisx}{class} &&
+		    $map{$thisy}{$thisx}{class} ne $class) {
+			delete $map{$thisy}{$thisx}{name};
+		}
 		$map{$thisy}{$thisx}{class} = $class;
 		$map_x{$thisx}=1;
 		#print "MAP: $thisx, $thisy, '$class'\n";

@@ -170,7 +170,7 @@ h1.title {
 	background-image: url(http://cities.totl.net/images/boat.png);
 	color: white;
 }
-.road_space {
+.road_space , .road_safespace{
 	color: #ccf;
 	background-color: #000;
 	background-image: url(http://cities.totl.net/images/space.jpg);
@@ -191,7 +191,7 @@ h1.title {
 	background-color: #ccc;
 	background-image: url(http://cities.totl.net/images/crags.jpg);
 }
-.road_mountain {
+.road_mountain, .road_safemountain {
 	background-color: #ccc;
 	background-image: url(http://cities.totl.net/images/crags.jpg);
 }
@@ -223,11 +223,11 @@ h1.title {
 	background-color: #cc8;
 	background-image: url(http://cities.totl.net/images/grass.jpg);
 }
-.road_cloud {
+.road_cloud , .road_safecloud{
 	background-color: #fff;
 	background-image: url(http://cities.totl.net/images/clouds.jpg);
 }
-.road_water, .road_ocean, .road_pond, .road_flood, .road_safewater {
+.road_water, .road_ocean, .road_pond, .road_flood, .road_safewater, .road_catacombpool {
 	background-color: #8cc;
 	background-image: url(http://cities.totl.net/images/water.png);
 }
@@ -408,7 +408,7 @@ h1.title {
 	color: #ff0;
 	background-image: url(http://cities.totl.net/images/lava.jpg);
 }
-.loc_water {
+.loc_water, .loc_ocean {
 	background-color: #8cc;
 	color: #fff;
 	background-image: url(http://cities.totl.net/images/water.png);
@@ -718,6 +718,18 @@ td.map_loc_medium:hover .hideuntil
 .barb13 { background-color: #8193A8 ; }
 .barb14 { background-color: #8193A8; }
 
+.ele1 {
+	background-color: #8193A8;
+	background-image: none;
+}
+.ele2 {
+	background-color: #E18C43 ;
+	background-image: none;
+}
+.ele3 {
+	background-color: #A76aB9 ; 
+	background-image: none;
+}
 .tab 
 { 
 	font-size: 10pt; 
@@ -754,4 +766,16 @@ td.map_loc_medium:hover .hideuntil
 	background-image: url(http://cities.totl.net/images/parchment.jpg);
 	border: solid black 1px; 
 	padding: 2px;
+}
+.nobgimg
+{
+	background-image: none;
+}
+	
+.nessie {
+	background-image: none;
+	background-color: #004;
+	border-color: #88f;
+	color: #99f;
+	padding: 1px;
 }

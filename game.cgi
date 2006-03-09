@@ -137,6 +137,9 @@ if (defined $surroundings) {
 			if ($loc->attr('class') eq 'location loc_dark') {
 				next;
 			}
+			if ($loc->attr('class') eq 'location loc_bright') {
+				next;
+			}
 
 			print LOG 'SUR: ',
 #				int($col/2)-1 , ', ' ,
@@ -147,6 +150,8 @@ if (defined $surroundings) {
 			# FIXME - detect this better, also not required anymore
 			# "(dark)" is not in a div ..!?
 			if ( $div eq '(dark)' ) {
+				print LOG ", \"\"\n";
+			} elsif ( $div eq '(too bright)' ) {
 				print LOG ", \"\"\n";
 			} else {
 				print LOG
@@ -176,6 +181,7 @@ for my $i ($tree->look_down(
 
 # TODO - look for the text "Small Map:"
 # TODO - look for the text "Big Map:"
+# TODO - clean this up into one function
 
 if (defined $map) {
 
@@ -215,10 +221,22 @@ if (defined $map) {
 				if (!defined $loc) {
 					next;
 				}
-				print LOG 'MAP: ',
-					$col-2 , ', ' ,
-					-($row-2) , ', "' ,
-					$loc->attr('class') , "\"\n";
+				my $name = $loc->look_down(
+					'_tag', 'span',
+					'class', 'hideuntil');
+				if (!defined $name) {
+					print LOG 'MAP: ',
+						$col-2 , ', ' ,
+						-($row-2) , ', "' ,
+						$loc->attr('class') , "\"\n";
+				} else {
+					print LOG 'SUR: ',
+						$col-2 , ', ' ,
+						-($row-2) , ', "' ,
+						$loc->attr('class') , "\", \"",
+						$name->as_trimmed_text(),
+						"\"\n";
+				}
 			}
 		}
 	}

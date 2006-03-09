@@ -57,7 +57,7 @@ sub adjusturls($$) {
 	#forms
 	for my $i ($tree->look_down(
 			"_tag", "form",
-			"action","/cgi-bin/game")) {
+			"action","game")) {
 		$i->attr('action',$gameurl );
 	}
 

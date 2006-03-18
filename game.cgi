@@ -173,6 +173,9 @@ for my $i ($tree->look_down(
 	if (!defined $element) {
 		next;
 	}
+	if (defined $map) {
+		next;
+	}
 	my $maybe = $element->attr('class');
 	if (defined $maybe && $maybe =~ m/map_loc/) {
 		$map = $i;

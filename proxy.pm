@@ -23,13 +23,19 @@ sub resolve_url($$) {
 
 	if ($ref =~ m%^http://%) {
 		return $ref;
-	} elsif ($ref =~ m%^/%) {
-		my ($base) = ($context =~ m%^([^:]+://[^/]+)/%);
+	} 
+
+	my ($base) = ($context =~ m%^([^:]+://[^/]+)/%);
+	if ($ref =~ m%^/%) {
 		return $base . $ref;
-	} else {
-		my ($dir) = ($context =~ m%^(.*/)%);
-		return $dir . $ref;
-	}
+	} 
+
+	#if ($ref =~ m%^?%) {
+	#	return $context . $ref;
+	#}
+
+	my ($dir) = ($context =~ m%^(.*/)%);
+	return $dir . $ref;
 }
 
 ##########################################################################

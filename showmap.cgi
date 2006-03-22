@@ -175,8 +175,10 @@ while ($row>$min_y-1) {
 		my $name = $res->[1];
 		my $visits = $res->[2];
 
-		$class =~ s/location //;
-		$class =~ s/ map_loc//;
+		if ($class) {
+			$class =~ s/location //;
+			$class =~ s/ map_loc//;
+		}
 
 		if ($skip) {
 			print "<td colspan=$skip></td>";

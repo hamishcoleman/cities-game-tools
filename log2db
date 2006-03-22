@@ -101,7 +101,7 @@ close(LOG);
 
 dumptodb($d);
 
-print Dumper($d);
+#print Dumper($d);
 
 
 

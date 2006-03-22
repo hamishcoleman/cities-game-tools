@@ -22,7 +22,7 @@ my %map;
 # storage for minimums and maximums
 my %map_x;
 
-open LOG,$ARGV[0] or die "could not open $cities::logfile $!\n";
+open LOG,$ARGV[0] or die "could not open";
 
 while(<LOG>) {
 	#print $_;

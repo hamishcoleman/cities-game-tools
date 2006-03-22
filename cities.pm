@@ -469,7 +469,8 @@ sub dumptodb($) {
 	$dbh->do(qq{
 		UPDATE user
 		SET lastseen=?, lastx=?, lasty=?, realm=?
-	}, undef, $d->{_time},$d->{_x},$d->{_y},$d->{_realm});
+		WHERE name=?
+	}, undef, $d->{_time},$d->{_x},$d->{_y},$d->{_realm},$d->{_logname});
 
 
 	# dump the map data

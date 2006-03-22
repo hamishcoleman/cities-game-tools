@@ -141,20 +141,21 @@ sub addviewport($$) {
 		return;
 	}
 
-	my %direction_mapping = (
-		c  => "0, 0, ",
-		n  => "0, 1, ",
-		s  => "0, -1, ",
-		e  => "1, 0, ",
-		w  => "-1, 0, ",
+	my %mapping = (
+		c  => [0, 0],
 
-		nw => "-1, 1, ",
-		sw => "-1, -1, ",
-		ne => "1, 1, ",
-		se => "1, -1, ",
+		n  => [0, 1],
+		s  => [0, -1],
+		e  => [1, 0],
+		w  => [-1, 0],
+
+		nw => [-1, 1],
+		sw => [-1, -1],
+		ne => [1, 1],
+		se => [1, -1],
 	);
 
-	for my $id (keys %direction_mapping) {
+	for my $id (keys %mapping) {
 		my $square = $viewport->look_down('id',$id);
 		if (!defined $square) {
 			# maybe we cannot see that square?
@@ -170,9 +171,12 @@ sub addviewport($$) {
 			# We are not able to see anything here, so dont log it
 			next;
 		}
+
+		my $x = $mapping{$id}[0];
+		my $y = $mapping{$id}[1];
 		
-		$d->{viewport}->{$direction_mapping{$id}}->{class} = $class;
-		$d->{viewport}->{$direction_mapping{$id}}->{name} = $div->as_trimmed_text();
+		$d->{viewport}->{$x}->{$y}->{class} = $class;
+		$d->{viewport}->{$x}->{$y}->{name} = $div->as_trimmed_text();
 
 	}
 }

@@ -31,7 +31,7 @@ if (!$query->request_method) {
 my $realpage=$cities::baseurl . '/cgi-bin/game';
 
 ### DIG HERE
-my ($res,$send_cookie,$tree) = gettreefromurl($query,$realpage);
+my ($res,$send_cookie,$recv_cookie,$tree) = gettreefromurl($query,$realpage);
 
 handle_simple_cases($res);
 
@@ -48,6 +48,10 @@ adjusturls($tree,$realpage);
 
 # FIXME - error checking
 open(LOG,">>$cities::logfile");
+
+my $d = screenscrape($tree);
+$d->{_cookie} = $recv_cookie;
+print LOG Dumper($d);
 
 my $gametime=''; 
 my $gameX='';

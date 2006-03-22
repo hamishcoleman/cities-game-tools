@@ -47,7 +47,7 @@ if ($realpage !~ m%^$cities::baseurl/%) {
 }
 
 ### DIG HERE
-my ($res,$send_cookie,$tree) = gettreefromurl($query,$realpage);
+my ($res,$send_cookie,$recv_cookie,$tree) = gettreefromurl($query,$realpage);
 
 handle_simple_cases($res);
 

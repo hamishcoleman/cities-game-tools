@@ -61,6 +61,13 @@ sub adjusturls($$) {
 		$i->attr('action',$gameurl );
 	}
 
+	# logout page form
+	for my $i ($tree->look_down(
+			"_tag", "form",
+			"action","/cgi-bin/game")) {
+		$i->attr('action',$gameurl );
+	}
+
 	#links
 	for my $i ($tree->look_down(
 			"_tag", "a", )) {
@@ -111,6 +118,76 @@ sub handle_simple_cases($) {
 		print $res->content;
 		exit;
 	}
+}
+
+sub addvalue($$$$$) {
+	my ($tree,$d,$key,$value,$name) = @_;
+	my $node;
+
+	$node = $tree->look_down($key,$value);
+	if ($node) {
+		$d->{$name} = $node->as_trimmed_text();
+		return $d->{$name};
+	}
+	return undef;
+}
+
+sub screenscrape($) {
+	my ($tree) = @_;
+	my $d;		# place to store our scrapings
+	my $node;	# temp node value
+	my $s;		# temp string value
+
+	$d->{_state} = 'unknown';
+
+	$node = $tree->look_down('_tag','title');
+	if (!$node) {
+		# No title?  something is wrong
+		return $d;
+	}
+	$s = $node->as_trimmed_text();
+
+	# FIXME - checking titles is somewhat fragile
+	if ($s =~ m/^Cities - login$/) {
+		$d->{_state} = 'loggedout';
+	} elsif ($s =~ m/^Cities - bye$/) {
+		$d->{_state} = 'loggedout';
+	} else {
+		# If not one of the above assume logged in
+		$d->{_state} = 'loggedin';
+	}
+
+	# FIXME - very fragile
+	$node = $tree->look_down(
+		'_tag', 'div',
+		'style', qr/^text/);
+	if ($node) {
+		$d->{_fullname} = $node->as_trimmed_text();
+	}
+
+	addvalue($tree,$d,'id','ap','ap');
+	addvalue($tree,$d,'id','maxap','maxap');
+	addvalue($tree,$d,'id','hp','hp');
+	addvalue($tree,$d,'id','maxhp','maxhp');
+	addvalue($tree,$d,'id','gold','gold');
+	addvalue($tree,$d,'class','textin','textin');
+
+	# id="inventory"
+
+	addvalue($tree,$d,'id','long','long');
+	addvalue($tree,$d,'id','lat','lat');
+	# div id="abilities", span TIME
+
+	# equippable clock
+	# equippable GPS
+	# marker stone
+
+	# div id="item", span class="control_title", Big Map
+	# div id="equipment", div id="item" ...
+
+	# td id="viewport"
+
+	return $d;
 }
 
 

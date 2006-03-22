@@ -114,13 +114,13 @@ sub getreqfromquery($$) {
 		$req->header(Cookie => $magic_cookie.'='.$user_gamesession_cookie);
 	}
 
-	return $req;
+	return ($req,$user_gamesession_cookie);
 }
 
 sub gettreefromurl($$) {
 	my ($q,$realpage) = @_;
 
-	my $req = getreqfromquery($q,$realpage);
+	my ($req,$user_gamesession_cookie) = getreqfromquery($q,$realpage);
 
 	######################################################################
 	#
@@ -167,7 +167,7 @@ sub gettreefromurl($$) {
 	$tree->eof;
 	$tree->elementify;
 
-	return ($res,$send_cookie,$tree);
+	return ($res,$send_cookie,$user_gamesession_cookie,$tree);
 }
 
 1;

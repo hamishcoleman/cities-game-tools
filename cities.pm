@@ -479,6 +479,10 @@ sub dumptodb($) {
 			my $class = $d->{_map}->{$x}->{$y}->{class};
 			my $name = $d->{_map}->{$x}->{$y}->{name};
 
+			# we dont need this extra guff poluting the db (i hope)
+			$class =~ s/location //;
+			$class =~ s/ map_loc//;
+
 			my $lookup = $dbh->prepare_cached(qq{
 				SELECT class,name
 				FROM map

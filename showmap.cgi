@@ -132,7 +132,7 @@ print "<table border=0 cellpadding=0 cellspacing=0>\n";
 
 # Stick an index along the top
 print "<tr>";
-my $skip = 1;
+my $skip = 2;
 for my $col ($min_x..$max_x) {
 	if ($col%10==0) {
 		print "<td align='right' colspan=$skip>$col</td>";
@@ -237,7 +237,7 @@ while ($row>$min_y-1) {
 
 # Stick an index along the bottom
 print "<tr>";
-$skip=1;
+$skip=2;
 for my $col ($min_x..$max_x) {
 	if ($col%10==0) {
 		print "<td align='right' colspan=$skip>$col</td>";

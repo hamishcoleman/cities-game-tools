@@ -18,3 +18,7 @@ prof1:
 	perl -d:DProf ./showmap.cgi >/dev/null
 	dprofpp
 
+prof2:
+	perl -d:DProf ./showmap.cgi 1 10 1 10 >/dev/null
+	dprofpp
+

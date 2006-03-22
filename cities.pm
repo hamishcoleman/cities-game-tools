@@ -410,6 +410,8 @@ sub dumptogamelog($) {
 	}
 	print LOG $d->{_textin};
 
+	# map data now goes to the database
+	#return;
 	for my $x (keys %{$d->{_map}}) {
 		for my $y (keys %{$d->{_map}->{$x}}) {
 			my ($head,$tail);

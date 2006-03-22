@@ -177,7 +177,61 @@ sub addviewport($$) {
 		
 		$d->{viewport}->{$x}->{$y}->{class} = $class;
 		$d->{viewport}->{$x}->{$y}->{name} = $div->as_trimmed_text();
+	}
+}
 
+sub addmap($$) {
+	my ($tree,$d) = @_;
+
+	my $map;
+	for my $item ($tree->look_down( 'id','item' )) {
+		if (defined $map) {
+			# only one map added at a time...
+			next;
+		}
+		my $title = $item->look_down(
+			'_tag','span',
+			'class','control_title');
+		if (!defined $title) {
+			# Something is wrong
+			next;
+		}
+		# FIXME - this is fragile
+		if ($title->as_trimmed_text =~ m/(Big Map|Map|Small Map|Small Magic Map):/) {
+			$map = $item->look_down('_tag','table');
+		}
+	}
+	if (!$map) {
+		# no map found
+		return;
+	}
+
+	my $size;
+
+	if (defined $map->address(".14.14")) {
+		$size = 14;
+	} elsif (defined $map->address(".10.10")) {
+		$size = 10;
+	} else {
+		$size = 4;
+	}
+
+	for my $row (0..$size) {
+		for my $col (0..$size) {
+			my $loc = $map->address(".$row.$col");
+			if (!defined $loc) {
+				next;
+			}
+
+			$d->{map}->{$row}->{$col}->{class} = $loc->attr('class');
+
+			my $name = $loc->look_down(
+				'_tag', 'span',
+				'class', 'hideuntil');
+			if (defined $name) {
+				$d->{map}->{$row}->{$col}->{name} = $name->as_trimmed_text();
+			}
+		}
 	}
 }
 
@@ -241,6 +295,7 @@ sub screenscrape($) {
 	# div id="equipment", div id="item" ...
 
 	addviewport($tree,$d);
+	addmap($tree,$d);
 
 	return $d;
 }
@@ -280,90 +335,4 @@ for my $i ($tree->look_down(
 	}
 	#TODO - substitute a time guess?
 }
-
-
-#Look for the map and read it
-my $map;
-for my $i ($tree->look_down(
-		'_tag', 'table',
-		'border', '0',
-		'cellpadding', '0',
-		'cellspacing', '0')) {
-	my $element = $i->address('.0.0');
-	if (!defined $element) {
-		next;
-	}
-	if (defined $map) {
-		next;
-	}
-	my $maybe = $element->attr('class');
-	if (defined $maybe && $maybe =~ m/map_loc/) {
-		$map = $i;
-	}
-}
-
-# TODO - look for the text "Small Map:"
-# TODO - look for the text "Big Map:"
-# TODO - clean this up into one function
-
-if (defined $map) {
-
-	if (defined $map->address(".14.14")) {
-		# its a Big Map, but not a really big map (oh woe is my 20x20)
-		for my $row (0..14) {
-			for my $col (0..14) {
-				my $loc = $map->address(".$row.$col");
-				if (!defined $loc) {
-					next;
-				}
-				print LOG 'MAP: ',
-					$col-7 , ', ' ,
-					-($row-7) , ', "' ,
-					$loc->attr('class') , "\"\n";
-			}
-		}
-	} elsif (defined $map->address(".10.10")) {
-		# its a Map
-		for my $row (0..10) {
-			for my $col (0..10) {
-				my $loc = $map->address(".$row.$col");
-				if (!defined $loc) {
-					next;
-				}
-				print LOG 'MAP: ',
-					$col-5 , ', ' ,
-					-($row-5) , ', "' ,
-					$loc->attr('class') , "\"\n";
-			}
-		}
-	} else {
-		# its a Small Map
-		for my $row (0..4) {
-			for my $col (0..4) {
-				my $loc = $map->address(".$row.$col");
-				if (!defined $loc) {
-					next;
-				}
-				my $name = $loc->look_down(
-					'_tag', 'span',
-					'class', 'hideuntil');
-				if (!defined $name) {
-					print LOG 'MAP: ',
-						$col-2 , ', ' ,
-						-($row-2) , ', "' ,
-						$loc->attr('class') , "\"\n";
-				} else {
-					print LOG 'SUR: ',
-						$col-2 , ', ' ,
-						-($row-2) , ', "' ,
-						$loc->attr('class') , "\", \"",
-						$name->as_trimmed_text(),
-						"\"\n";
-				}
-			}
-		}
-	}
-}
-
-#update database with map details
 

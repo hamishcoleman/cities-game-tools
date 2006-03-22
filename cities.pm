@@ -467,7 +467,8 @@ sub dumptodb($) {
 			$lookup->finish();
 
 			if (!$res) {
-				my $visits = $d->{$x}->{$y}->{visits} || 0;
+				my $visits = $d->{_map}->{$x}->{$y}->{visits};
+				if (!$visits) { $visits = 0; }
 				# record does not exist, add it
 				my $insert = $dbh->prepare_cached(qq{
 					INSERT

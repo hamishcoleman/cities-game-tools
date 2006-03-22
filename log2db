@@ -99,7 +99,7 @@ while(<>) {
 }
 close(LOG);
 
-#dumptodb($d);
+dumptodb($d);
 
 print Dumper($d);
 

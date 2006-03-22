@@ -39,7 +39,7 @@ if (! defined $realpage) {
 # This only works if it is not a POST, and even then, it never alters the url_param()
 #$query->delete('realpage');
 
-if ($realpage !~ m%$cities::baseurl/%) {
+if ($realpage !~ m%^$cities::baseurl/%) {
 	# FIXME - error message
 	print $query->header;
 	print "404 Whatchatalknboutwillis\n";

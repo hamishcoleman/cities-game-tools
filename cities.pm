@@ -54,7 +54,7 @@ sub adjusturls($$) {
 		}
 	}
 
-	#forms
+	# main game page form
 	for my $i ($tree->look_down(
 			"_tag", "form",
 			"action","game")) {
@@ -76,8 +76,8 @@ sub adjusturls($$) {
 		} elsif ($href =~ m%^game(\?.*)%) {
 			$i->attr('href',$gameurl . $1);
 			next;
-		} elsif ($href =~ m%^(\?.*)%) {
-			$i->attr('href',$gameurl . $1);
+		} elsif ($href =~ m%^\?(.*)%) {
+			$i->attr('href', '?realpage='. $realpage . '&' . $1);
 			next;
 		}
 

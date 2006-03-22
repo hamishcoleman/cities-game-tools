@@ -259,6 +259,9 @@ if (defined $map) {
 #update database with map details
 
 close(LOG);
+
+dumptogamelog($d);
+
 ##########################################################################
 #
 # Modify the tree to include data from our database

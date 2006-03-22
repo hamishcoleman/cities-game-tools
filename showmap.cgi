@@ -120,10 +120,10 @@ while(<LOG>) {
 		$map_x{$thisx}=1;
 		$map{$thisy}{$thisx}{lines} .= " $.";
 		#print "SUR: $thisx, $thisy, '$class', '$name'\n";
-	} elsif ( $_ =~ m/^MAP: (-?\d+), (-?\d+), "([^"]+)"/) {
-		my $thisx = $x+$1;
-		my $thisy = $y+$2;
-		my $class = $3;
+	} elsif ( $_ =~ m/^(MAP|SUR): (-?\d+), (-?\d+), "([^"]+)"/) {
+		my $thisx = $x+$2;
+		my $thisy = $y+$3;
+		my $class = $4;
 		$class =~ s/ map_loc//;
 		if (defined $map{$thisy}{$thisx}{class} &&
 		    $map{$thisy}{$thisx}{class} ne $class) {
@@ -162,6 +162,10 @@ while(<LOG>) {
 		my $thisy = $2;
 		my $class = $3;
 		$class =~ s/location //;
+		if (defined $map{$thisy}{$thisx}{class} &&
+		    $map{$thisy}{$thisx}{class} ne $class) {
+			delete $map{$thisy}{$thisx}{name};
+		}
 		$map{$thisy}{$thisx}{class} = $class;
 		$map_x{$thisx}=1;
 		#print $_,"\n";

@@ -345,6 +345,55 @@ sub screenscrape($) {
 	return $d;
 }
 
+sub dumptogamelog($) {
+	my ($d) = @_;
+	my $haveloc;
+
+	# FIXME - error checking
+	open(LOG,">>$cities::logfile");
+
+	if (defined $d->{_cookie}) {
+		$d->{_cookie} =~ m/(.*)%3A(.*)/;
+		my $logname = $1;
+		print LOG "USER: $logname\n";
+	}
+
+	if (defined $d->{_clock}) {
+		print LOG "TIME: $d->{_clock}\n";
+	}
+
+	if (defined $d->{lat} && defined $d->{long}) {
+		print LOG "LOC: $d->{_x}, $d->{_y}\n";
+		print LOG "VISIT: $d->{_x}, $d->{_y}\n";
+		$haveloc=1;
+	}
+	print LOG $d->{_textin};
+
+	for my $x (keys %{$d->{_map}}) {
+		for my $y (keys %{$d->{_map}->{$x}}) {
+			my ($head,$tail);
+
+			if ($haveloc) {
+				$head = 'OLD: '. ($d->{_x} + $x)
+					. ', '. ($d->{_y} + $y)
+					. ', ';
+			} else {
+				$head = 'SUR: '. $x
+					. ', '. $y
+					. ', ';
+			}
+
+			$tail = '"'. $d->{_map}->{$x}->{$y}->{class} . '"';
+			if (defined $d->{_map}->{$x}->{$y}->{name}) {
+				$tail .= ', "' 
+					. $d->{_map}->{$x}->{$y}->{name}
+					. '"';
+			}
+
+			print LOG $head, $tail, "\n";
+		}
+	}
+}
 
 1;
 

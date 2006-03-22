@@ -229,13 +229,13 @@ sub addmap($$) {
 				next;
 			}
 
-			$d->{_map}->{$row-$offset}->{$col-$offset}->{class} = $loc->attr('class');
+			$d->{_map}->{$col-$offset}->{($size-$row)-$offset}->{class} = $loc->attr('class');
 
 			my $name = $loc->look_down(
 				'_tag', 'span',
 				'class', 'hideuntil');
 			if (defined $name) {
-				$d->{_map}->{$row-$offset}->{$col-$offset}->{name} = $name->as_trimmed_text();
+				$d->{_map}->{$col-$offset}->{($size-$row)-$offset}->{name} = $name->as_trimmed_text();
 			}
 		}
 	}
@@ -464,7 +464,7 @@ sub dumptodb($) {
 	$userlookup->finish();
 	if (!$user) {
 		# bad!
-		die "You do not exist in the database";
+		die "User $d->{_logname} does not exist in the database";
 	}
 	$dbh->do(qq{
 		UPDATE user
@@ -513,12 +513,18 @@ sub dumptodb($) {
 
 			my $diff = 0;
 
+			# FIXME - there is still some bugs in this logic
 			if ($res->[0] ne $class) {
+				# the square has changed class
+				$diff=1;
+			} elsif (!defined $res->[1] && defined $name) {
+				# we have a name now, but did not previously
+				$diff=1
+			} elsif (defined $res->[1] && defined $name && $res->[1] ne $name) {
+				# The name has changed
 				$diff=1;
 			}
-			if (!$diff && $res->[1] ne $name) {
-				$diff=1;
-			}
+			# else no name now or no change
 
 			if ($diff) {
 				# something is different, update the entry

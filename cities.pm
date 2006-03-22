@@ -175,8 +175,8 @@ sub addviewport($$) {
 		my $x = $mapping{$id}[0];
 		my $y = $mapping{$id}[1];
 		
-		$d->{viewport}->{$x}->{$y}->{class} = $class;
-		$d->{viewport}->{$x}->{$y}->{name} = $div->as_trimmed_text();
+		$d->{_map}->{$x}->{$y}->{class} = $class;
+		$d->{_map}->{$x}->{$y}->{name} = $div->as_trimmed_text();
 	}
 }
 
@@ -223,13 +223,13 @@ sub addmap($$) {
 				next;
 			}
 
-			$d->{map}->{$row}->{$col}->{class} = $loc->attr('class');
+			$d->{_map}->{$row}->{$col}->{class} = $loc->attr('class');
 
 			my $name = $loc->look_down(
 				'_tag', 'span',
 				'class', 'hideuntil');
 			if (defined $name) {
-				$d->{map}->{$row}->{$col}->{name} = $name->as_trimmed_text();
+				$d->{_map}->{$row}->{$col}->{name} = $name->as_trimmed_text();
 			}
 		}
 	}
@@ -278,24 +278,46 @@ sub screenscrape($) {
 		'_tag','textarea',
 		'class','textin');
 	if ($node) {
-		$d->{textin} = $node->as_text();
+		$d->{_textin} = $node->as_text();
 	}
 
 	# id="inventory"
 
 	addvalue($tree,$d,'id','long','long');
 	addvalue($tree,$d,'id','lat','lat');
-	# div id="abilities", span TIME
 
-	# equippable clock
-	# equippable GPS
+	# FIXME - could accidentally find times in palintir messages ...
+	for $node ($tree->look_down(
+			'_tag', 'div',
+			'class','controls')) {
+		my $text = $node->as_trimmed_text();
+		if ($text =~ m/(\d\d?:\d\d[ap]m)/) {
+			# We have a clock
+			if (!defined $d->{_clock}) {
+				$d->{_clock} = $1;
+			}
+		}
+	}
+
 	# marker stone
+	if (!defined $d->{lat} || !defined $d->{long}) {
+		for $node ($tree->look_down(
+				'_tag', 'div',
+				'class','controls')) {
+			my $text = $node->as_trimmed_text();
+			if ($text =~ m/gives the exact location.* ([\d]+[EW]) and ([\d]+[NS])/) {
+				# Found a Marker stone
+				$d->{long} = $1;
+				$d->{lat} = $2;
+			}
+		}
+	}
 
-	# div id="item", span class="control_title", Big Map
 	# div id="equipment", div id="item" ...
 
-	addviewport($tree,$d);
 	addmap($tree,$d);
+	# add the viewport second as it's data will overwrite the map data
+	addviewport($tree,$d);
 
 	return $d;
 }
@@ -304,35 +326,4 @@ sub screenscrape($) {
 1;
 
 __END__
-
-###### Include the logic from the game.cgi here as an example
-
-# Extract various abilities and controls
-for my $i ($tree->look_down(
-		'_tag', 'div',
-		'class', 'controls')) {
-	my $text = $i->as_trimmed_text();
-
-	# id="location"
-	if ($text =~ m/gives the exact location.* ([\d]+)([EW]) and ([\d]+)([NS])/) {
-		# Found a Marker stone
-		if ($2 eq 'W') { $gameX = -$1; } else { $gameX=$1; }
-		if ($4 eq 'S') { $gameY = -$3; } else { $gameY=$3; }
-		print LOG "LOC: $gameX, $gameY\n";
-	} elsif ($text =~ m/(\d+)([EW]) (\d+)([NS])/) {
-		# Natural location ability
-		# TODO - check that this reads the GPS
-		# FIXME - this reads the guide to time and space :-(
-		if ($2 eq 'W') { $gameX = -$1; } else { $gameX=$1; }
-		if ($4 eq 'S') { $gameY = -$3; } else { $gameY=$3; }
-		print LOG "LOC: $gameX, $gameY\n";
-	}
-
-	if ($text =~ m/(\d\d?:\d\d[ap]m)/) {
-		# Found a clock
-		$gametime = $1;
-		print LOG "TIME: $gametime\n";
-	}
-	#TODO - substitute a time guess?
-}
 

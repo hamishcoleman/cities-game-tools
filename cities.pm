@@ -132,6 +132,51 @@ sub addvalue($$$$$) {
 	return undef;
 }
 
+sub addviewport($$) {
+	my ($tree,$d) = @_;
+
+	my $viewport = $tree->look_down('id','viewport');
+	if (!$viewport) {
+		# Something is wrong
+		return;
+	}
+
+	my %direction_mapping = (
+		c  => "0, 0, ",
+		n  => "0, 1, ",
+		s  => "0, -1, ",
+		e  => "1, 0, ",
+		w  => "-1, 0, ",
+
+		nw => "-1, 1, ",
+		sw => "-1, -1, ",
+		ne => "1, 1, ",
+		se => "1, -1, ",
+	);
+
+	for my $id (keys %direction_mapping) {
+		my $square = $viewport->look_down('id',$id);
+		if (!defined $square) {
+			# maybe we cannot see that square?
+			next;
+		}
+		my $div = $square->address('.0');
+		if (!defined $div) {
+			# Something is wrong
+			next;
+		}
+		my $class = $square->attr('class');
+		if ($class =~ /(loc_dark|loc_bright)/) {
+			# We are not able to see anything here, so dont log it
+			next;
+		}
+		
+		$d->{viewport}->{$direction_mapping{$id}}->{class} = $class;
+		$d->{viewport}->{$direction_mapping{$id}}->{name} = $div->as_trimmed_text();
+
+	}
+}
+
 sub screenscrape($) {
 	my ($tree) = @_;
 	my $d;		# place to store our scrapings
@@ -170,7 +215,13 @@ sub screenscrape($) {
 	addvalue($tree,$d,'id','hp','hp');
 	addvalue($tree,$d,'id','maxhp','maxhp');
 	addvalue($tree,$d,'id','gold','gold');
-	addvalue($tree,$d,'class','textin','textin');
+
+	$node = $tree->look_down(
+		'_tag','textarea',
+		'class','textin');
+	if ($node) {
+		$d->{textin} = $node->as_text();
+	}
 
 	# id="inventory"
 
@@ -185,11 +236,130 @@ sub screenscrape($) {
 	# div id="item", span class="control_title", Big Map
 	# div id="equipment", div id="item" ...
 
-	# td id="viewport"
+	addviewport($tree,$d);
 
 	return $d;
 }
 
 
 1;
+
+__END__
+
+###### Include the logic from the game.cgi here as an example
+
+# Extract various abilities and controls
+for my $i ($tree->look_down(
+		'_tag', 'div',
+		'class', 'controls')) {
+	my $text = $i->as_trimmed_text();
+
+	# id="location"
+	if ($text =~ m/gives the exact location.* ([\d]+)([EW]) and ([\d]+)([NS])/) {
+		# Found a Marker stone
+		if ($2 eq 'W') { $gameX = -$1; } else { $gameX=$1; }
+		if ($4 eq 'S') { $gameY = -$3; } else { $gameY=$3; }
+		print LOG "LOC: $gameX, $gameY\n";
+	} elsif ($text =~ m/(\d+)([EW]) (\d+)([NS])/) {
+		# Natural location ability
+		# TODO - check that this reads the GPS
+		# FIXME - this reads the guide to time and space :-(
+		if ($2 eq 'W') { $gameX = -$1; } else { $gameX=$1; }
+		if ($4 eq 'S') { $gameY = -$3; } else { $gameY=$3; }
+		print LOG "LOC: $gameX, $gameY\n";
+	}
+
+	if ($text =~ m/(\d\d?:\d\d[ap]m)/) {
+		# Found a clock
+		$gametime = $1;
+		print LOG "TIME: $gametime\n";
+	}
+	#TODO - substitute a time guess?
+}
+
+
+#Look for the map and read it
+my $map;
+for my $i ($tree->look_down(
+		'_tag', 'table',
+		'border', '0',
+		'cellpadding', '0',
+		'cellspacing', '0')) {
+	my $element = $i->address('.0.0');
+	if (!defined $element) {
+		next;
+	}
+	if (defined $map) {
+		next;
+	}
+	my $maybe = $element->attr('class');
+	if (defined $maybe && $maybe =~ m/map_loc/) {
+		$map = $i;
+	}
+}
+
+# TODO - look for the text "Small Map:"
+# TODO - look for the text "Big Map:"
+# TODO - clean this up into one function
+
+if (defined $map) {
+
+	if (defined $map->address(".14.14")) {
+		# its a Big Map, but not a really big map (oh woe is my 20x20)
+		for my $row (0..14) {
+			for my $col (0..14) {
+				my $loc = $map->address(".$row.$col");
+				if (!defined $loc) {
+					next;
+				}
+				print LOG 'MAP: ',
+					$col-7 , ', ' ,
+					-($row-7) , ', "' ,
+					$loc->attr('class') , "\"\n";
+			}
+		}
+	} elsif (defined $map->address(".10.10")) {
+		# its a Map
+		for my $row (0..10) {
+			for my $col (0..10) {
+				my $loc = $map->address(".$row.$col");
+				if (!defined $loc) {
+					next;
+				}
+				print LOG 'MAP: ',
+					$col-5 , ', ' ,
+					-($row-5) , ', "' ,
+					$loc->attr('class') , "\"\n";
+			}
+		}
+	} else {
+		# its a Small Map
+		for my $row (0..4) {
+			for my $col (0..4) {
+				my $loc = $map->address(".$row.$col");
+				if (!defined $loc) {
+					next;
+				}
+				my $name = $loc->look_down(
+					'_tag', 'span',
+					'class', 'hideuntil');
+				if (!defined $name) {
+					print LOG 'MAP: ',
+						$col-2 , ', ' ,
+						-($row-2) , ', "' ,
+						$loc->attr('class') , "\"\n";
+				} else {
+					print LOG 'SUR: ',
+						$col-2 , ', ' ,
+						-($row-2) , ', "' ,
+						$loc->attr('class') , "\", \"",
+						$name->as_trimmed_text(),
+						"\"\n";
+				}
+			}
+		}
+	}
+}
+
+#update database with map details
 

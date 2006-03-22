@@ -459,6 +459,7 @@ sub dumptodb($) {
 	});
 	$userlookup->execute($d->{_logname});
 	my $user = $userlookup->fetch;
+	$userlookup->finish();
 	if (!$user) {
 		# bad!
 		die "You do not exist in the database";

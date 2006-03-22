@@ -88,12 +88,36 @@ my $max_y=$ARGV[3] || $maximums->[3];
 my $want_visits = ! $ARGV[4];
 my $want_key = $ARGV[5];
 
+my $lastx=20000;
+my $lasty=20000;
+
+my $d;
+$d->{_state}='showmap';
+
 print "<html><head><title>Cities Map</title>",
 	'<link href="game.css" media="screen" rel="stylesheet" type="text/css">',
 	"</head><body>\n";
 
 print "<p>map size [$min_x,$max_y] - [$max_x,$min_y]</p>\n";
 #print "<p>LOC: $x, $y</p>\n";
+
+addcookie($d,undef,$query->cookie('gamesession'));
+if ($d->{_logname}) {
+	print "<p>USER: $d->{_logname}</p>\n";
+
+	my $sth = $dbh->prepare(qq{
+		SELECT lastx,lasty
+		FROM user
+		WHERE name = ?
+	}) || die $dbh->errstr;
+	$sth->execute($d->{_logname});
+	my $xy = $sth->fetch;
+	$sth->finish();
+	if ($xy) {
+		$lastx = $xy->[0];
+		$lasty = $xy->[1];
+	}
+}
 
 if ($want_key) {
 	# Print out the map key
@@ -162,10 +186,10 @@ while ($row>$min_y-1) {
 		my $empty=1;
 
 		# Show my last position
-#		if ($col==$x && $row==$y) {
-#			print "<b>X</b>";
-#			$empty=0;
-#		}
+		if ($col==$lastx && $row==$lasty) {
+			print "<b>X</b>";
+			$empty=0;
+		}
 
 		# Mark crazy standing stones...
 		if ($empty && $class eq 'loc_stone' && !defined $name) {

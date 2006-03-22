@@ -6,8 +6,6 @@ use warnings;
 # the database
 #
 #
-use CGI ':all';
-use CGI::Carp qw(fatalsToBrowser);
 use Data::Dumper;
 
 use cities;
@@ -20,8 +18,13 @@ my $max_y;
 my $min_x;
 my $min_y;
 
+my $d;
+$d->{_realm}='0';
+$d->{_logname}='_';
+$d->{_time}=1;
 
-my %map;
+$d->{_x}=0;
+$d->{_y}=0;
 
 # Read the log file
 while(<>) {

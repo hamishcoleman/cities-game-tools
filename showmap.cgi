@@ -86,6 +86,7 @@ my $min_y=$ARGV[2] || $maximums->[2];
 my $max_y=$ARGV[3] || $maximums->[3];
 
 my $want_visits = ! $ARGV[4];
+my $want_key = $ARGV[5];
 
 print "<html><head><title>Cities Map</title>",
 	'<link href="game.css" media="screen" rel="stylesheet" type="text/css">',
@@ -94,13 +95,14 @@ print "<html><head><title>Cities Map</title>",
 print "<p>map size [$min_x,$max_y] - [$max_x,$min_y]</p>\n";
 #print "<p>LOC: $x, $y</p>\n";
 
-# Print out the map key
-print "<table border=1><tr><th>icon</th><th>Full Name</th></tr>\n";
-for my $i (sort {$shortname{$a} cmp $shortname{$b}} keys %shortname) {
-	print "<tr><th>$shortname{$i}</th><td>$i</td></tr>\n";
+if ($want_key) {
+	# Print out the map key
+	print "<table border=1><tr><th>icon</th><th>Full Name</th></tr>\n";
+	for my $i (sort {$shortname{$a} cmp $shortname{$b}} keys %shortname) {
+		print "<tr><th>$shortname{$i}</th><td>$i</td></tr>\n";
+	}
+	print "</table>\n";
 }
-print "</table>\n";
-
 
 print "<table border=0 cellpadding=0 cellspacing=0>\n";
 

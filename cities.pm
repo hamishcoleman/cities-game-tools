@@ -391,6 +391,8 @@ sub dumptogamelog($) {
 	open(LOG,">>$cities::logfile");
 
 	#
+	#$Data::Dumper::Indent = 1;
+	#$Data::Dumper::Sortkeys = 1;
 	#print LOG Dumper($d);
 
 	if (defined $d->{_logname}) {

@@ -14,9 +14,6 @@ use CGI ':all';
 use CGI::Carp qw(fatalsToBrowser);
 use Data::Dumper;
 
-$Data::Dumper::Indent = 1;
-$Data::Dumper::Sortkeys = 1;
-
 use cities;
 
 ##########################################################################

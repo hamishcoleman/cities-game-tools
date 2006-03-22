@@ -152,46 +152,46 @@ while ($row>$min_y-1) {
 		$class =~ s/location //;
 		$class =~ s/ map_loc//;
 
-			if ($skip) {
-				print "<td colspan=$skip></td>";
-				$skip=0;
-			}
-			print '<td class="', $class, ' map_loc">';
-			my $empty=1;
+		if ($skip) {
+			print "<td colspan=$skip></td>";
+			$skip=0;
+		}
+		print '<td class="', $class, ' map_loc">';
+		my $empty=1;
 
-			# Show my last position
-#			if ($col==$x && $row==$y) {
-#				print "<b>X</b>";
-#				$empty=0;
-#			}
+		# Show my last position
+#		if ($col==$x && $row==$y) {
+#			print "<b>X</b>";
+#			$empty=0;
+#		}
 
-			# Mark crazy standing stones...
-			if ($empty && $class eq 'loc_stone' && !defined $name) {
-				$name = 'Standing Stone';
-			}
+		# Mark crazy standing stones...
+		if ($empty && $class eq 'loc_stone' && !defined $name) {
+			$name = 'Standing Stone';
+		}
 
-			# Mark unknown city squares
-			if ($empty && $class eq 'loc_city' && !defined $name) {
-				$name = 'Unknown Building';
-			}
+		# Mark unknown city squares
+		if ($empty && $class eq 'loc_city' && !defined $name) {
+			$name = 'Unknown Building';
+		}
 
-			# If we have a map key for this location, use it
-			if ($empty && defined $name && defined $shortname{$name}) {
-				print $shortname{$name};
-				$empty=0;
-			} 
+		# If we have a map key for this location, use it
+		if ($empty && defined $name && defined $shortname{$name}) {
+			print $shortname{$name};
+			$empty=0;
+		} 
 
-			if ($want_visits && $empty && $visits) {
-				# mark the paths
-				print '+';
-				$empty=0;
-			}
+		if ($want_visits && $empty && $visits) {
+			# mark the paths
+			print '+';
+			$empty=0;
+		}
 
-			# no grid square should be empty
-			if ($empty) {
-				print "&nbsp;"
-			}
-			print '</td>';
+		# no grid square should be empty
+		if ($empty) {
+			print "&nbsp;"
+		}
+		print '</td>';
 	}
 
 	# 

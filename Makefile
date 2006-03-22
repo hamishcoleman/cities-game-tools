@@ -11,6 +11,8 @@ test:
 	touch ~hamish/WWW/cities/gamelog.txt
 	chmod a+rw ~hamish/WWW/cities/gamelog.txt
 
+# FIXME - install a database if this is not already one there
+
 prof1:
 	perl -d:DProf ./showmap.cgi >/dev/null
 	dprofpp

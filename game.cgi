@@ -7,9 +7,6 @@ use warnings;
 # This script handles the /cgi-bin/game page
 #
 
-# TODO - dont read locations that are part of the text of palintirs
-#	(or other things non GPS/Intrinsic related ...)
-
 ##########################################################################
 #
 # Libs we need.
@@ -44,17 +41,19 @@ handle_simple_cases($res);
 
 adjusturls($tree,$realpage);
 
-
 ##########################################################################
 #
 # Extract saliant data from the information and store it.
 
 my $d = screenscrape($tree);
-if (!defined $recv_cookie || !$recv_cookie || $recv_cookie eq 'null') {
-	$d->{_cookie} = $send_cookie_val;
-} else {
-	$d->{_cookie} = $recv_cookie;
-}
+
+addcookie($d,$send_cookie_val,$recv_cookie);
+
+#if (!defined $recv_cookie || !$recv_cookie || $recv_cookie eq 'null') {
+#	$d->{_cookie} = $send_cookie_val;
+#} else {
+#	$d->{_cookie} = $recv_cookie;
+#}
 
 # FIXME - error checking
 open(LOG,">>$cities::logfile");
@@ -62,6 +61,7 @@ print LOG Dumper($d);
 close(LOG);
 
 dumptogamelog($d);
+dumptodb($d);
 
 ##########################################################################
 #
@@ -73,7 +73,6 @@ for my $i ($tree->look_down(
 		'class', 'loc_stone map_loc')) {
 	$i->push_content("S");
 }
-
 
 ##########################################################################
 #

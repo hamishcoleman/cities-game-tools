@@ -13,7 +13,10 @@ use warnings;
 #
 glob $cities::baseurl = "http://cities.totl.net";
 glob $cities::logfile = "/home/hamish/WWW/cities/gamelog.txt";
+glob $cities::db = "/home/hamish/WWW/cities/gamelog.sqlite";
 
+use HTTP::Date;
+use DBI;
 
 =head1 NAME
 
@@ -252,10 +255,13 @@ sub computelocation($) {
 			if ($2 eq 'S') { $d->{_y} = -$1 }
 		}
 		# FIXME - I am not checking for errors ..
+		delete $d->{_realm};
 	}
 
 	# we do not have enough information...
 	# TODO - consult database, construct an inertial reckoning
+	
+	#$d->{_realm} = something
 }
 
 sub screenscrape($) {
@@ -348,6 +354,21 @@ sub screenscrape($) {
 	return $d;
 }
 
+sub addcookie($$$) {
+	my ($d,$send_cookie,$recv_cookie) = @_;
+
+	if (!defined $recv_cookie || !$recv_cookie || $recv_cookie eq 'null') {
+		$d->{_cookie} = $send_cookie;
+	} else {
+		$d->{_cookie} = $recv_cookie;
+	}
+
+	if (defined $d->{_cookie}) {
+		$d->{_cookie} =~ m/(.*)%3A(.*)/;
+		$d->{_logname} = $1;
+	}
+}
+
 sub dumptogamelog($) {
 	my ($d) = @_;
 	my $haveloc;
@@ -355,10 +376,8 @@ sub dumptogamelog($) {
 	# FIXME - error checking
 	open(LOG,">>$cities::logfile");
 
-	if (defined $d->{_cookie}) {
-		$d->{_cookie} =~ m/(.*)%3A(.*)/;
-		my $logname = $1;
-		print LOG "USER: $logname\n";
+	if (defined $d->{_logname}) {
+		print LOG "USER: $d->{_logname}\n";
 	}
 
 	if (defined $d->{_clock}) {
@@ -396,6 +415,14 @@ sub dumptogamelog($) {
 			print LOG $head, $tail, "\n";
 		}
 	}
+}
+
+sub dumptodb($) {
+	my ($d) = @_;
+
+	my $dbh = DBI->connect( "dbi:SQLite2:$cities::db" ) || die "Cannot connect: $DBI::errstr";
+
+	$dbh->disconnect;
 }
 
 1;

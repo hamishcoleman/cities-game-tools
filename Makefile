@@ -10,6 +10,7 @@ test:
 	install -m a+rx game.css ~hamish/WWW/cities/
 	touch ~hamish/WWW/cities/gamelog.txt
 	chmod a+rw ~hamish/WWW/cities/gamelog.txt
+	install -d -m a+rwx ~hamish/WWW/cities/db
 
 # FIXME - install a database if this is not already one there
 

@@ -49,19 +49,11 @@ my $d = screenscrape($tree);
 
 addcookie($d,$send_cookie_val,$recv_cookie);
 
-#if (!defined $recv_cookie || !$recv_cookie || $recv_cookie eq 'null') {
-#	$d->{_cookie} = $send_cookie_val;
-#} else {
-#	$d->{_cookie} = $recv_cookie;
-#}
-
-# FIXME - error checking
-open(LOG,">>$cities::logfile");
-print LOG Dumper($d);
-close(LOG);
-
-dumptogamelog($d);
-dumptodb($d);
+# TODO - determine what to do about various states..
+if ($d->{_state} eq 'loggedin') {
+	dumptogamelog($d);
+	dumptodb($d);
+}
 
 ##########################################################################
 #

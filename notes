@@ -2,7 +2,7 @@
 simple db schema:
 
 CREATE TABLE map (
-	realm	VARCHAR,
+	realm	VARCHAR,		-- allows unknown locations
 	x	INTEGER,
 	y	INTEGER,
 	class	VARCHAR,
@@ -12,17 +12,18 @@ CREATE TABLE map (
 	lastvisited	DATE,
 	lastchanged	DATE,
 	lastchangedby	VARCHAR,
-	textnote	VARCHAR,
+	textnote	VARCHAR,	-- hinting for unknown locations
 	PRIMARY KEY (realm,x,y)
 );
 
 CREATE TABLE user (
 	name	VARCHAR,
-	has_intrinsic_location,	INTEGER,
+	session	VARCHAR,		-- The session cookie for this user
+	has_intrinsic_location,	INTEGER,	-- um?
 	lastseen	DATE,
 	lastx	INTEGER,
 	lasty	INTEGER,
-	realm	VARCHAR,
+	realm	VARCHAR,		-- current realm for unknown locations
 	PRIMARY KEY (name)
 );
 

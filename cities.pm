@@ -13,7 +13,7 @@ use warnings;
 #
 glob $cities::baseurl = "http://cities.totl.net";
 glob $cities::logfile = "/home/hamish/WWW/cities/gamelog.txt";
-glob $cities::db = "/home/hamish/WWW/cities/gamelog.sqlite";
+glob $cities::db = "/home/hamish/WWW/cities/db/gamelog.sqlite";
 
 use HTTP::Date;
 use DBI;
@@ -255,11 +255,22 @@ sub computelocation($) {
 			if ($2 eq 'S') { $d->{_y} = -$1 }
 		}
 		# FIXME - I am not checking for errors ..
-		delete $d->{_realm};
+		$d->{_realm} = '0';
 	}
 
 	# we do not have enough information...
 	# TODO - consult database, construct an inertial reckoning
+	#
+	# if no location and no has_intrinsic_location then attempt
+	# inertial reckoning in default realm.  look out for warping
+	# stopwords implying new realm.
+	#
+	# if no location and has_intrinsic_location and db realm is
+	# default or null, start a new realm.
+	#
+	# basically I am trying to support robots without intrinsic
+	# location abilities, whilst also trying to allow some mapping
+	# of areas without location information.
 	
 	#$d->{_realm} = something
 }
@@ -376,6 +387,9 @@ sub dumptogamelog($) {
 	# FIXME - error checking
 	open(LOG,">>$cities::logfile");
 
+	#
+	#print LOG Dumper($d);
+
 	if (defined $d->{_logname}) {
 		print LOG "USER: $d->{_logname}\n";
 	}
@@ -384,7 +398,7 @@ sub dumptogamelog($) {
 		print LOG "TIME: $d->{_clock}\n";
 	}
 
-	if (defined $d->{lat} && defined $d->{long}) {
+	if (defined $d->{_x} && defined $d->{_y}) {
 		print LOG "LOC: $d->{_x}, $d->{_y}\n";
 		print LOG "VISIT: $d->{_x}, $d->{_y}\n";
 		$haveloc=1;
@@ -420,7 +434,22 @@ sub dumptogamelog($) {
 sub dumptodb($) {
 	my ($d) = @_;
 
+	if (!defined $d->{_x} || !defined $d->{_y}) {
+		# TODO - use the realms feature to add unknown locations
+		return;
+	}
+
 	my $dbh = DBI->connect( "dbi:SQLite2:$cities::db" ) || die "Cannot connect: $DBI::errstr";
+
+	for my $x (keys %{$d->{_map}}) {
+		for my $y (keys %{$d->{_map}->{$x}}) {
+			$dbh->do("INSERT INTO map(realm,x,y,class) VALUES("
+				."'".$d->{_realm}."',"
+				.($d->{_x} + $x).","
+				.($d->{_y} + $y).","
+				."'".$d->{_map}->{$x}->{$y}->{class}."')");
+		}
+	}
 
 	$dbh->disconnect;
 }

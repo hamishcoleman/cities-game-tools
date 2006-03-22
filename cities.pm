@@ -206,14 +206,17 @@ sub addmap($$) {
 		return;
 	}
 
-	my $size;
+	my ($size,$offset);
 
 	if (defined $map->address(".14.14")) {
 		$size = 14;
+		$offset = 7;
 	} elsif (defined $map->address(".10.10")) {
 		$size = 10;
+		$offset = 5;
 	} else {
 		$size = 4;
+		$offset = 2;
 	}
 
 	for my $row (0..$size) {
@@ -223,13 +226,13 @@ sub addmap($$) {
 				next;
 			}
 
-			$d->{_map}->{$row}->{$col}->{class} = $loc->attr('class');
+			$d->{_map}->{$row-$offset}->{$col-$offset}->{class} = $loc->attr('class');
 
 			my $name = $loc->look_down(
 				'_tag', 'span',
 				'class', 'hideuntil');
 			if (defined $name) {
-				$d->{_map}->{$row}->{$col}->{name} = $name->as_trimmed_text();
+				$d->{_map}->{$row-$offset}->{$col-$offset}->{name} = $name->as_trimmed_text();
 			}
 		}
 	}

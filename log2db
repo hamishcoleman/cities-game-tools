@@ -1,0 +1,102 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+#
+# load the gamelog.txt into a memory map, then output the contents to
+# the database
+#
+#
+use CGI ':all';
+use CGI::Carp qw(fatalsToBrowser);
+use Data::Dumper;
+
+use cities;
+
+my $x=20000;
+my $y=20000;
+
+my $max_x;
+my $max_y;
+my $min_x;
+my $min_y;
+
+
+my %map;
+
+# Read the log file
+while(<>) {
+	chomp;
+	if ( $_ =~ m/^LOC: (-?\d+), (-?\d+)/ ) {
+		$x=$1;
+		$y=$2;
+	} elsif ( $_ =~ m/^VISIT: (-?\d+), (-?\d+)/) {
+		my $thisx = $1;
+		my $thisy = $2;
+		$d->{_map}->{$thisx}->{$thisy}->{visits}++;
+	} elsif ( $_ =~ m/^SUR: (-?\d+), (-?\d+), "([^"]+)", "([^"]*)"/) {
+		my $thisx = $x+$1;
+		my $thisy = $y+$2;
+		my $class = $3;
+		my $name = $4;
+		my $visited=0;
+		if ($1 == 0 && $2 == 0) {
+			$visited=1;
+		}
+		$class =~ s/location //;
+		$d->{_map}->{$thisx}->{$thisy}->{class} = $class;
+		if ($name) {
+			$d->{_map}->{$thisx}->{$thisy}->{name} = $name;
+		}
+		if ($visited) {
+			$d->{_map}->{$thisx}->{$thisy}->{visits}++;
+		}
+		$d->{_map}->{$thisx}->{$thisy}->{lines} .= " $.";
+	} elsif ( $_ =~ m/^(MAP|SUR): (-?\d+), (-?\d+), "([^"]+)"/) {
+		my $thisx = $x+$2;
+		my $thisy = $y+$3;
+		my $class = $4;
+		$class =~ s/ map_loc//;
+		if (defined $d->{_map}->{$thisx}->{$thisy}->{class} &&
+		    $d->{_map}->{$thisx}->{$thisy}->{class} ne $class) {
+			delete $d->{_map}->{$thisx}->{$thisy}->{name};
+		}
+		$d->{_map}->{$thisx}->{$thisy}->{class} = $class;
+	} elsif ( $_ =~ m/^You go North./) {
+		$y++;
+	} elsif ( $_ =~ m/^You go South./) {
+		$y--;
+	} elsif ( $_ =~ m/^You go East./) {
+		$x++;
+	} elsif ( $_ =~ m/^You go West./) {
+		$x--;
+	} elsif ( $_ =~ m/^OLD: (-?\d+), (-?\d+), "([^"]*)", "([^"]*)"/) {
+		# An old location that I have preloaded from my notes
+		my $thisx = $1;
+		my $thisy = $2;
+		my $class = $3;
+		my $name = $4;
+		$class =~ s/location //;
+		$d->{_map}->{$thisx}->{$thisy}->{class} = $class;
+		$d->{_map}->{$thisx}->{$thisy}->{name} = $name;
+	} elsif ( $_ =~ m/^OLD: (-?\d+), (-?\d+), "([^"]*)"/) {
+		# An old location that I have preloaded from my notes
+		my $thisx = $1;
+		my $thisy = $2;
+		my $class = $3;
+		$class =~ s/location //;
+		if (defined $d->{_map}->{$thisx}->{$thisy}->{class} &&
+		    $d->{_map}->{$thisx}->{$thisy}->{class} ne $class) {
+			delete $d->{_map}->{$thisx}->{$thisy}->{name};
+		}
+		$d->{_map}->{$thisx}->{$thisy}->{class} = $class;
+	}
+}
+close(LOG);
+
+dumptodb($d);
+
+print Dumper($d);
+
+
+
+

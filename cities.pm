@@ -290,6 +290,9 @@ sub screenscrape($) {
 	}
 	$s = $node->as_trimmed_text();
 
+	# save the system time that this scrape was generated
+	$d->{_time} = time();
+
 	# FIXME - checking titles is somewhat fragile
 	if ($s =~ m/^Cities - login$/) {
 		$d->{_state} = 'loggedout';
@@ -434,7 +437,8 @@ sub dumptogamelog($) {
 sub dumptodb($) {
 	my ($d) = @_;
 
-	my $time = time();
+	# use the defined timevalue
+	my $time = $d->{_time};
 
 	if (!defined $d->{_x} || !defined $d->{_y}) {
 		# TODO - use the realms feature to add unknown locations
@@ -461,15 +465,17 @@ sub dumptodb($) {
 			$lookup->finish();
 
 			if (!$res) {
+				my $visits = $d->{$x}->{$y}->{visits} || 0;
 				# record does not exist, add it
 				my $insert = $dbh->prepare_cached(qq{
 					INSERT
 					INTO map(realm,x,y,class,name,visits,lastseen,lastchanged,lastchangedby)
-					VALUES(?,?,?,?,?,0,?,?,?)
+					VALUES(?,?,?,?,?,?,?,?,?)
 				}) or die $dbh->errstr;
 				$insert->execute($d->{_realm},($d->{_x} + $x),($d->{_y} + $y),
 					$class,
 					$name,
+					$visits,
 					$time,$time,$d->{_logname});
 				next;
 			}

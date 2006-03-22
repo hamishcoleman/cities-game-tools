@@ -235,6 +235,26 @@ sub addmap($$) {
 	}
 }
 
+sub computelocation($) {
+	my ($d) = @_;
+
+	if (defined $d->{lat} && defined $d->{long}) {
+		#long = x, lat = y
+		if ($d->{long} =~ m/([\d]+)([EW])/) {
+			if ($2 eq 'E') { $d->{_x} = $1 }
+			if ($2 eq 'W') { $d->{_x} = -$1 }
+		}
+		if ($d->{lat} =~ m/([\d]+)([NS])/) {
+			if ($2 eq 'N') { $d->{_y} = $1 }
+			if ($2 eq 'S') { $d->{_y} = -$1 }
+		}
+		# FIXME - I am not checking for errors ..
+	}
+
+	# we do not have enough information...
+	# TODO - consult database, construct an inertial reckoning
+}
+
 sub screenscrape($) {
 	my ($tree) = @_;
 	my $d;		# place to store our scrapings
@@ -318,6 +338,9 @@ sub screenscrape($) {
 	addmap($tree,$d);
 	# add the viewport second as it's data will overwrite the map data
 	addviewport($tree,$d);
+
+	# construct X and Y values
+	computelocation($d);
 
 	return $d;
 }

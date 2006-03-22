@@ -434,22 +434,97 @@ sub dumptogamelog($) {
 sub dumptodb($) {
 	my ($d) = @_;
 
+	my $time = time();
+
 	if (!defined $d->{_x} || !defined $d->{_y}) {
 		# TODO - use the realms feature to add unknown locations
 		return;
 	}
 
-	my $dbh = DBI->connect( "dbi:SQLite2:$cities::db" ) || die "Cannot connect: $DBI::errstr";
-
+	my $dbh = DBI->connect( "dbi:SQLite:$cities::db" ) || die "Cannot connect: $DBI::errstr";
+	$dbh->{AutoCommit} = 0;
+	
 	for my $x (keys %{$d->{_map}}) {
 		for my $y (keys %{$d->{_map}->{$x}}) {
-			$dbh->do("INSERT INTO map(realm,x,y,class) VALUES("
-				."'".$d->{_realm}."',"
-				.($d->{_x} + $x).","
-				.($d->{_y} + $y).","
-				."'".$d->{_map}->{$x}->{$y}->{class}."')");
+			my $class = $d->{_map}->{$x}->{$y}->{class};
+			my $name = $d->{_map}->{$x}->{$y}->{name};
+
+			my $lookup = $dbh->prepare_cached(qq{
+				SELECT class,name
+				FROM map
+				WHERE realm=? AND x=? AND y=?
+			});
+			$lookup->execute($d->{_realm},($d->{_x} + $x),($d->{_y} + $y));
+			my $res = $lookup->fetch;
+
+			# convince the DBI to _STOP_ITS_WHINGING_
+			$lookup->finish();
+
+			if (!$res) {
+				# record does not exist, add it
+				my $insert = $dbh->prepare_cached(qq{
+					INSERT
+					INTO map(realm,x,y,class,name,visits,lastseen,lastchanged,lastchangedby)
+					VALUES(?,?,?,?,?,0,?,?,?)
+				}) or die $dbh->errstr;
+				$insert->execute($d->{_realm},($d->{_x} + $x),($d->{_y} + $y),
+					$class,
+					$name,
+					$time,$time,$d->{_logname});
+				next;
+			}
+
+			my $diff = 0;
+
+			if ($res->[0] ne $class) {
+				$diff=1;
+			}
+			if (!$diff && $res->[1] ne $name) {
+				$diff=1;
+			}
+
+			if ($diff) {
+				# something is different, update the entry
+				my $update = $dbh->prepare_cached(qq{
+					UPDATE map
+					SET class=?, name=?, lastseen=?, lastchanged=?, lastchangedby=?
+					WHERE realm=? AND x=? AND y=?
+				}) or die $dbh->errstr;
+				$update->execute(
+					$class,
+					$name,
+					$time,$time,$d->{_logname},
+					$d->{_realm},($d->{_x} + $x),($d->{_y} + $y));
+				next;
+			}
+
+			# no differences, just update the freshness
+			my $seen = $dbh->prepare_cached(qq{
+				UPDATE map
+				SET lastseen=?
+				WHERE realm=? AND x=? AND y=?
+			}) or die $dbh->errstr;
+			$seen->execute(
+				$time,
+				$d->{_realm},($d->{_x} + $x),($d->{_y} + $y));
 		}
 	}
+
+	# update visits
+	my $visits = $dbh->prepare_cached(qq{
+		UPDATE map
+		SET visits=visits+1, lastvisited=?
+		WHERE realm=? AND x=? AND y=?
+	}) or die $dbh->errstr;
+	$visits->execute(
+		$time,
+		$d->{_realm},($d->{_x}),($d->{_y}));
+
+	$dbh->commit();
+
+	# YEY, I have triggered an sqlite dbi bug http://rt.cpan.org/Public/Bug/Display.html?id=9643
+	# basically, if you do not use a prepared sth, you cannot finish it
+	# and the dbh destroy _WILL_ whinge at you.  Stupid stupid stupid
 
 	$dbh->disconnect;
 }

@@ -449,7 +449,27 @@ sub dumptodb($) {
 
 	my $dbh = DBI->connect( "dbi:SQLite:$cities::db" ) || die "Cannot connect: $DBI::errstr";
 	$dbh->{AutoCommit} = 0;
-	
+
+
+	# dump the current user data
+	my $userlookup = $dbh->prepare(qq{
+		SELECT lastseen
+		FROM user
+		WHERE name = ?
+	});
+	$userlookup->execute($d->{_logname});
+	my $user = $userlookup->fetch;
+	if (!$user) {
+		# bad!
+		die "You do not exist in the database";
+	}
+	$dbh->do(qq{
+		UPDATE user
+		SET lastseen=?, lastx=?, lasty=?, realm=?
+	}, undef, $d->{_time},$d->{_x},$d->{_y},$d->{_realm});
+
+
+	# dump the map data
 	for my $x (keys %{$d->{_map}}) {
 		for my $y (keys %{$d->{_map}->{$x}}) {
 			my $class = $d->{_map}->{$x}->{$y}->{class};

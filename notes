@@ -19,7 +19,7 @@ CREATE TABLE map (
 CREATE TABLE user (
 	name	VARCHAR,
 	session	VARCHAR,		-- The session cookie for this user
-	has_intrinsic_location,	INTEGER,	-- um?
+	has_intrinsic_location	INTEGER,	-- um?
 	lastseen	DATE,
 	lastx	INTEGER,
 	lasty	INTEGER,

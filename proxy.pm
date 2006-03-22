@@ -138,11 +138,13 @@ sub gettreefromurl($$) {
 	$req_cookies->extract_cookies($res);
 
 	my $send_cookie;
+	my $cookie_val;
 	my $callbackref = sub {
 		my ($version,$key,$val,$path,$domain,$port,$path_spec,
 		    $secure,$expires,$discard,$hash) = @_;
 
 		if ($key eq $magic_cookie) {
+			$cookie_val = $val;
 			$send_cookie = $q->cookie(
 				-name=>$key,
 				-value=>$val,
@@ -153,7 +155,7 @@ sub gettreefromurl($$) {
 	$req_cookies->scan( $callbackref );
 
 	if ($res->content_type ne 'text/html') {
-		return ($res,$send_cookie,undef);
+		return ($res,$send_cookie,$user_gamesession_cookie,$cookie_val,undef);
 	}
 
 	######################################################################
@@ -167,7 +169,7 @@ sub gettreefromurl($$) {
 	$tree->eof;
 	$tree->elementify;
 
-	return ($res,$send_cookie,$user_gamesession_cookie,$tree);
+	return ($res,$send_cookie,$user_gamesession_cookie,$cookie_val,$tree);
 }
 
 1;

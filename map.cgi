@@ -52,29 +52,27 @@ if (!$res) {
 my ($class,$name,$visits) = @{$res};
 if (!$name) {$name = '';}
 
+sub out_html_table {
+	return "<table><tr><td class=\"location $class\" height=\"100\" width=\"100\"><div>$name</div></td></tr></table>";
+}
+
 if ($t eq 'html') {
 	print $query->header(-expires=>'+3d');
-	print start_html(-title=>"Square $x,$y");
-	print Link({-rel=>'stylesheet',-type=>'text/css',
-		-href=>'http://cities.totl.net/game.css',
-		-media=>'all'});
-#		-style=>"http://www.zot.org/~hamish/cities/game.css",
-#		-style=>'http://cities.totl.net/game.css',
-
-#	print "<pre>\n";
-#	print "$x,$y\n";
-#	print $class,"\n";
-#	print $name,"\n";
-#	print $visits,"\n";
-#	print "</pre>\n";
-
-	print table({-border=>0,-cellspacing=>0,-cellpadding=>0},
-		Tr(
-			td({-class=>'location '.$class,-id=>'square',-width=>100,-height=>100},
-				div($name)
-			)
-		)
-	);
+	print '<html><head><title>Square $x,$y</title>';
+	print '<link type="text/css" media="all" rel="stylesheet" href="http://cities.totl.net/game.css" />';
+	print '</head><body>';
+	print out_html_table();
+	print '</body></html>';
+} elsif ($t eq 'js') {
+	print $query->header('text/javascript');
+	print "document.write('",out_html_table(),"');\n";
+} elsif ($t eq 'jsi') {
+	print $query->header(-expires=>'+3d');
+	print '<html><head><title>Square $x,$y</title>';
+	print '<link type="text/css" media="all" rel="stylesheet" href="http://cities.totl.net/game.css" />';
+	print "</head><body>\n";
+	print '<script type="text/javascript" src="?',"x=$x&y=$y&t=js",'"></script>';
+	print "</body>\n";
 } else {
 	print $query->header;
 	print "unknown format";

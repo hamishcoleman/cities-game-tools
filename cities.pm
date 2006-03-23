@@ -436,6 +436,7 @@ sub dumptogamelog($) {
 			print LOG $head, $tail, "\n";
 		}
 	}
+	close LOG;
 }
 
 sub dumptodb($) {
@@ -464,6 +465,9 @@ sub dumptodb($) {
 	$userlookup->finish();
 	if (!$user) {
 		# bad!
+		open(LOG,">>$cities::logfile");
+		print LOG "ERROR: bad user $d->{_logname}\n";
+		close(LOG);
 		die "User $d->{_logname} does not exist in the database";
 	}
 	$dbh->do(qq{

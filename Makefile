@@ -9,6 +9,7 @@ test:
 	install -m a+rx showmap.cgi ~hamish/WWW/cities/
 	install -m a+rx map.cgi ~hamish/WWW/cities/
 	install -m a+r game.css ~hamish/WWW/cities/
+	install -m a+r black.jpg ~hamish/WWW/cities/
 	touch ~hamish/WWW/cities/gamelog.txt
 	chmod a+rw ~hamish/WWW/cities/gamelog.txt
 	install -d -m a+rwx ~hamish/WWW/cities/db

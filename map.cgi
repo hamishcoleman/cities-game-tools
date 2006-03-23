@@ -10,26 +10,46 @@ use DBI;
 
 use cities;
 
-my $query = new CGI;
+my %images = (
+	'' => 'http://cities.totl.net/images/grass.jpg',
+	loc_null => 'black.jpg',
+	loc_city => 'http://cities.totl.net/images/road.jpg',
+	loc_road => 'http://cities.totl.net/images/road.jpg',
+	loc_boat => 'http://cities.totl.net/images/boat.png',
+	loc_space => 'http://cities.totl.net/images/space.jpg',
+	loc_cloud => 'http://cities.totl.net/images/clouds.jpg',
+	loc_beach => 'http://cities.totl.net/images/beach.png',
+	loc_swamp => 'http://cities.totl.net/images/swamp.png',
+	loc_sewage => 'http://cities.totl.net/images/slime.jpg',
+	loc_lava => 'http://cities.totl.net/images/lava.jpg',
+	loc_water => 'http://cities.totl.net/images/water.png',
+	loc_ocean => 'http://cities.totl.net/images/water.png',
+	loc_cave => 'http://cities.totl.net/images/cave.png',
+	loc_mountain => 'http://cities.totl.net/images/crags.jpg',
+	loc_crags => 'http://cities.totl.net/images/crags.jpg',
+	loc_jungle => 'http://cities.totl.net/images/jungle.png',
+	loc_forest => 'http://cities.totl.net/images/forest.jpg',
+	loc_desert => 'http://cities.totl.net/images/badlands.png',
+	loc_badlands => 'http://cities.totl.net/images/badlands.png',
+	loc_stone => 'http://cities.totl.net/images/road.jpg',
+	loc_dragon => 'http://cities.totl.net/images/dragon.png',
+	loc_mudwet => 'http://cities.totl.net/images/mudwet.jpg',
+	loc_muddry => 'http://cities.totl.net/images/muddry.jpg',
+	loc_snow => 'http://cities.totl.net/images/snow.png',
+	loc_ice => 'http://cities.totl.net/images/ice.jpg',
+	loc_glacier => 'http://cities.totl.net/images/glacier.jpg',
+	loc_tunnel => 'http://cities.totl.net/images/tunnel.jpg',
+	loc_doore => 'http://cities.totl.net/images/doore.jpg',
 
-if (!$query->request_method) {
-	print "commandline test mode\n";
-}
+#.loc_goth {
+#	background-image: none;
+#	font-weight: bold;
+#	background-color: black;
+#	color: red;
+#	border: solid 1px red;
+#}
 
-
-my $x = int(param('x'));
-my $y = int(param('y'));
-my $t = param('t');	# data type requested
-
-if (!defined $x || !defined $y) {
-	print $query->header;
-	print "no square\n";
-	exit;
-}
-
-if (!defined $t) {
-	$t='html';
-}
+);
 
 sub lookup($$) {
 	my ($x,$y) = @_;
@@ -57,6 +77,26 @@ sub lookup($$) {
 sub out_html_table($$) {
 	my ($class,$name) = @_;
 	return "<table><tr><td class=\"location $class\" height=\"100\" width=\"100\"><div>$name</div></td></tr></table>";
+}
+
+my $query = new CGI;
+
+if (!$query->request_method) {
+	print "commandline test mode\n";
+}
+
+my $x = int(param('x'));
+my $y = int(param('y'));
+my $t = param('t');	# data type requested
+
+if (!defined $x || !defined $y) {
+	print $query->header;
+	print "no square\n";
+	exit;
+}
+
+if (!defined $t) {
+	$t='html';
 }
 
 if ($t eq 'html') {
@@ -96,7 +136,12 @@ if ($t eq 'html') {
 	my ($class,$name,$visits) = lookup($x,$y);
 
 	if ($class) {
-		print redirect('http://cities.totl.net/images/road.jpg');
+		my $image = $images{$class};
+		if (defined $image) {
+			print redirect($image);
+		} else {
+			print redirect('http://cities.totl.net/images/grass.jpg');
+		}
 	} else {
 		print redirect('black.jpg');
 	}

@@ -248,6 +248,87 @@ sub dbopen {
 	return $dbh;
 }
 
+sub dbloaduser($) {
+	my ($d) = @_;
+
+	my $dbh = dbopen();
+
+	if (!defined $d->{_logname}) {
+		die "no logname";
+	}
+
+	my $sth = $dbh->prepare_cached(qq{
+		SELECT realm,lastx,lasty,lastseen
+		FROM user
+		WHERE name = ?
+	});
+	$sth->execute($d->{_logname});
+	my $res = $sth->fetch();
+
+	if (!$res) {
+		die "user $d->{_logname} is not in the database";
+	}
+
+	$d->{_db}->{realm} = $res->[0];
+	$d->{_db}->{lastx} = $res->[1];
+	$d->{_db}->{lasty} = $res->[2];
+	$d->{_db}->{lastseen} = $res->[3];
+	return 1;
+}
+
+# Generate just the name part of a new realm
+sub dbmakenewrealmname($) {
+	my ($d) = @_;
+	my $dbh = dbopen();
+	my $sth;
+	my $realm;
+	my $realmnr;
+
+	if (!defined $d->{_logname}) {
+		die "no logname";
+	}
+
+	$sth = $dbh->prepare_cached(qq{
+		SELECT max(realm)
+		FROM map
+		WHERE realm LIKE ?
+	});
+	$sth->execute($d->{_logname}.'%');
+	my $res = $sth->fetch();
+
+	if (!$res) {
+		$realmnr = 0;
+	} else {
+		$realm = $res->[0];
+
+		($realmnr) = ($realm =~ m/(\d+)$/);
+	}
+
+	# TODO - actually verify that there will not be any races.
+	
+	$realm = $d->{_logname} . ($realmnr+1);
+
+	return $realm;
+}
+
+# generate the entire realm if required
+sub dbnewrealm($) {
+	my ($d) = @_;
+
+	if (!defined $d->{_db}->{realm}) {
+		die "no realm";
+	}
+
+	# set a new realm if we need it
+	if ($d->{_db}->{realm} eq '0') {
+		$d->{_realm} = dbmakenewrealmname($d);
+	} else {
+		$d->{_realm} = $d->{_db}->{realm};
+	}
+	$d->{_x} = $d->{_db}->{lastx};
+	$d->{_y} = $d->{_db}->{lasty};
+}
+
 sub computelocation($) {
 	my ($d) = @_;
 
@@ -280,33 +361,29 @@ sub computelocation($) {
 	# location abilities, whilst also trying to allow some mapping
 	# of areas without location information.
 
-	# if we get  to here, then we do not currently have a location fix
-	# if that is the case there are several causes:
-	#  1) we have not completed the quest / dont have GPS selected
-	#  2) we are in an area disjoint with the main map
-	#
-	# In the case of 1, it would be nice to still function
-	# in the case of 2, we should update the map in a new realm
-	#
-	# Consider 1 to be less usefull and treat it like 2.  This would
-	# suggest a 'realm merge' function to merge a new realm into an old one
-	#
-	# if we have no location
-	#	if user realm == '0'
-	#		generate new realm name, set x=y=0 and store in user
-	#	parse textin looking for "You go North" or similar
-	#	update x and y based on parse
-	#	parse textin looking for 'teleport words'
-	#	if it looks like we teleported
-	#		generate new realm name, set x=y=0 and store in user
+	dbloaduser($d);
 
-	
-	#$d->{_realm} = something
+	# set a new realm if we need it
+	dbnewrealm($d);
+
+	# massage the new location
+	my $s = $d->{_textin};
+	if ( $s =~ m/^You go North./) {
+		$d->{_y}++;
+	} elsif ( $s =~ m/^You go South./) {
+		$d->{_y}--;
+	} elsif ( $s =~ m/^You go East./) {
+		$d->{_x}++;
+	} elsif ( $s =~ m/^You go West./) {
+		$d->{_x}--;
+	} elsif ( $s =~ m/^You teleport in some way/) {
+		dbnewrealm($d);
+	}
+	# TODO - no message when exiting the space elevator
 }
 
-sub screenscrape($) {
-	my ($tree) = @_;
-	my $d;		# place to store our scrapings
+sub screenscrape($$) {
+	my ($tree,$d) = @_;
 	my $node;	# temp node value
 	my $s;		# temp string value
 
@@ -439,6 +516,7 @@ sub dumptogamelog($) {
 	if (defined $d->{_x} && defined $d->{_y}) {
 		print LOG "LOC: $d->{_x}, $d->{_y}\n";
 		print LOG "VISIT: $d->{_x}, $d->{_y}\n";
+		print REALM "REALM: $d->{_realm}\n";
 		$haveloc=1;
 	}
 	print LOG $d->{_textin};
@@ -470,35 +548,6 @@ sub dumptogamelog($) {
 		}
 	}
 	close LOG;
-}
-
-sub dbloaduser($) {
-	my ($d) = @_;
-
-	my $dbh = dbopen();
-
-	if (!defined $d->{_logname}) {
-		#die "no logname";
-		return 0;
-	}
-
-	my $sth = $dbh->prepare_cached(qq{
-		SELECT realm,lastx,lasty,lastseen
-		FROM user
-		WHERE name = ?
-	});
-	$sth->execute($d->{_logname});
-	my $res = $sth->fetch();
-
-	if (!$res) {
-		die "user $d->{_logname} is not in the database";
-	}
-
-	$d->{_db}->{realm} = $res->[0];
-	$d->{_db}->{lastx} = $res->[1];
-	$d->{_db}->{lasty} = $res->[2];
-	$d->{_db}->{lastseen} = $res->[3];
-	return 1;
 }
 
 sub dbsaveuser($) {

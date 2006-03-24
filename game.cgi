@@ -42,9 +42,11 @@ adjusturls($tree,$realpage);
 #
 # Extract saliant data from the information and store it.
 
-my $d = screenscrape($tree);
+my $d;
+$d->{_state} = 'unknown';
 
 addcookie($d,$send_cookie_val,$recv_cookie);
+screenscrape($tree,$d);
 
 # TODO - determine what to do about various states..
 if ($d->{_state} eq 'loggedin') {

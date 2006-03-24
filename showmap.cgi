@@ -74,6 +74,30 @@ my %shortname = (
 my $query = new CGI;
 print $query->header();
 
+# spit the header out before we do anything that could cause an error message..
+print <<EOF
+<html>
+ <head>
+  <title>Cities Map</title>
+  <link href="game.css" media="screen" rel="stylesheet" type="text/css">
+ </head>
+ <script type="text/javascript">
+
+function togglekey() {
+	keydiv = document.getElementById('keydiv');
+	keybox = document.getElementById('keybox');
+	if (keybox.checked) {
+		keydiv.style.display='block';
+	} else {
+		keydiv.style.display='none';
+	}
+}
+
+ </script>
+<body>
+EOF
+;
+
 my $dbh = DBI->connect( "dbi:SQLite:$cities::db" ) || die "Cannot connect: $DBI::errstr";
 
 my $lastx=20000;
@@ -157,11 +181,8 @@ if ($public) {
 	if ($max_y>200) {$max_y=200;}	# hide the mess
 }
 
-print "<html><head><title>Cities Map</title>",
-	'<link href="game.css" media="screen" rel="stylesheet" type="text/css">',
-	"</head><body>\n";
 
-print start_form(-method=>'GET',name=>"map");
+print start_form(-method=>'GET',name=>"tools");
 print "<table border=1><tr>";
 
 print "<td>";
@@ -185,7 +206,7 @@ print "<td>";
 	print	popup_menu(-name=>'realm',
 			-default=>$want_realm,
 			-values=>\@realms,
-			-onchange=>'document.map.submit();'),
+			-onchange=>'document.tools.submit();'),
 }
 print "</td>";
 #print "<td>Showing: $realm</td>\n";
@@ -202,14 +223,15 @@ my $want_key = param('key');
 print "<td>";
 print checkbox(-name=>'key',
 	-checked=>$want_key,
-	-onchange=>'document.map.submit();');
+	-id=>'keybox',
+	-onchange=>'togglekey();');
 print "</td>";
 
 my $want_center = param('center');
 print "<td>";
 print checkbox(-name=>'center',
 	-checked=>$want_center,
-	-onchange=>'document.map.submit();');
+	-onchange=>'document.tools.submit();');
 print "</td>";
 
 my $center_size=10;
@@ -231,14 +253,20 @@ print end_form;
 ###
 
 if ($want_key) {
-	# Print out the map key
-	# TODO - sort by key _and_ then by name - easy when this is in the dB
-	print "<table border=1><tr><th>icon</th><th>Full Name</th></tr>\n";
-	for my $i (sort {$shortname{$a} cmp $shortname{$b}} keys %shortname) {
-		print "<tr><th>$shortname{$i}</th><td>$i</td></tr>\n";
-	}
-	print "</table>\n";
+	print "<div id='keydiv'>\n";
+} else {
+	print "<div id='keydiv' style='display:none'>\n";
 }
+	
+# Print out the map key
+# TODO - sort by key _and_ then by name - easy when this is in the dB
+
+print "<table border=1><tr><th>icon</th><th>Full Name</th></tr>\n";
+for my $i (sort {$shortname{$a} cmp $shortname{$b}} keys %shortname) {
+	print "<tr><th>$shortname{$i}</th><td>$i</td></tr>\n";
+}
+print "</table>\n";
+print "</div>\n";
 
 
 ###

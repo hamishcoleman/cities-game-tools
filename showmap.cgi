@@ -122,12 +122,25 @@ my $min_y=$ARGV[2] || $maximums->[2];
 my $max_y=$ARGV[3] || $maximums->[3];
 
 my $want_visits = ! $ARGV[4];
-my $want_key = $ARGV[5];
+
+my $public=1;
+if (url(-relative=>1) eq 'showmap.cgi') {
+	$public=0;
+}
+
+if ($public) {
+	# this is a public map...
+	$want_visits = 0;		# never allowed
+	if ($max_y>200) {$max_y=200;}	# hide the mess
+}
+
+my $want_key = param('key');
 
 print "<html><head><title>Cities Map</title>",
 	'<link href="game.css" media="screen" rel="stylesheet" type="text/css">',
 	"</head><body>\n";
 
+print start_form(-method=>'GET',name=>"map");
 print "<table border=1><tr>";
 
 print "<td>";
@@ -143,28 +156,37 @@ print "<td>";
 	while ($res = $sth->fetch()) {
 		push @realms,$res->[0];
 	}
-	print start_form,
-		popup_menu(-name=>'realm',
+	print	popup_menu(-name=>'realm',
 			-default=>$realm,
-			-values=>\@realms),
-		submit(-label=>'Show Realm'),
-		end_form;
+			-values=>\@realms,
+			-onchange=>'document.map.submit();'),
 }
 print "</td>";
-print "<td>Showing: $realm</td>\n";
+#print "<td>Showing: $realm</td>\n";
 
 print "<td>map size [$min_x,$max_y] - [$max_x,$min_y]</td>\n";
 if (defined $d->{_logname}) {
 	print "<td>";
-	print "USER: $d->{_logname}\n";
-	print "</td>";
-	print "<td>";
-	print "Location: $lastx, $lasty, \n";
-	print "realm: $lastrealm\n";
+	print "USER: $d->{_logname}";
+	print " (Location: $lastx, $lasty, realm: $lastrealm)\n";
 	print "</td>";
 }
 
+print "<td>";
+print checkbox(-name=>'key',
+	-checked=>$want_key,
+	-onchange=>'document.map.submit();');
+print "</td>";
+
+# debug..
+print "<td>public==$public</td>";
+
 print "</tr></table>\n";
+print end_form;
+
+###
+### Dump the map key
+###
 
 if ($want_key) {
 	# Print out the map key
@@ -175,6 +197,10 @@ if ($want_key) {
 	print "</table>\n";
 }
 
+
+###
+### Dump the map
+### 
 print "<table border=0 cellpadding=0 cellspacing=0>\n";
 
 # Stick an index along the top

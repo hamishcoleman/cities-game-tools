@@ -308,6 +308,7 @@ sub dbmakenewrealmname($) {
 	}
 
 	# TODO - actually verify that there will not be any races.
+	# FIXME - player names ending in numbers... (a separator?)
 	
 	$realm = $d->{_logname} . ($realmnr+1);
 
@@ -372,8 +373,10 @@ sub computelocation($) {
 	# set a new realm if we need it
 	dbnewrealm($d);
 
-	# massage the new location
-	my $s = $d->{_textin};
+	my $s = $d->{_textin} || '';
+
+
+	# inertial navigation
 	if ( $s =~ m/^You go North/ms) {
 		$d->{_y}++;
 	} elsif ( $s =~ m/^You go South/ms) {
@@ -382,10 +385,49 @@ sub computelocation($) {
 		$d->{_x}++;
 	} elsif ( $s =~ m/^You go West/ms) {
 		$d->{_x}--;
-	} elsif ( $s =~ m/^You teleport in some way/ms) {
+
+	# magic phrases
+	} elsif ( $s =~ m/bolted behind you by a chuckling guard/ms) {
+		# TODO - could check lastx,lasty
+		$d->{_realm} = "Gauntlet";
+		$d->{_x} = 0;
+		$d->{_y} = 0;
+	} elsif ( $s =~ m/fight your way from the pit to escape/ms) {
+		$d->{_realm} = "The Pit";
+		$d->{_x} = 0;
+		$d->{_y} = 0;
+	} elsif ( $s =~ m/You climb out of the tunnel. It comes out in the wilderness/ms) {
+		# exiting the pit
 		dbnewrealm($d);
+	} elsif ( $s =~ m/You step onto the teleporter/ms) {
+		# south road teleporter (and others?)
+		dbnewrealm($d);
+
+	# Magic locations..
+	} elsif ( $d->{_db}->{realm} eq '0' && $d->{_x}==29 && $d->{_y}==40) {
+		$d->{_realm} = "elevator";
 	}
+
 	# TODO - no message when exiting the space elevator
+	# bombsquad:
+	#  enter/exit:	"You enter the tunnel..."
+	#	set realm from _map->0->1->name, x&y borken
+	#  travel:	"You walk the path..."
+	#	set realm from _map->0->0->name, x&y borken
+	# gauntlet:
+	#  enter:	"You are blindfolded and led down many secret passages. After a long time your eyes are finally freed. You are pushed into a long dark tunnel which is bolted behind you by a chuckling guard."
+	#  exit:	"You step onto the teleporter..."
+	# desert road teleporter
+	#  use:		"You step onto the teleporter..."
+	# the pit:
+	#  enter:	"The ground opens up and swallows you. You must fight your way from the pit to escape the evil of the socks."
+	#  exit:	"You climb out of the tunnel. It comes out in the wilderness."
+	# tunnels:
+	# tokyo4:
+	# kansas:
+	# cloud land:
+	# the arena:
+	# barbeleith:
 }
 
 sub screenscrape($$) {

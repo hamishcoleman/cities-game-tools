@@ -258,7 +258,7 @@ sub dbloaduser($) {
 	}
 
 	my $sth = $dbh->prepare_cached(qq{
-		SELECT realm,lastx,lasty,lastseen
+		SELECT name,realm,lastx,lasty,lastseen
 		FROM user
 		WHERE name = ?
 	});
@@ -270,10 +270,11 @@ sub dbloaduser($) {
 		die "user $d->{_logname} is not in the database";
 	}
 
-	$d->{_db}->{realm} = $res->[0];
-	$d->{_db}->{lastx} = $res->[1];
-	$d->{_db}->{lasty} = $res->[2];
-	$d->{_db}->{lastseen} = $res->[3];
+	$d->{_db}->{name} = $res->[0];
+	$d->{_db}->{realm} = $res->[1];
+	$d->{_db}->{lastx} = $res->[2];
+	$d->{_db}->{lasty} = $res->[3];
+	$d->{_db}->{lastseen} = $res->[4];
 	return 1;
 }
 
@@ -317,15 +318,18 @@ sub dbmakenewrealmname($) {
 sub dbnewrealm($) {
 	my ($d) = @_;
 
-	if (!defined $d->{_db}->{realm}) {
-		die "no realm";
+	if (!defined $d->{_db}->{name}) {
+		die "no user details";
 	}
 
+	# could be un-initialised if this is a new user
+	my $realm = $d->{_db}->{realm} || '0';
+
 	# set a new realm if we need it
-	if ($d->{_db}->{realm} eq '0') {
+	if ($realm eq '0') {
 		$d->{_realm} = dbmakenewrealmname($d);
 	} else {
-		$d->{_realm} = $d->{_db}->{realm};
+		$d->{_realm} = $realm;
 	}
 	$d->{_x} = $d->{_db}->{lastx};
 	$d->{_y} = $d->{_db}->{lasty};
@@ -470,9 +474,6 @@ sub screenscrape($$) {
 	# add the viewport second as it's data will overwrite the map data
 	addviewport($tree,$d);
 
-	# construct X and Y values
-	computelocation($d);
-
 	return $d;
 }
 
@@ -610,6 +611,13 @@ sub dumptodb($) {
 			# we dont need this extra guff poluting the db (i hope)
 			$class =~ s/location //;
 			$class =~ s/ map_loc//;
+
+			# TODO - generalise these exceptions
+			# also maybe exclude boats?
+			# Argh!
+			if ($class eq 'loc_vashka') {
+				next;
+			}
 
 			my $lookup = $dbh->prepare_cached(qq{
 				SELECT class,name

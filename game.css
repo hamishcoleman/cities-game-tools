@@ -5,7 +5,25 @@ h1.title {
 	margin: 0;
 }
 
+.heading {
+	font-weight: bold;
+	border-bottom: solid thin black;
+	margin-bottom: 4px;
+	font-size: 14pt;
+}
 
+.subheading {
+	font-weight: bold;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
+.infoul {
+	padding-top: 0px;
+	padding-bottom: 0px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
 
 .Rickshaw {
 	padding: 4px;
@@ -518,6 +536,13 @@ h1.title {
 	background-image: url(http://cities.totl.net/images/doore.jpg);
 }
 
+.loc_vashka {
+	color: black;
+	background: #fff;
+	background-image: none;
+	border: double;
+}
+
 
 
 div.controls, div.footer {
@@ -529,7 +554,7 @@ div.controls, div.footer {
 }
 div.footer {
 	text-align: center;
-	margin: 0.5em 10% 1em 10%;
+	margin: 0.5em 5% 1em 5%;
 }
 .control_title {
 	font-weight: bold;
@@ -617,6 +642,10 @@ option, input, textarea, select {
 }
 .score {
 	padding-left: 1em;
+}
+
+.position {
+	padding-right: 1em;
 }
 /*
 .player {
@@ -718,17 +747,28 @@ td.map_loc_medium:hover .hideuntil
 .barb13 { background-color: #8193A8 ; }
 .barb14 { background-color: #8193A8; }
 
+.bifrost1, .road_Bifrost1 { background-image: none; background-color: #ff0000; }
+.bifrost2, .road_Bifrost2 { background-image: none; background-color: #ff8800; }
+.bifrost3, .road_Bifrost3 { background-image: none; background-color: #ffff00; }
+.bifrost4, .road_Bifrost4 { background-image: none; background-color: #88ff00; }
+.bifrost5, .road_Bifrost5 { background-image: none; background-color: #00ff00; }
+.bifrost6, .road_Bifrost6 { background-image: none; background-color: #00ff88; }
+.bifrost7, .road_Bifrost7 { background-image: none; background-color: #00ffff; }
+
 .ele1 {
 	background-color: #8193A8;
-	background-image: none;
+	background-image: url(http://cities.totl.net/images/carpet.jpg);
+	color: #fff;
 }
 .ele2 {
 	background-color: #E18C43 ;
-	background-image: none;
+	background-image: url(http://cities.totl.net/images/carpet.jpg);
+	color: #fff;
 }
 .ele3 {
 	background-color: #A76aB9 ; 
-	background-image: none;
+	background-image: url(http://cities.totl.net/images/carpet.jpg);
+	color: #fff;
 }
 .tab 
 { 

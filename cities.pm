@@ -374,15 +374,15 @@ sub computelocation($) {
 
 	# massage the new location
 	my $s = $d->{_textin};
-	if ( $s =~ m/^You go North./) {
+	if ( $s =~ m/^You go North/ms) {
 		$d->{_y}++;
-	} elsif ( $s =~ m/^You go South./) {
+	} elsif ( $s =~ m/^You go South/ms) {
 		$d->{_y}--;
-	} elsif ( $s =~ m/^You go East./) {
+	} elsif ( $s =~ m/^You go East/ms) {
 		$d->{_x}++;
-	} elsif ( $s =~ m/^You go West./) {
+	} elsif ( $s =~ m/^You go West/ms) {
 		$d->{_x}--;
-	} elsif ( $s =~ m/^You teleport in some way/) {
+	} elsif ( $s =~ m/^You teleport in some way/ms) {
 		dbnewrealm($d);
 	}
 	# TODO - no message when exiting the space elevator
@@ -576,6 +576,7 @@ sub dbsaveuser($) {
 	});
 	$sth->execute($d->{_realm},$d->{_x},$d->{_y},
 		$d->{_time},$d->{_logname});
+	$dbh->commit();
 
 	return 1;
 }

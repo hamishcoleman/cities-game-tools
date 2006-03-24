@@ -241,6 +241,13 @@ sub addmap($$) {
 	}
 }
 
+sub dbopen {
+	my $dbh = DBI->connect_cached( "dbi:SQLite:$cities::db" ) || die "Cannot connect: $DBI::errstr";
+	$dbh->{AutoCommit} = 0;
+
+	return $dbh;
+}
+
 sub computelocation($) {
 	my ($d) = @_;
 
@@ -254,8 +261,9 @@ sub computelocation($) {
 			if ($2 eq 'N') { $d->{_y} = $1 }
 			if ($2 eq 'S') { $d->{_y} = -$1 }
 		}
-		# FIXME - I am not checking for errors ..
+		# FIXME - I am not checking for errors in the above..
 		$d->{_realm} = '0';
+		return;
 	}
 
 	# we do not have enough information...
@@ -271,6 +279,27 @@ sub computelocation($) {
 	# basically I am trying to support robots without intrinsic
 	# location abilities, whilst also trying to allow some mapping
 	# of areas without location information.
+
+	# if we get  to here, then we do not currently have a location fix
+	# if that is the case there are several causes:
+	#  1) we have not completed the quest / dont have GPS selected
+	#  2) we are in an area disjoint with the main map
+	#
+	# In the case of 1, it would be nice to still function
+	# in the case of 2, we should update the map in a new realm
+	#
+	# Consider 1 to be less usefull and treat it like 2.  This would
+	# suggest a 'realm merge' function to merge a new realm into an old one
+	#
+	# if we have no location
+	#	if user realm == '0'
+	#		generate new realm name, set x=y=0 and store in user
+	#	parse textin looking for "You go North" or similar
+	#	update x and y based on parse
+	#	parse textin looking for 'teleport words'
+	#	if it looks like we teleported
+	#		generate new realm name, set x=y=0 and store in user
+
 	
 	#$d->{_realm} = something
 }
@@ -368,6 +397,10 @@ sub screenscrape($) {
 	return $d;
 }
 
+
+#
+# Adds information from the session cookie to our dataset
+#
 sub addcookie($$$) {
 	my ($d,$send_cookie,$recv_cookie) = @_;
 
@@ -439,6 +472,62 @@ sub dumptogamelog($) {
 	close LOG;
 }
 
+sub dbloaduser($) {
+	my ($d) = @_;
+
+	my $dbh = dbopen();
+
+	if (!defined $d->{_logname}) {
+		#die "no logname";
+		return 0;
+	}
+
+	my $sth = $dbh->prepare_cached(qq{
+		SELECT realm,lastx,lasty,lastseen
+		FROM user
+		WHERE name = ?
+	});
+	$sth->execute($d->{_logname});
+	my $res = $sth->fetch();
+
+	if (!$res) {
+		die "user $d->{_logname} is not in the database";
+	}
+
+	$d->{_db}->{realm} = $res->[0];
+	$d->{_db}->{lastx} = $res->[1];
+	$d->{_db}->{lasty} = $res->[2];
+	$d->{_db}->{lastseen} = $res->[3];
+	return 1;
+}
+
+sub dbsaveuser($) {
+	my ($d) = @_;
+
+	my $dbh = dbopen();
+
+	if (!defined $d->{_logname}) {
+		#die "no logname";
+		return 0;
+	}
+
+	if (!defined $d->{_realm} || !defined $d->{_x}
+		|| !defined $d->{_y} || !defined $d->{_time}) {
+		# cannot save without information
+		return 0;
+	}
+
+	my $sth = $dbh->prepare_cached(qq{
+		UPDATE user
+		SET realm=?, lastx=?, lasty=?, lastseen=?
+		WHERE name = ?
+	});
+	$sth->execute($d->{_realm},$d->{_x},$d->{_y},
+		$d->{_time},$d->{_logname});
+
+	return 1;
+}
+
 sub dumptodb($) {
 	my ($d) = @_;
 
@@ -450,32 +539,16 @@ sub dumptodb($) {
 		return;
 	}
 
-	my $dbh = DBI->connect( "dbi:SQLite:$cities::db" ) || die "Cannot connect: $DBI::errstr";
-	$dbh->{AutoCommit} = 0;
+	my $dbh = dbopen();
 
-
-	# dump the current user data
-	my $userlookup = $dbh->prepare(qq{
-		SELECT lastseen
-		FROM user
-		WHERE name = ?
-	});
-	$userlookup->execute($d->{_logname});
-	my $user = $userlookup->fetch;
-	$userlookup->finish();
-	if (!$user) {
+	# save the user's last known position
+	if(!dbsaveuser($d)) {
 		# bad!
 		open(LOG,">>$cities::logfile");
 		print LOG "ERROR: bad user $d->{_logname}\n";
 		close(LOG);
 		die "User $d->{_logname} does not exist in the database";
 	}
-	$dbh->do(qq{
-		UPDATE user
-		SET lastseen=?, lastx=?, lasty=?, realm=?
-		WHERE name=?
-	}, undef, $d->{_time},$d->{_x},$d->{_y},$d->{_realm},$d->{_logname});
-
 
 	# dump the map data
 	for my $x (keys %{$d->{_map}}) {
@@ -573,7 +646,7 @@ sub dumptodb($) {
 	# basically, if you do not use a prepared sth, you cannot finish it
 	# and the dbh destroy _WILL_ whinge at you.  Stupid stupid stupid
 
-	$dbh->disconnect;
+	#$dbh->disconnect;
 }
 
 1;

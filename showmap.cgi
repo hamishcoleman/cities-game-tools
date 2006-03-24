@@ -175,7 +175,7 @@ my $max_x=param('x2') || $ARGV[1] || $map_max_x;
 my $min_y=param('y1') || $ARGV[2] || $map_min_y;
 my $max_y=param('y2') || $ARGV[3] || $map_max_y;
 
-my $want_visits = ! $ARGV[4];
+my $want_visits = param('visits') || $ARGV[4];
 
 my $public=1;
 if (url(-relative=>1) eq 'showmap.cgi') {
@@ -206,6 +206,7 @@ print "<td>";
 	while ($res = $sth->fetch()) {
 		push @realms,$res->[0];
 	}
+	$sth->finish();
 
 	if (defined $d->{_logname}) {
 		unshift @realms,"CURRENT";
@@ -236,11 +237,13 @@ print checkbox(-name=>'key',
 print "</td>";
 
 my $want_center = param('center');
-print "<td>";
-print checkbox(-name=>'center',
-	-checked=>$want_center,
-	-onchange=>'document.tools.submit();');
-print "</td>";
+if (defined $d->{_logname}) {
+	print "<td>";
+	print checkbox(-name=>'center',
+		-checked=>$want_center,
+		-onchange=>'document.tools.submit();');
+	print "</td>";
+}
 
 my $center_size=10;
 if ($want_center && defined $d->{_logname}) {
@@ -248,6 +251,14 @@ if ($want_center && defined $d->{_logname}) {
 	if ($min_x < $lastx-$center_size) {$min_x = $lastx-$center_size;}
 	if ($max_y > $lasty+$center_size) {$max_y = $lasty+$center_size;}
 	if ($min_y < $lasty-$center_size) {$min_y = $lasty-$center_size;}
+}
+
+if (!$public) {
+	print "<td>";
+	print checkbox(-name=>'visits',
+		-checked=>$want_visits,
+		-onchange=>'document.tools.submit();');
+	print "</td>";
 }
 
 # debug..
@@ -330,12 +341,6 @@ for my $col ($min_x..$max_x) {
 }
 print "</tr>\n";
 
-my $lookup = $dbh->prepare_cached(qq{
-	SELECT class,name,visits
-	FROM map
-	WHERE realm=? AND x=? AND y=?
-});
-
 my $row=$max_y;
 while ($row>$min_y-1) {
 	print "<tr>";
@@ -349,8 +354,16 @@ while ($row>$min_y-1) {
 
 	my $skip = 0;
 	for my $col ($min_x..$max_x) {
+
+		my $lookup = $dbh->prepare_cached(qq{
+			SELECT class,name,visits
+			FROM map
+			WHERE realm=? AND x=? AND y=?
+		});
+
 		$lookup->execute($realm,$col,$row);
 		my $res = $lookup->fetch;
+		$lookup->finish();
 
 		if (!$res) {
 			# no data for this location...
@@ -427,6 +440,7 @@ while ($row>$min_y-1) {
 	print "</tr>\n";
 	$row--;
 }
+
 
 # Stick an index along the bottom
 print "<tr>";

@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 #
-# _LOGNAME_/_PASSWORD_
+#
 #
 
 ##########################################################################
@@ -400,7 +400,7 @@ sub computelocation($) {
 		# exiting the pit
 		dbnewrealm($d);
 	} elsif ( $s =~ m/You step onto the teleporter/ms) {
-		# south road teleporter (and others?)
+		# south road teleporter (and limbo teleporters)
 		dbnewrealm($d);
 
 	# Magic locations..
@@ -623,6 +623,27 @@ sub dbsaveuser($) {
 	return 1;
 }
 
+sub lookup($$$) {
+	my ($realm,$x,$y) = @_;
+	my $dbh = dbopen();
+
+	my $lookup = $dbh->prepare_cached(qq{
+		SELECT class,name
+		FROM map
+		WHERE realm=? AND x=? AND y=?
+	}) or die $dbh->errstr;
+	$lookup->execute($realm,$x,$y);
+	my $res = $lookup->fetch;
+
+	# convince the DBI to _STOP_ITS_WHINGING_
+	$lookup->finish();
+
+	if (!$res) {
+		return undef;
+	}
+	return ($res->[0],$res->[1]);
+}
+
 sub dumptodb($) {
 	my ($d) = @_;
 
@@ -651,38 +672,33 @@ sub dumptodb($) {
 			my $class = $d->{_map}->{$x}->{$y}->{class};
 			my $name = $d->{_map}->{$x}->{$y}->{name};
 
+			my $thisx = $d->{_x} + $x;
+			my $thisy = $d->{_y} + $y;
+
 			# we dont need this extra guff poluting the db (i hope)
 			$class =~ s/location //;
 			$class =~ s/ map_loc//;
 
 			# TODO - generalise these exceptions
-			# also maybe exclude boats?
 			# Argh!
 			if ($class eq 'loc_vashka') {
 				next;
 			}
+			if ($class eq 'loc_boat') {
+				next;
+			}
 
-			my $lookup = $dbh->prepare_cached(qq{
-				SELECT class,name
-				FROM map
-				WHERE realm=? AND x=? AND y=?
-			});
-			$lookup->execute($d->{_realm},($d->{_x} + $x),($d->{_y} + $y));
-			my $res = $lookup->fetch;
-
-			# convince the DBI to _STOP_ITS_WHINGING_
-			$lookup->finish();
-
-			if (!$res) {
+			my ($cur_class,$cur_name) = lookup($d->{_realm},$thisx,$thisy);
+			if (!$cur_class) {
+				# record does not exist, add it
 				my $visits = $d->{_map}->{$x}->{$y}->{visits};
 				if (!$visits) { $visits = 0; }
-				# record does not exist, add it
 				my $insert = $dbh->prepare_cached(qq{
 					INSERT
 					INTO map(realm,x,y,class,name,visits,lastseen,lastchanged,lastchangedby)
 					VALUES(?,?,?,?,?,?,?,?,?)
 				}) or die $dbh->errstr;
-				$insert->execute($d->{_realm},($d->{_x} + $x),($d->{_y} + $y),
+				$insert->execute($d->{_realm},$thisx,$thisy,
 					$class,
 					$name,
 					$visits,
@@ -693,19 +709,37 @@ sub dumptodb($) {
 			my $diff = 0;
 
 			# FIXME - there is still some bugs in this logic
-			if ($res->[0] ne $class) {
+			if ($cur_class ne $class) {
 				# the square has changed class
 				$diff=1;
-			} elsif (!defined $res->[1] && defined $name) {
+			} elsif (!defined $cur_name && defined $name) {
 				# we have a name now, but did not previously
 				$diff=1
-			} elsif (defined $res->[1] && defined $name && $res->[1] ne $name) {
+			} elsif (defined $cur_name && defined $name && $cur_name ne $name) {
 				# The name has changed
 				$diff=1;
 			}
 			# else no name now or no change
 
 			if ($diff) {
+
+				# delete the square from 'rollback'
+				my $delete = $dbh->prepare_cached(qq{
+					DELETE FROM map
+					WHERE realm='rollback' AND x=? AND y=?
+				}) || die $dbh->errstr;
+				$delete->execute($thisx,$thisy);
+				$delete->finish();
+				# insert the square into 'rollback'
+				my $rollback = $dbh->prepare_cached(qq{
+					INSERT INTO map(realm,x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote)
+					SELECT 'rollback',x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote
+					FROM map
+					WHERE realm=? AND x=? AND y=?
+				}) || die $dbh->errstr;
+				$rollback->execute($d->{_realm},$thisx,$thisy);
+				$rollback->finish();
+
 				# something is different, update the entry
 				my $update = $dbh->prepare_cached(qq{
 					UPDATE map
@@ -716,7 +750,7 @@ sub dumptodb($) {
 					$class,
 					$name,
 					$time,$time,$d->{_logname},
-					$d->{_realm},($d->{_x} + $x),($d->{_y} + $y));
+					$d->{_realm},$thisx,$thisy);
 				next;
 			}
 
@@ -728,7 +762,7 @@ sub dumptodb($) {
 			}) or die $dbh->errstr;
 			$seen->execute(
 				$time,
-				$d->{_realm},($d->{_x} + $x),($d->{_y} + $y));
+				$d->{_realm},$thisx,$thisy);
 		}
 	}
 

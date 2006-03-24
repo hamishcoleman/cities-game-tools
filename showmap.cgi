@@ -31,11 +31,13 @@ my %shortname = (
 	'Healing Field' => 'H',
 	'Herbert the Healer' => 'H',
 	Hospital => 'H',
+	'Hospital Satellite' => 'H',
 	'Ice Station' => 'I',
 	'Ice Trail' => '~',
 	'Jude' => 'H',
 	'Kill or Cure' => 'H',
 	Marker => '.',
+	Medic => 'H',
 	Monastry => 'M',
 	'Night Shrine' => '*',
 	'Nightfall Shrine' => '*',
@@ -57,6 +59,7 @@ my %shortname = (
 	'Stone Circle' => '*',
 	'Track' => '~',
 	'Trading Post' => 'T',
+	'Trading Satellite' => 'T',
 	Trail => '~',
 	'W. Market Outlet' => 'm',
 	'W. Market Local Office' => 'o',
@@ -229,6 +232,7 @@ print end_form;
 
 if ($want_key) {
 	# Print out the map key
+	# TODO - sort by key _and_ then by name - easy when this is in the dB
 	print "<table border=1><tr><th>icon</th><th>Full Name</th></tr>\n";
 	for my $i (sort {$shortname{$a} cmp $shortname{$b}} keys %shortname) {
 		print "<tr><th>$shortname{$i}</th><td>$i</td></tr>\n";

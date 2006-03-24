@@ -24,7 +24,7 @@ my $min_y;
 my $d;
 $d->{_realm}='0';
 $d->{_logname}='_';
-$d->{_time}=1;
+$d->{_time}=2;
 
 $d->{_x}=0;
 $d->{_y}=0;
@@ -35,6 +35,10 @@ while(<>) {
 	if ( $_ =~ m/^LOC: (-?\d+), (-?\d+)/ ) {
 		$x=$1;
 		$y=$2;
+	} elsif ( $_ =~ m/^REALM: (.*)/) {
+		$d->{_realm} = $1;
+	} elsif ( $_ =~ m/^USER: (.*)/) {
+		$d->{_logname} = $1;
 	} elsif ( $_ =~ m/^VISIT: (-?\d+), (-?\d+)/) {
 		my $thisx = $1;
 		my $thisy = $2;

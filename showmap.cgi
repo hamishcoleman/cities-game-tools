@@ -4,6 +4,7 @@ use warnings;
 #
 # Print out a HTML map from the database
 #
+# TODO - move those translations into the database
 #
 use CGI ':all';
 use CGI::Carp qw(fatalsToBrowser);
@@ -72,11 +73,46 @@ print $query->header();
 
 my $dbh = DBI->connect( "dbi:SQLite:$cities::db" ) || die "Cannot connect: $DBI::errstr";
 
+my $lastx=20000;
+my $lasty=20000;
+my $lastrealm='0';
+
+my $realm = param('realm') || '0';
+
+my $d;
+$d->{_state}='showmap';
+
+addcookie($d,undef,$query->cookie('gamesession'));
+if ($d->{_logname}) {
+
+	# FIXME - should use dbloaduser...
+
+	my $sth = $dbh->prepare(qq{
+		SELECT realm,lastx,lasty
+		FROM user
+		WHERE name = ?
+	}) || die $dbh->errstr;
+	$sth->execute($d->{_logname});
+	my $xy = $sth->fetch;
+	$sth->finish();
+	if ($xy) {
+		$lastrealm = $xy->[0];
+		$lastx = $xy->[1];
+		$lasty = $xy->[2];
+	}
+
+	# If we are using the default, set it to our current location
+	if (!defined param('realm')) {
+		$realm = $lastrealm;
+	}
+}
+
 my $sth = $dbh->prepare(qq{
 	SELECT min(x),max(x),min(y),max(y)
 	FROM map
+	WHERE realm=?
 });
-$sth->execute();
+$sth->execute($realm);
 my $maximums = $sth->fetch;
 $sth->finish();
 
@@ -88,36 +124,47 @@ my $max_y=$ARGV[3] || $maximums->[3];
 my $want_visits = ! $ARGV[4];
 my $want_key = $ARGV[5];
 
-my $lastx=20000;
-my $lasty=20000;
-
-my $d;
-$d->{_state}='showmap';
-
 print "<html><head><title>Cities Map</title>",
 	'<link href="game.css" media="screen" rel="stylesheet" type="text/css">',
 	"</head><body>\n";
 
-print "<p>map size [$min_x,$max_y] - [$max_x,$min_y]</p>\n";
-#print "<p>LOC: $x, $y</p>\n";
+print "<table border=1><tr>";
 
-addcookie($d,undef,$query->cookie('gamesession'));
-if ($d->{_logname}) {
-	print "<p>USER: $d->{_logname}</p>\n";
-
+print "<td>";
+{
 	my $sth = $dbh->prepare(qq{
-		SELECT lastx,lasty
-		FROM user
-		WHERE name = ?
+		SELECT DISTINCT realm
+		FROM map
+		ORDER BY realm
 	}) || die $dbh->errstr;
-	$sth->execute($d->{_logname});
-	my $xy = $sth->fetch;
-	$sth->finish();
-	if ($xy) {
-		$lastx = $xy->[0];
-		$lasty = $xy->[1];
+	$sth->execute();
+	my @realms;
+	my $res;
+	while ($res = $sth->fetch()) {
+		push @realms,$res->[0];
 	}
+	print start_form,
+		popup_menu(-name=>'realm',
+			-default=>$realm,
+			-values=>\@realms),
+		submit(-label=>'Show Realm'),
+		end_form;
 }
+print "</td>";
+print "<td>Showing: $realm</td>\n";
+
+print "<td>map size [$min_x,$max_y] - [$max_x,$min_y]</td>\n";
+if (defined $d->{_logname}) {
+	print "<td>";
+	print "USER: $d->{_logname}\n";
+	print "</td>";
+	print "<td>";
+	print "Location: $lastx, $lasty, \n";
+	print "realm: $lastrealm\n";
+	print "</td>";
+}
+
+print "</tr></table>\n";
 
 if ($want_key) {
 	# Print out the map key
@@ -146,7 +193,7 @@ print "</tr>\n";
 my $lookup = $dbh->prepare_cached(qq{
 	SELECT class,name,visits
 	FROM map
-	WHERE realm='0' AND x=? AND y=?
+	WHERE realm=? AND x=? AND y=?
 });
 
 my $row=$max_y;
@@ -162,7 +209,7 @@ while ($row>$min_y-1) {
 
 	my $skip = 0;
 	for my $col ($min_x..$max_x) {
-		$lookup->execute($col,$row);
+		$lookup->execute($realm,$col,$row);
 		my $res = $lookup->fetch;
 
 		if (!$res) {
@@ -188,7 +235,7 @@ while ($row>$min_y-1) {
 		my $empty=1;
 
 		# Show my last position
-		if ($col==$lastx && $row==$lasty) {
+		if ($realm eq $lastrealm && $col==$lastx && $row==$lasty) {
 			print "<b>X</b>";
 			$empty=0;
 		}

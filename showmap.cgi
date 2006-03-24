@@ -163,10 +163,17 @@ $sth->execute($realm);
 my $maximums = $sth->fetch;
 $sth->finish();
 
-my $min_x=$ARGV[0] || $maximums->[0];
-my $max_x=$ARGV[1] || $maximums->[1];
-my $min_y=$ARGV[2] || $maximums->[2];
-my $max_y=$ARGV[3] || $maximums->[3];
+# map extants rectangle
+my $map_min_x= $maximums->[0];
+my $map_max_x= $maximums->[1];
+my $map_min_y= $maximums->[2];
+my $map_max_y= $maximums->[3];
+
+# Display area rectangle
+my $min_x=param('x1') || $ARGV[0] || $map_min_x;
+my $max_x=param('x2') || $ARGV[1] || $map_max_x;
+my $min_y=param('y1') || $ARGV[2] || $map_min_y;
+my $max_y=param('y2') || $ARGV[3] || $map_max_y;
 
 my $want_visits = ! $ARGV[4];
 
@@ -177,8 +184,9 @@ if (url(-relative=>1) eq 'showmap.cgi') {
 
 if ($public) {
 	# this is a public map...
-	$want_visits = 0;		# never allowed
+	$want_visits = 0;		# never allowed publicly
 	if ($max_y>200) {$max_y=200;}	# hide the mess
+	if ($map_max_y>200) {$map_max_y=200;}	# hide the mess
 }
 
 
@@ -211,7 +219,7 @@ print "<td>";
 print "</td>";
 #print "<td>Showing: $realm</td>\n";
 
-print "<td>map size [$min_x,$max_y] - [$max_x,$min_y]</td>\n";
+print "<td>map size [$map_min_x,$map_max_y] - [$map_max_x,$map_min_y]</td>\n";
 if (defined $d->{_logname}) {
 	print "<td>";
 	print "USER: $d->{_logname}";
@@ -252,15 +260,14 @@ print end_form;
 ### Dump the map key
 ###
 
+# Print out the map key
+# TODO - sort by key _and_ then by name - easy when this is in the dB
+
 if ($want_key) {
 	print "<div id='keydiv'>\n";
 } else {
 	print "<div id='keydiv' style='display:none'>\n";
 }
-	
-# Print out the map key
-# TODO - sort by key _and_ then by name - easy when this is in the dB
-
 print "<table border=1><tr><th>icon</th><th>Full Name</th></tr>\n";
 for my $i (sort {$shortname{$a} cmp $shortname{$b}} keys %shortname) {
 	print "<tr><th>$shortname{$i}</th><td>$i</td></tr>\n";
@@ -269,6 +276,42 @@ print "</table>\n";
 print "</div>\n";
 
 
+###
+### Container and arrows
+print "<table>\n";
+print "<tr>";
+
+#top,left
+print "<td>";
+if ($min_x > $map_min_x && $max_y < $map_max_y) {
+	print "NW";
+}
+print "</td>";
+
+#top
+print "<td align=center>";
+if ($max_y < $map_max_y) {
+	print "North";
+}
+print "</td>";
+
+#top,right
+print "<td>";
+if ($max_x < $map_max_x && $max_y < $map_max_y) {
+	print "NE";
+}
+print "</td>";
+
+print "</tr><tr>";
+
+#left
+print "<td>";
+if ($min_x > $map_min_x) {
+	print "West";
+}
+print "</td>";
+
+print "<td>";
 ###
 ### Dump the map
 ### 
@@ -397,10 +440,44 @@ for my $col ($min_x..$max_x) {
 	}
 }
 print "</tr>\n";
-
 print "</table>\n";
 
-# TODO - print out the key
+###
+### Container and arrows
+print "</td>";
+
+#right
+print "<td>";
+if ($max_x < $map_max_x) {
+	print "East";
+}
+print "</td>";
+
+print "</tr><tr>";
+
+#bottom,left
+print "<td>";
+if ($min_x > $map_min_x && $min_y > $map_min_y) {
+	print "SW";
+}
+print "</td>";
+
+#bottom
+print "<td align=center>";
+if ($min_x > $map_min_x) {
+	print "South";
+}
+print "</td>";
+
+#bottom,right
+print "<td>";
+if ($max_x < $map_max_x && $min_y > $map_min_y) {
+	print "SE";
+}
+print "</td>";
+
+print "</tr></table>";
+
 
 print "</body></html>\n";
 

@@ -6,7 +6,7 @@ use warnings;
 #
 # TODO - move those translations into the database
 #
-use CGI ':all';
+use CGI qw/:all -nosticky/;
 use CGI::Carp qw(fatalsToBrowser);
 use Data::Dumper;
 use DBI;
@@ -332,7 +332,11 @@ while ($row>$min_y-1) {
 		my $empty=1;
 
 		# Show my last position
-		if ($realm eq $lastrealm && $col==$lastx && $row==$lasty) {
+		# in this realm only, unless we are centering.  The assumption
+		# being that we may be in an unknown realm and want to track
+		# our progress on a known realm..
+		if (($col==$lastx && $row==$lasty) && 
+		    ($want_center || $realm eq $lastrealm)) {
 			print "<b>X</b>";
 			$empty=0;
 		}

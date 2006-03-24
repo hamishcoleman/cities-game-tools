@@ -77,7 +77,8 @@ my $lastx=20000;
 my $lasty=20000;
 my $lastrealm='0';
 
-my $realm = param('realm') || '0';
+my $want_realm = param('realm');
+my $realm;
 
 my $d;
 $d->{_state}='showmap';
@@ -101,11 +102,30 @@ if ($d->{_logname}) {
 		$lasty = $xy->[2];
 	}
 
-	# If we are using the default, set it to our current location
-	if (!defined param('realm')) {
+	# if there no selected realm, choose the users current one
+	if (!defined $want_realm) {
+		$realm = $lastrealm;
+	}
+
+	# if the selected realm is the CURRENT one, set that
+	if ($want_realm && $want_realm eq 'CURRENT') {
 		$realm = $lastrealm;
 	}
 }
+
+# if we dont yet have a realm set use the selected one
+if (!defined $realm) {
+	$realm = $want_realm;
+}
+
+# if there was not one selected, use the system default
+if (!defined $realm) {
+	$realm = '0';
+}
+
+# FIXME - my used/selected realm logic is working, but I dont know why
+# 	When you first visit the showmap and are logged in, the CURRENT
+#	realm is selected, but I have not programmed that to happen...
 
 my $sth = $dbh->prepare(qq{
 	SELECT min(x),max(x),min(y),max(y)
@@ -134,8 +154,6 @@ if ($public) {
 	if ($max_y>200) {$max_y=200;}	# hide the mess
 }
 
-my $want_key = param('key');
-
 print "<html><head><title>Cities Map</title>",
 	'<link href="game.css" media="screen" rel="stylesheet" type="text/css">',
 	"</head><body>\n";
@@ -156,8 +174,13 @@ print "<td>";
 	while ($res = $sth->fetch()) {
 		push @realms,$res->[0];
 	}
+
+	if (defined $d->{_logname}) {
+		unshift @realms,"CURRENT";
+	}
+
 	print	popup_menu(-name=>'realm',
-			-default=>$realm,
+			-default=>$want_realm,
 			-values=>\@realms,
 			-onchange=>'document.map.submit();'),
 }
@@ -172,14 +195,30 @@ if (defined $d->{_logname}) {
 	print "</td>";
 }
 
+my $want_key = param('key');
 print "<td>";
 print checkbox(-name=>'key',
 	-checked=>$want_key,
 	-onchange=>'document.map.submit();');
 print "</td>";
 
+my $want_center = param('center');
+print "<td>";
+print checkbox(-name=>'center',
+	-checked=>$want_center,
+	-onchange=>'document.map.submit();');
+print "</td>";
+
+my $center_size=10;
+if ($want_center && defined $d->{_logname}) {
+	if ($max_x > $lastx+$center_size) {$max_x = $lastx+$center_size;}
+	if ($min_x < $lastx-$center_size) {$min_x = $lastx-$center_size;}
+	if ($max_y > $lasty+$center_size) {$max_y = $lasty+$center_size;}
+	if ($min_y < $lasty-$center_size) {$min_y = $lasty-$center_size;}
+}
+
 # debug..
-print "<td>public==$public</td>";
+#print "<td>public==$public</td>";
 
 print "</tr></table>\n";
 print end_form;

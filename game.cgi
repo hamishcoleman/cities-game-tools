@@ -50,6 +50,7 @@ screenscrape($tree,$d);
 
 # TODO - determine what to do about various states..
 if ($d->{_state} eq 'loggedin') {
+	computelocation($d);
 	dumptogamelog($d);
 	dumptodb($d);
 }

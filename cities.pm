@@ -264,6 +264,7 @@ sub dbloaduser($) {
 	});
 	$sth->execute($d->{_logname});
 	my $res = $sth->fetch();
+	$sth->finish();
 
 	if (!$res) {
 		die "user $d->{_logname} is not in the database";
@@ -295,6 +296,7 @@ sub dbmakenewrealmname($) {
 	});
 	$sth->execute($d->{_logname}.'%');
 	my $res = $sth->fetch();
+	$sth->finish();
 
 	if (!$res) {
 		$realmnr = 0;
@@ -516,7 +518,7 @@ sub dumptogamelog($) {
 	if (defined $d->{_x} && defined $d->{_y}) {
 		print LOG "LOC: $d->{_x}, $d->{_y}\n";
 		print LOG "VISIT: $d->{_x}, $d->{_y}\n";
-		print REALM "REALM: $d->{_realm}\n";
+		print LOG "REALM: $d->{_realm}\n";
 		$haveloc=1;
 	}
 	print LOG $d->{_textin};

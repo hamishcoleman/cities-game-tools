@@ -49,6 +49,7 @@ if ($d->{_state} eq 'loggedin') {
 	computelocation($d);
 	dumptogamelog($d);
 	dumptodb($d);
+	dumptextintodb($d);
 }
 
 ##########################################################################

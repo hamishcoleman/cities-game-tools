@@ -791,6 +791,43 @@ sub dumptodb($) {
 	#$dbh->disconnect;
 }
 
+sub dumptextintodb($) {
+	my ($d) = @_;
+
+	# remove unsavory comments..
+	$d->{_textin} =~ s/^You go (North|South|East|West). ?$//ms;
+	$d->{_textin} =~ s/^Now using .*$//ms;
+	chomp($d->{_textin});
+
+	if (!$d->{_textin}) {
+		return;
+	}
+
+	if (!$d->{_logname}) {
+		#die "no logname";
+		return;
+	}
+	if (!$d->{_time}) {
+		$d->{_time} = time();
+	}
+
+	my $dbh = dbopen();
+
+	my $sth = $dbh->prepare_cached(qq{
+		INSERT INTO userlog(name,date,gametime,x,y,text)
+		VALUES(?,?,?,?,?,?);
+	}) or die $dbh->errstr;
+	$sth->execute(
+		$d->{_logname},
+		$d->{_time},
+		$d->{_clock},
+		$d->{_x},
+		$d->{_y},
+		$d->{_textin}
+	);
+	$dbh->commit();
+}
+
 1;
 
 __END__

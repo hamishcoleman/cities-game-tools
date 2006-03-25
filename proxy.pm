@@ -13,6 +13,15 @@ cities.pm - set of routines from my cities proxy that provide a HTTP proxy
 
 =cut
 
+##########################################################################
+#
+# Libs we need.
+use CGI ':all';
+#use CGI::Carp qw(fatalsToBrowser);
+use LWP::UserAgent;
+use HTML::TreeBuilder;
+use HTTP::Cookies;
+
 # Take a context and a URL reference found in that context and return the
 # fully qualified URL that the reference is referring to
 # 
@@ -38,16 +47,7 @@ sub resolve_url($$) {
 	return $dir . $ref;
 }
 
-##########################################################################
-#
-# Libs we need.
-use CGI ':all';
-use CGI::Carp qw(fatalsToBrowser);
-use LWP::UserAgent;
-use HTML::TreeBuilder;
-use HTTP::Cookies;
-
-sub getreqfromquery($$) {
+sub makereqfromquery($$) {
 	my ($q,$realpage) = @_;
 
 	######################################################################
@@ -117,10 +117,8 @@ sub getreqfromquery($$) {
 	return ($req,$user_gamesession_cookie);
 }
 
-sub gettreefromurl($$) {
-	my ($q,$realpage) = @_;
-
-	my ($req,$user_gamesession_cookie) = getreqfromquery($q,$realpage);
+sub maketreefromreq($) {
+	my ($req) = @_;
 
 	######################################################################
 	#
@@ -145,7 +143,7 @@ sub gettreefromurl($$) {
 
 		if ($key eq $magic_cookie) {
 			$cookie_val = $val;
-			$send_cookie = $q->cookie(
+			$send_cookie = cookie(
 				-name=>$key,
 				-value=>$val,
 				-expires=>$expires,
@@ -155,7 +153,7 @@ sub gettreefromurl($$) {
 	$req_cookies->scan( $callbackref );
 
 	if ($res->content_type ne 'text/html') {
-		return ($res,$send_cookie,$user_gamesession_cookie,$cookie_val,undef);
+		return ($res,$send_cookie,$cookie_val,undef);
 	}
 
 	######################################################################
@@ -169,7 +167,7 @@ sub gettreefromurl($$) {
 	$tree->eof;
 	$tree->elementify;
 
-	return ($res,$send_cookie,$user_gamesession_cookie,$cookie_val,$tree);
+	return ($res,$send_cookie,$cookie_val,$tree);
 }
 
 1;

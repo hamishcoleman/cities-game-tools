@@ -28,7 +28,8 @@ if (!$query->request_method) {
 my $realpage=$cities::baseurl . '/cgi-bin/game';
 
 ### DIG HERE
-my ($res,$send_cookie,$recv_cookie,$send_cookie_val,$tree) = gettreefromurl($query,$realpage);
+my ($req,$recv_cookie) = makereqfromquery($query,$realpage);
+my ($res,$send_cookie,$send_cookie_val,$tree) = maketreefromreq($req);
 
 handle_simple_cases($res);
 

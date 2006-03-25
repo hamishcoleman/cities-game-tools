@@ -48,6 +48,8 @@ CREATE TABLE userlog (
 
 --
 -- Place to store robot goals
+-- goals dont have a realm as at the moment it is too difficult to consider
+-- using them on anything other than the primary area
 CREATE TABLE robotgoal (
 	id	INTEGER,
 	name	VARCHAR,	-- robot this applies to

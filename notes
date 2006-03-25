@@ -5,8 +5,15 @@ Robot:
 
 	commands:
 		movexy	- move to that exact location
-		movex	- move towards x or cury=lasty+abs(y) until curx==x
-		movey	- as above
+		movey+	- move to x or if blocked, increment y
+		movey-	- move to x or if blocked, decrement y
+		movex+	- move to y or if blocked, increment x
+		movex-	- move to y or if blocked, decrement x
+
+		largemap
+		smallmap
+		Map	- activate the map
+		GPS	- activate the gps
 
 
 Cities

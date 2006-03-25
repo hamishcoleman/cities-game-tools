@@ -33,6 +33,7 @@ CREATE TABLE userlog (
 	name	VARCHAR,
 	date	DATE,
 	gametime	VARCHAR,
+	realm	VARCHAR,
 	x	INTEGER,
 	y	INTEGER,
 	text	VARCHAR,

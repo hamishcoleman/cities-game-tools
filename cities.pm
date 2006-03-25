@@ -814,13 +814,14 @@ sub dumptextintodb($) {
 	my $dbh = dbopen();
 
 	my $sth = $dbh->prepare_cached(qq{
-		INSERT INTO userlog(name,date,gametime,x,y,text)
-		VALUES(?,?,?,?,?,?);
+		INSERT INTO userlog(name,date,gametime,realm,x,y,text)
+		VALUES(?,?,?,?,?,?,?);
 	}) or die $dbh->errstr;
 	$sth->execute(
 		$d->{_logname},
 		$d->{_time},
 		$d->{_clock},
+		$d->{_realm},
 		$d->{_x},
 		$d->{_y},
 		$d->{_textin}

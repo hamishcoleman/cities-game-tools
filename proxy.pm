@@ -11,7 +11,7 @@ my $magic_cookie = 'gamesession';
 
 =head1 NAME
 
-cities.pm - set of routines from my cities proxy that provide a HTTP proxy
+proxy.pm - set of routines from my cities proxy that provide a HTTP proxy
 
 =cut
 
@@ -126,7 +126,7 @@ sub maketreefromreq($) {
 	#
 	# call the real game
 	my $ua = LWP::UserAgent->new;
-	$ua->agent("citiesproxy/1.0 ");
+	$ua->agent("citieslib/1.0 ");
 
 	my $res = $ua->request($req);
 

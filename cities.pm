@@ -400,7 +400,9 @@ sub computelocation($) {
 		# exiting the pit
 		dbnewrealm($d);
 	} elsif ( $s =~ m/You step onto the teleporter/ms) {
-		# south road teleporter (and limbo teleporters)
+		# gauntlet, south road teleporter (and limbo teleporters)
+		dbnewrealm($d);
+	} elsif ( $s =~ m/It seems that you have been summoned/ms) {
 		dbnewrealm($d);
 
 	# Magic locations..
@@ -422,6 +424,10 @@ sub computelocation($) {
 	# the pit:
 	#  enter:	"The ground opens up and swallows you. You must fight your way from the pit to escape the evil of the socks."
 	#  exit:	"You climb out of the tunnel. It comes out in the wilderness."
+	# summon:
+	#  		"A vortex sucks you up. It seems that you have been summoned by Great Lord Ignatz MD."
+	#		"You pick up the Summon Stone (as is traditional)."
+
 	# tunnels:
 	# tokyo4:
 	# kansas:

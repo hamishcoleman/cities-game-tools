@@ -59,9 +59,9 @@ print "<table border=1>";
 while (my $res = $sth->fetch()) {
 	print "<tr>";
 	print "<td valign=top>\n";
-	print "LOC: $res->[0]/$res->[1]/$res->[2]<br>\n";
+	#print "gametime: $res->[4]\n";
 	print time2iso($res->[3]),"<br>\n";
-	print "gametime: $res->[4]\n";
+	print "LOC: $res->[0]/$res->[1]/$res->[2]<br>\n";
 	print "</td><td valign=top>\n<pre>";
 	print "$res->[5]";
 	print "</pre>\n</td>";

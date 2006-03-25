@@ -29,14 +29,9 @@ my $realpage=$cities::baseurl . '/cgi-bin/game';
 
 ### DIG HERE
 my ($req,$recv_cookie) = makereqfromquery($query,$realpage);
-my ($res,$send_cookie,$send_cookie_val,$tree) = maketreefromreq($req);
-
+my ($res,$tree) = maketreefromreq($req);
+my ($send_cookie_val,,$send_cookie) = extractcookiefromres($res,'gamesession');
 handle_simple_cases($res);
-
-##########################################################################
-#
-# Adjust URLs to point to the right places
-
 adjusturls($tree,$realpage);
 
 ##########################################################################

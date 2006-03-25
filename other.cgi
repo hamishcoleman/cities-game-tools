@@ -48,7 +48,8 @@ if ($realpage !~ m%^$cities::baseurl/%) {
 
 ### DIG HERE
 my ($req,$recv_cookie) = makereqfromquery($query,$realpage);
-my ($res,$send_cookie,$send_cookie_val,$tree) = maketreefromreq($req);
+my ($res,$tree) = maketreefromreq($req);
+my ($send_cookie_val,$send_cookie) = extractcookiefromres($res,'gamesession');
 
 handle_simple_cases($res);
 

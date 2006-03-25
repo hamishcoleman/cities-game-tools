@@ -4,8 +4,10 @@ use warnings;
 
 #
 # FIXME - these should be configured by the user and not specific to cities
-my $magic_cookie = 'gamesession';
 my $magic_urlparam = 'realpage';
+
+# FIXME - this value is currently used in the clients but not via this var
+my $magic_cookie = 'gamesession';
 
 =head1 NAME
 
@@ -132,28 +134,9 @@ sub maketreefromreq($) {
 		return ($res,undef,undef);
 	}
 
-	my $req_cookies = HTTP::Cookies->new();
-	$req_cookies->extract_cookies($res);
-
-	my $send_cookie;
-	my $cookie_val;
-	my $callbackref = sub {
-		my ($version,$key,$val,$path,$domain,$port,$path_spec,
-		    $secure,$expires,$discard,$hash) = @_;
-
-		if ($key eq $magic_cookie) {
-			$cookie_val = $val;
-			$send_cookie = cookie(
-				-name=>$key,
-				-value=>$val,
-				-expires=>$expires,
-			);
-		}
-	};
-	$req_cookies->scan( $callbackref );
 
 	if ($res->content_type ne 'text/html') {
-		return ($res,$send_cookie,$cookie_val,undef);
+		return ($res,undef);
 	}
 
 	######################################################################
@@ -167,7 +150,35 @@ sub maketreefromreq($) {
 	$tree->eof;
 	$tree->elementify;
 
-	return ($res,$send_cookie,$cookie_val,$tree);
+	return ($res,$tree);
+}
+
+sub extractcookiefromres($$) {
+	my ($res,$cookiename) = @_;
+
+	my $cookies = HTTP::Cookies->new();
+	$cookies->extract_cookies($res);
+
+	my $cookie_text;
+	my $send_cookie;
+
+	my $callbackref = sub {
+		my ($version,$key,$val,$path,$domain,$port,$path_spec,
+		    $secure,$expires,$discard,$hash) = @_;
+
+		if ($key eq $cookiename) {
+			$cookie_text = $val;
+			$send_cookie = cookie(
+				-name=>$key,
+				-value=>$val,
+				-expires=>$expires,
+			);
+		}
+	};
+
+	$cookies->scan( $callbackref );
+
+	return ($cookie_text,$send_cookie);
 }
 
 1;

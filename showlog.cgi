@@ -9,7 +9,7 @@ use CGI qw/:all -nosticky/;
 use CGI::Carp qw(fatalsToBrowser);
 use Data::Dumper;
 use DBI;
-use HTTP::Date qw(time2iso);
+use HTTP::Date qw(time2isoz);
 
 use cities;
 
@@ -60,7 +60,7 @@ while (my $res = $sth->fetch()) {
 	print "<tr>";
 	print "<td valign=top>\n";
 	#print "gametime: $res->[4]\n";
-	print time2iso($res->[3]),"<br>\n";
+	print time2isoz($res->[3]),"<br>\n";
 	print "LOC: $res->[0]/$res->[1]/$res->[2]<br>\n";
 	print "</td><td valign=top>\n<pre>";
 	print "$res->[5]";

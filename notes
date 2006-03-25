@@ -1,4 +1,18 @@
 
+Cities
+Cities::User
+	screen scrape
+	calculate location
+Cities::DB
+	map_lookup(r,x,y);
+	map_update(r,x,y,foo,blah);
+	map_merge(r1,x1,y1,r2,x2,y2);
+	user_load(name);
+	user_save(name);
+Cities::Map
+	?
+
+
 simple db schema: now stored in schema.txt
 
 storage:

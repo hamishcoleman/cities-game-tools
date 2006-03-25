@@ -762,11 +762,14 @@ sub dumptodb($) {
 				# insert the square into 'rollback'
 				my $rollback = $dbh->prepare_cached(qq{
 					INSERT INTO map(realm,x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote)
-					SELECT 'rollback',x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote
+					SELECT 'rollback',x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,?
 					FROM map
 					WHERE realm=? AND x=? AND y=?
 				}) || die $dbh->errstr;
-				$rollback->execute($d->{_realm},$thisx,$thisy);
+				$rollback->execute(
+					"from $d->{_realm}",
+					$d->{_realm},$thisx,$thisy
+				);
 				$rollback->finish();
 
 				# something is different, update the entry

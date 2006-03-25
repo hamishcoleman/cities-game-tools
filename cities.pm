@@ -123,7 +123,8 @@ sub handle_simple_cases($) {
 	}
 }
 
-sub addvalue($$$$$) {
+# adds to the dataset values defined with id= attribs
+sub addidvalue($$$$$) {
 	my ($tree,$d,$key,$value,$name) = @_;
 	my $node;
 
@@ -133,6 +134,21 @@ sub addvalue($$$$$) {
 		return $d->{$name};
 	}
 	return undef;
+}
+
+# trys to extract the status of each direction from the viewport
+sub extractdirection($$) {
+	my ($tree,$name) = @_;
+
+	my $node = $tree->look_down('name',$name);
+	if (!$node) {
+		return undef;
+	}
+	my $src = $node->attr('src');
+	if ($src =~ m/fight.png/) {
+		return 'fight';
+	}
+	return 'move';
 }
 
 sub addviewport($$) {
@@ -181,6 +197,13 @@ sub addviewport($$) {
 		$d->{_map}->{$x}->{$y}->{class} = $class;
 		$d->{_map}->{$x}->{$y}->{name} = $div->as_trimmed_text();
 	}
+
+	# Secondly try to add the directions that are valid to move in..
+
+	$d->{_dir}->{north}->{stat} = extractdirection($tree,'act_n');
+	$d->{_dir}->{south}->{stat} = extractdirection($tree,'act_s');
+	$d->{_dir}->{east}->{stat} = extractdirection($tree,'act_e');
+	$d->{_dir}->{west}->{stat} = extractdirection($tree,'act_w');
 }
 
 sub addmap($$) {
@@ -471,11 +494,11 @@ sub screenscrape($$) {
 		$d->{_fullname} = $node->as_trimmed_text();
 	}
 
-	addvalue($tree,$d,'id','ap','ap');
-	addvalue($tree,$d,'id','maxap','maxap');
-	addvalue($tree,$d,'id','hp','hp');
-	addvalue($tree,$d,'id','maxhp','maxhp');
-	addvalue($tree,$d,'id','gold','gold');
+	addidvalue($tree,$d,'id','ap','ap');
+	addidvalue($tree,$d,'id','maxap','maxap');
+	addidvalue($tree,$d,'id','hp','hp');
+	addidvalue($tree,$d,'id','maxhp','maxhp');
+	addidvalue($tree,$d,'id','gold','gold');
 
 	$node = $tree->look_down(
 		'_tag','textarea',
@@ -486,8 +509,8 @@ sub screenscrape($$) {
 
 	# id="inventory"
 
-	addvalue($tree,$d,'id','long','long');
-	addvalue($tree,$d,'id','lat','lat');
+	addidvalue($tree,$d,'id','long','long');
+	addidvalue($tree,$d,'id','lat','lat');
 
 	# FIXME - could accidentally find times in palintir messages ...
 	for $node ($tree->look_down(

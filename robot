@@ -7,12 +7,20 @@ use warnings;
 #
 #
 
+my $d;
+$d->{_state} = 'initializing';
+$d->{_logname} = '_LOGNAME_';
+$d->{_password} = '_PASSWORD_';
+
+
 ##########################################################################
 #
 # Libs we need.
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
+
+use HTML::Form;
 
 use cities;
 
@@ -38,21 +46,57 @@ sub citieslogin($$) {
 	return ($res,$tree);
 }
 
-my $d;
-$d->{_state} = 'initializing';
-$d->{_logname} = '_LOGNAME_';
-$d->{_password} = '_PASSWORD_';
-
 my ($res,$tree) = citieslogin($d->{_logname},$d->{_password});
 
 # save the session cookie for later...
 my $cookie = HTTP::Cookies->new();
 $cookie->extract_cookies($res);
 
-screenscrape($tree,$d);
-computelocation($d);
+my $dbh = dbopen();
 
-print Dumper($d);
+my $form;
+
+while (1) {
+	$form = HTML::Form->parse($res);
+	screenscrape($tree,$d);
+	computelocation($d);
+	$d->{_realm} = 'test';	# whilst I am testing ...
+	dumptodb($d);
+	dumptextintodb($d);
+
+	print "Robot at $d->{_realm}/$d->{_x}/$d->{_y}\n";
+	
+	if ($d->{ap} / $d->{maxap} < 0.10) {
+		print "Less than 10% AP remains\n";
+		exit;
+	}
+	if ($d->{hp} / $d->{maxhp} < 0.50) {
+		print "Less than 50% HP remains\n";
+		exit;
+	}
+
+	#my $sth = $dbh->prepare_cached(qq{
+	#	SELECT 
+	#}) || die $dbh->errstr;
+	
+	# lookup current goal
+	# if none, generate new goal
+	# calulate movement towards goal
+	# if blocked push temporary goal
+	# perform movement, submit, scrape, etc
+	## select GPS, submit, scrape, etc
+	# select map, submit, scrape, etc
+
+	# debugging
+	print Dumper($d);
+	print "\n";
+	print $form->dump;
+	exit;
+
+	
+}
+
+
 
 __END__
 

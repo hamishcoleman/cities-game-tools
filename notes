@@ -1,4 +1,14 @@
 
+Robot:
+	a 'goal stack'
+	a goal is command, x, y
+
+	commands:
+		movexy	- move to that exact location
+		movex	- move towards x or cury=lasty+abs(y) until curx==x
+		movey	- as above
+
+
 Cities
 Cities::User
 	screen scrape

@@ -2,6 +2,8 @@
 --
 --
 
+--
+-- The primary map storage
 CREATE TABLE map (
 	realm	VARCHAR,		-- allows unknown locations
 	x	INTEGER,
@@ -17,6 +19,8 @@ CREATE TABLE map (
 	PRIMARY KEY (realm,x,y)
 );
 
+--
+-- Each user of this system will appear here
 CREATE TABLE user (
 	name	VARCHAR,
 	session	VARCHAR,		-- The session cookie for this user
@@ -28,6 +32,8 @@ CREATE TABLE user (
 	PRIMARY KEY (name)
 );
 
+--
+-- Log of the text events that the user has seen
 CREATE TABLE userlog (
 	entry	INTEGER,
 	name	VARCHAR,
@@ -40,3 +46,13 @@ CREATE TABLE userlog (
 	PRIMARY KEY (entry)
 );
 
+--
+-- Place to store robot goals
+CREATE TABLE robotgoal (
+	id	INTEGER,
+	name	VARCHAR,	-- robot this applies to
+	command	VARCHAR,	-- goal for this entry
+	x	INTEGER,
+	y	INTEGER,
+	PRIMARY KEY(id)
+);

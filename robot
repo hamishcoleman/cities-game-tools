@@ -130,6 +130,9 @@ sub makedirs_can($@) {
 	my ($d,@dirs_want) = @_;
 	my @dirs_can;
 
+	# TODO - if 'fight' compare 'best weapon' to monster hp and our hp
+	#	and allow direction if we can beat it.
+
 	# make list of directions that need to go and can go
 	for my $i (@dirs_want) {
 		#print "Checking direction $i\n";
@@ -252,6 +255,7 @@ while (1) {
 			die "robot: received ", $res->content_type;
 		}
 		$form = HTML::Form->parse($res);
+		# TODO - examine inventory and select 'best weapon'
 		$d = undef;
 		$d->{_state} = 'newpage';
 		$d->{_logname} = $robot_logname;
@@ -320,7 +324,9 @@ while (1) {
 			next;
 		}
 		# check param2 to see if the goal is still valid
-		if ($goaly != $d->{_x}) {
+		my $max = $goalx>$goaly ? $goalx:$goaly;
+		my $min = $goalx<$goaly ? $goalx:$goaly;
+		if ($d->{_x} > $max || $d->{_x} < $min) {
 			addtexttolog($d,"Goal invalid\n");
 			print "Goal($goalid) is now invalid\n";
 			delgoal($goalid);
@@ -346,7 +352,9 @@ while (1) {
 			next;
 		}
 		# check param2 to see if the goal is still valid
-		if ($goalx != $d->{_y}) {
+		my $max = $goalx>$goaly ? $goalx:$goaly;
+		my $min = $goalx<$goaly ? $goalx:$goaly;
+		if ($d->{_y} > $max || $d->{_y} < $min) {
 			addtexttolog($d,"Goal invalid\n");
 			print "Goal($goalid) is now invalid\n";
 			delgoal($goalid);
@@ -366,12 +374,6 @@ while (1) {
 		$req = makemovereq($d,$form,@dirs_want);
 		next;
 	}
-
-	# calculate movement towards goal
-	# if blocked push temporary goal
-	# perform movement, submit, scrape, etc
-	## select GPS, submit, scrape, etc
-	# select map, submit, scrape, etc
 
 
 	$req=undef;

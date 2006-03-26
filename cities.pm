@@ -98,6 +98,11 @@ sub adjusturls($$) {
 			$i->attr('href',$otherurl . '?realpage='.$ref);
 		}
 	}
+
+	# Need to fix the newspaper
+	#
+	# <input type="button" value="Read" onclick="window.open(&quot;/newspaper/issue2.html&quot;, &quot;name&quot;)" name="act_item_read" class="button" ,=",">
+	# <input type="button" value="Archives" onclick="window.open(&quot;/newspaper/index.html&quot;, &quot;name&quot;)" name="act_item_archives" class="button" ,=",">
 }
 
 sub handle_simple_cases($) {
@@ -137,8 +142,8 @@ sub addidvalue($$$$$) {
 }
 
 # trys to extract the status of each direction from the viewport
-sub extractdirection($$) {
-	my ($tree,$name) = @_;
+sub adddirection($$$) {
+	my ($tree,$d,$name) = @_;
 
 	my $node = $tree->look_down('name',$name);
 	if (!$node) {
@@ -146,9 +151,18 @@ sub extractdirection($$) {
 	}
 	my $src = $node->attr('src');
 	if ($src =~ m/fight.png/) {
-		return 'fight';
+		$d->{_dir}->{$name}->{state} = 'fight';
+		my $div = $node->parent->look_down('_tag','div');
+		if ($div) {
+			my $text = $div->as_trimmed_text();
+			$d->{_dir}->{$name}->{text}=$text;
+			my ($mname,$mhp)=($text=~ m/(.*) \((.+)\)/);
+			$d->{_dir}->{$name}->{monster}=$mname;
+			$d->{_dir}->{$name}->{hp}=$mhp;
+		}
+		return;
 	}
-	return 'move';
+	$d->{_dir}->{$name}->{state} = 'move';
 }
 
 sub addviewport($$) {
@@ -200,10 +214,10 @@ sub addviewport($$) {
 
 	# Secondly try to add the directions that are valid to move in..
 
-	$d->{_dir}->{north}->{stat} = extractdirection($tree,'act_n');
-	$d->{_dir}->{south}->{stat} = extractdirection($tree,'act_s');
-	$d->{_dir}->{east}->{stat} = extractdirection($tree,'act_e');
-	$d->{_dir}->{west}->{stat} = extractdirection($tree,'act_w');
+	adddirection($tree,$d,'act_n');
+	adddirection($tree,$d,'act_s');
+	adddirection($tree,$d,'act_e');
+	adddirection($tree,$d,'act_w');
 }
 
 sub addmap($$) {
@@ -322,12 +336,12 @@ sub dbmakenewrealmname($) {
 	my $res = $sth->fetch();
 	$sth->finish();
 
-	if (!$res) {
+	if (!$res || !$res->[0]) {
 		$realmnr = 0;
 	} else {
 		$realm = $res->[0];
 
-		($realmnr) = ($realm =~ m/(\d+)$/);
+		($realmnr) = ($realm =~ m/(\d+)?$/);
 	}
 
 	# TODO - actually verify that there will not be any races.
@@ -670,7 +684,7 @@ sub lookup($$$) {
 	if (!$res) {
 		return undef;
 	}
-	return ($res->[0],$res->[1]);
+	return ('ok',$res->[0],$res->[1]);
 }
 
 sub dumptodb($) {
@@ -717,8 +731,9 @@ sub dumptodb($) {
 				next;
 			}
 
-			my ($cur_class,$cur_name) = lookup($d->{_realm},$thisx,$thisy);
-			if (!$cur_class) {
+			#print "XXX: $d->{_realm},$thisx,$thisy\n";
+			my ($ok,$cur_class,$cur_name) = lookup($d->{_realm},$thisx,$thisy);
+			if (!$ok) {
 				# record does not exist, add it
 				my $visits = $d->{_map}->{$x}->{$y}->{visits};
 				if (!$visits) { $visits = 0; }
@@ -817,6 +832,26 @@ sub dumptodb($) {
 	#$dbh->disconnect;
 }
 
+sub addtexttolog($$) {
+	my ($d,$text) = @_;
+	my $dbh = dbopen();
+
+	my $sth = $dbh->prepare_cached(qq{
+		INSERT INTO userlog(name,date,gametime,realm,x,y,text)
+		VALUES(?,?,?,?,?,?,?);
+	}) or die $dbh->errstr;
+	$sth->execute(
+		$d->{_logname},
+		time(),
+		$d->{_clock},
+		$d->{_realm},
+		$d->{_x},
+		$d->{_y},
+		$text
+	);
+	$dbh->commit();
+}
+
 sub dumptextintodb($) {
 	my ($d) = @_;
 
@@ -837,22 +872,7 @@ sub dumptextintodb($) {
 		$d->{_time} = time();
 	}
 
-	my $dbh = dbopen();
-
-	my $sth = $dbh->prepare_cached(qq{
-		INSERT INTO userlog(name,date,gametime,realm,x,y,text)
-		VALUES(?,?,?,?,?,?,?);
-	}) or die $dbh->errstr;
-	$sth->execute(
-		$d->{_logname},
-		$d->{_time},
-		$d->{_clock},
-		$d->{_realm},
-		$d->{_x},
-		$d->{_y},
-		$d->{_textin}
-	);
-	$dbh->commit();
+	addtexttolog($d,$d->{_textin});
 }
 
 1;

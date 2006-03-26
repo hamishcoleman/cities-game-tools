@@ -3,12 +3,14 @@ Robot:
 	a 'goal stack'
 	a goal is command, x, y
 
+	x and y are usually x co-ord and y co-ord but may just be params 1 and 2
+
 	commands:
-		movexy	- move to that exact location
-		movey+	- move to x or if blocked, increment y
-		movey-	- move to x or if blocked, decrement y
-		movex+	- move to y or if blocked, increment x
-		movex-	- move to y or if blocked, decrement x
+		movexy	- x and y specify location to go to
+		movey-	- move either south or towards x, finish if currx <> y
+		movey+	- move either north or towards x, finish if currx <> y
+		movex-	- move either west or towards y, finish if curry <> x
+		movex+	- move either east or towards y, finish if curry <> x
 
 		largemap
 		smallmap

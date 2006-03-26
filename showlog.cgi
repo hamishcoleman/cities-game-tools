@@ -9,7 +9,7 @@ use CGI qw/:all -nosticky/;
 use CGI::Carp qw(fatalsToBrowser);
 use Data::Dumper;
 use DBI;
-use HTTP::Date qw(time2isoz);
+use HTTP::Date qw(time2iso time2isoz);
 
 use cities;
 
@@ -50,7 +50,7 @@ my $sth = $dbh->prepare(qq{
 	SELECT realm,x,y,date,gametime,text
 	FROM userlog
 	WHERE name=?
-	ORDER BY date DESC
+	ORDER BY entry DESC
 }) || die $dbh->errstr;
 $sth->execute($want_name);
 
@@ -61,6 +61,7 @@ while (my $res = $sth->fetch()) {
 	print "<td valign=top>\n";
 	#print "gametime: $res->[4]\n";
 	print time2isoz($res->[3]),"<br>\n";
+	print time2iso($res->[3]),"<br>\n";
 	print "LOC: $res->[0]/$res->[1]/$res->[2]<br>\n";
 	print "</td><td valign=top>\n<pre>";
 	print "$res->[5]";

@@ -402,7 +402,7 @@ sub computelocation($) {
 	dbloaduser($d);
 
 	# set a new realm if we need it
-	if ((!defined $d->{_realm}) || ($d->{_realm} eq '0')) {
+	if ((!defined $d->{_db}->{realm}) || ($d->{_db}->{realm} eq '0')) {
 		dbnewrealm($d);
 	}
 

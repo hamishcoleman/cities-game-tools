@@ -110,7 +110,11 @@ my $realm;
 my $d;
 $d->{_state}='showmap';
 
-addcookie($d,undef,$query->cookie('gamesession'));
+$d->{_logname} = param('wn');
+if (!defined $d->{_logname}) {
+	addcookie($d,undef,$query->cookie('gamesession'));
+}
+
 if ($d->{_logname}) {
 
 	# FIXME - should use dbloaduser...
@@ -191,6 +195,9 @@ if ($public) {
 
 
 print start_form(-method=>'GET',name=>"tools");
+if (param('wn')) {
+	print hidden('wn',param('wn'));
+}
 print "<table border=1><tr>";
 
 print "<td>";

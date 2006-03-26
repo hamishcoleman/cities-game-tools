@@ -149,20 +149,22 @@ sub adddirection($$$) {
 	if (!$node) {
 		return undef;
 	}
+
 	my $src = $node->attr('src');
 	if ($src =~ m/fight.png/) {
 		$d->{_dir}->{$name}->{state} = 'fight';
-		my $div = $node->parent->look_down('_tag','div');
-		if ($div) {
-			my $text = $div->as_trimmed_text();
-			$d->{_dir}->{$name}->{text}=$text;
-			my ($mname,$mhp)=($text=~ m/(.*) \((.+)\)/);
-			$d->{_dir}->{$name}->{monster}=$mname;
-			$d->{_dir}->{$name}->{hp}=$mhp;
-		}
-		return;
+	} else {
+		$d->{_dir}->{$name}->{state} = 'move';
 	}
-	$d->{_dir}->{$name}->{state} = 'move';
+
+	my $div = $node->parent->look_down('_tag','div');
+	if ($div) {
+		my $text = $div->as_trimmed_text();
+		$d->{_dir}->{$name}->{text}=$text;
+		my ($mname,$mhp)=($text=~ m/(.*) \((.+)\)/);
+		$d->{_dir}->{$name}->{monster}=$mname;
+		$d->{_dir}->{$name}->{hp}=$mhp;
+	}
 }
 
 sub addviewport($$) {
@@ -465,6 +467,8 @@ sub computelocation($) {
 	#  		"A vortex sucks you up. It seems that you have been summoned by Great Lord Ignatz MD."
 	#		"You pick up the Summon Stone (as is traditional)."
 
+	# talisman:
+	# emergency flare:
 	# tunnels:
 	# tokyo4:
 	# kansas:

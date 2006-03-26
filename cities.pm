@@ -354,7 +354,7 @@ sub dbmakenewrealmname($) {
 	return $realm;
 }
 
-# generate the entire realm if required
+# force the generation of the entire realm
 sub dbnewrealm($) {
 	my ($d) = @_;
 
@@ -362,17 +362,9 @@ sub dbnewrealm($) {
 		die "no user details";
 	}
 
-	# could be un-initialised if this is a new user
-	my $realm = $d->{_db}->{realm} || '0';
-
-	# set a new realm if we need it
-	if ($realm eq '0') {
-		$d->{_realm} = dbmakenewrealmname($d);
-	} else {
-		$d->{_realm} = $realm;
-	}
-	$d->{_x} = $d->{_db}->{lastx};
-	$d->{_y} = $d->{_db}->{lasty};
+	$d->{_realm} = dbmakenewrealmname($d);
+	$d->{_x} = $d->{_db}->{lastx} || 0;
+	$d->{_y} = $d->{_db}->{lasty} || 0;
 }
 
 sub computelocation($) {
@@ -410,7 +402,9 @@ sub computelocation($) {
 	dbloaduser($d);
 
 	# set a new realm if we need it
-	dbnewrealm($d);
+	if ((!defined $d->{_realm}) || ($d->{_realm} eq '0')) {
+		dbnewrealm($d);
+	}
 
 	my $s = $d->{_textin} || '';
 
@@ -443,6 +437,8 @@ sub computelocation($) {
 		dbnewrealm($d);
 	} elsif ( $s =~ m/It seems that you have been summoned/ms) {
 		dbnewrealm($d);
+	} elsif ( $s =~ m/The taxi driver asks you/ms) {
+		dbnewrealm($d);
 
 	# Magic locations..
 	} elsif ( $d->{_db}->{realm} eq '0' && $d->{_x}==29 && $d->{_y}==40) {
@@ -466,7 +462,11 @@ sub computelocation($) {
 	# summon:
 	#  		"A vortex sucks you up. It seems that you have been summoned by Great Lord Ignatz MD."
 	#		"You pick up the Summon Stone (as is traditional)."
-
+	# taxi:
+	#		"Off we go..."
+	#		"The taxi driver asks you if you saw the match..."
+	#		"Nice weather..."
+	#		"You arrive at The Festival"
 	# talisman:
 	# emergency flare:
 	# tunnels:

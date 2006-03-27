@@ -50,6 +50,30 @@ if ($d->{_state} eq 'loggedin') {
 	dumptogamelog($d);
 	dumptodb($d);
 	dumptextintodb($d);
+
+	my @list;
+	for my $i ($query->param) {
+		if ($i eq 'item' || $i eq 'say' || $i eq 'width'
+			|| $i eq 'shop_buy' || $i eq 'heal_user`
+			|| $i eq 'act_n.x' || $i eq 'act_n.y'
+			|| $i eq 'act_s.x' || $i eq 'act_s.y'
+			|| $i eq 'act_e.x' || $i eq 'act_e.y'
+			|| $i eq 'act_w.x' || $i eq 'act_w.y'
+			|| $i eq 'act_fast1' || $i eq 'act_setfast1'
+			|| $i eq 'act_null'
+			|| $i eq 'act_eqpane'
+			|| $i eq 'act_say' || $i eq 'act_shout'
+			|| $i eq 'act_cols'
+			# act_exit exits the elevator
+		) {
+			next;
+		}
+		push @list,($i.'=>'.param($i));
+	}
+	my $paramlist = join(',',@list);
+	if ($paramlist) {
+		addtexttolog($d,"Params: ".$paramlist);
+	}
 }
 
 ##########################################################################

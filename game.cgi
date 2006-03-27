@@ -54,7 +54,7 @@ if ($d->{_state} eq 'loggedin') {
 	my @list;
 	for my $i ($query->param) {
 		if ($i eq 'item' || $i eq 'say' || $i eq 'width'
-			|| $i eq 'shop_buy' || $i eq 'heal_user`
+			|| $i eq 'shop_buy' || $i eq 'heal_user'
 			|| $i eq 'act_n.x' || $i eq 'act_n.y'
 			|| $i eq 'act_s.x' || $i eq 'act_s.y'
 			|| $i eq 'act_e.x' || $i eq 'act_e.y'

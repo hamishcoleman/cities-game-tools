@@ -9,7 +9,7 @@ use warnings;
 
 my $robot_logname = '_LOGNAME_';
 my $robot_password = '_PASSWORD_';
-my $controltitle = 'Space Elevator Dock:';
+my $controltitle = 'Space Elevator Entrance:';
 
 
 my $d;
@@ -78,6 +78,11 @@ for my $i ($tree->look_down('_tag','span','class','control_title')) {
 	if ($i->as_trimmed_text() eq $controltitle) {
 		$span = $i;
 	}
+}
+
+if (!$span) {
+	print "Control not found\n";
+	exit;
 }
 
 my $div = $span->parent;

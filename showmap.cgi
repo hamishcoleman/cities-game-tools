@@ -198,6 +198,7 @@ print start_form(-method=>'GET',name=>"tools");
 if (param('wn')) {
 	print hidden('wn',param('wn'));
 }
+
 print "<table border=1><tr>";
 
 print "<td>";
@@ -258,6 +259,15 @@ if ($want_center && defined $d->{_logname}) {
 	if ($min_x < $lastx-$center_size) {$min_x = $lastx-$center_size;}
 	if ($max_y > $lasty+$center_size) {$max_y = $lasty+$center_size;}
 	if ($min_y < $lasty-$center_size) {$min_y = $lasty-$center_size;}
+}
+
+my $want_zoom = param('zoom');
+if (($want_zoom || $want_center) && defined $d->{_logname}) {
+	print "<td>";
+	print checkbox(-name=>'zoom',
+		-checked=>$want_zoom,
+		-onchange=>'document.tools.submit();');
+	print "</td>";
 }
 
 if (!$public) {
@@ -391,7 +401,12 @@ while ($row>$min_y-1) {
 			print "<td colspan=$skip></td>";
 			$skip=0;
 		}
-		print '<td class="', $class, ' map_loc">';
+		if ($want_zoom) {
+			print '<td class="location ', $class, '">';
+			print '<div>',$name,'</div>';
+		} else {
+			print '<td class="', $class, ' map_loc">';
+		}
 		my $empty=1;
 
 		# Show my last position

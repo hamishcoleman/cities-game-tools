@@ -404,6 +404,10 @@ sub computelocation($) {
 	# set a new realm if we need it
 	if ((!defined $d->{_db}->{realm}) || ($d->{_db}->{realm} eq '0')) {
 		dbnewrealm($d);
+	} else {
+		$d->{_realm} = $d->{_db}->{realm};
+		$d->{_x} = $d->{_db}->{lastx} || 0;
+		$d->{_y} = $d->{_db}->{lasty} || 0;
 	}
 
 	my $s = $d->{_textin} || '';

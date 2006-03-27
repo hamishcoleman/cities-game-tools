@@ -36,6 +36,7 @@ my %shortname = (
 	'Ice Trail' => '~',
 	'Jude' => 'H',
 	'Kill or Cure' => 'H',
+	Lounge => 'T',
 	Marker => '.',
 	Medic => 'H',
 	Monastry => 'M',
@@ -403,7 +404,7 @@ while ($row>$min_y-1) {
 		}
 		if ($want_zoom) {
 			print '<td class="location ', $class, '">';
-			print '<div>',$name,'</div>';
+			print '<div>',($name||'&nbsp;'),'</div>';
 		} else {
 			print '<td class="', $class, ' map_loc">';
 		}
@@ -441,8 +442,8 @@ while ($row>$min_y-1) {
 			$empty=0;
 		}
 
-		# no grid square should be empty
-		if ($empty) {
+		# no grid square should be empty (zoomed squares have content)
+		if ($empty && !$want_zoom) {
 			print "&nbsp;"
 		}
 		print '</td>';

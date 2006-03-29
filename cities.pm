@@ -334,7 +334,7 @@ sub dbmakenewrealmname($) {
 		FROM map
 		WHERE realm LIKE ?
 	});
-	$sth->execute($d->{_logname}.'%');
+	$sth->execute('new:'.$d->{_logname}.':%');
 	my $res = $sth->fetch();
 	$sth->finish();
 
@@ -343,13 +343,13 @@ sub dbmakenewrealmname($) {
 	} else {
 		$realm = $res->[0];
 
-		($realmnr) = ($realm =~ m/(\d+)?$/);
+		($realmnr) = ($realm =~ m/:(\d+)$/);
 	}
 
 	# TODO - actually verify that there will not be any races.
 	# FIXME - player names ending in numbers... (a separator?)
 	
-	$realm = $d->{_logname} . ($realmnr+1);
+	$realm = 'new:'. $d->{_logname} .':'. ($realmnr+1);
 
 	return $realm;
 }
@@ -741,7 +741,7 @@ sub dumptodb($) {
 				$class eq 'loc_smoke' ||
 				$class eq 'loc_flood'
 			) {
-				$thisrealm='ephermal';
+				$thisrealm=$realm.':ephemeral';
 			}
 
 			#print "XXX: $thisrealm,$thisx,$thisy\n";
@@ -783,19 +783,19 @@ sub dumptodb($) {
 				# delete the square from 'rollback'
 				my $delete = $dbh->prepare_cached(qq{
 					DELETE FROM map
-					WHERE realm='rollback' AND x=? AND y=?
+					WHERE realm=? AND x=? AND y=?
 				}) || die $dbh->errstr;
-				$delete->execute($thisx,$thisy);
+				$delete->execute($thisrealm.':rollback',$thisx,$thisy);
 				$delete->finish();
 				# insert the square into 'rollback'
 				my $rollback = $dbh->prepare_cached(qq{
 					INSERT INTO map(realm,x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote)
-					SELECT 'rollback',x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,?
+					SELECT ?,x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote
 					FROM map
 					WHERE realm=? AND x=? AND y=?
 				}) || die $dbh->errstr;
 				$rollback->execute(
-					"from $thisrealm",
+					$thisrealm.':rollback',
 					$thisrealm,$thisx,$thisy
 				);
 				$rollback->finish();

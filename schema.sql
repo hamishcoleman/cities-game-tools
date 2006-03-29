@@ -18,7 +18,7 @@ CREATE TABLE map (
 	textnote	VARCHAR,	-- hinting for unknown locations
 	PRIMARY KEY (realm,x,y)
 );
-CREATE INDEX map_realmyx ON map(realm,y,x);
+CREATE INDEX map_yrealmx ON map(y,realm,x);
 
 --
 -- Each user of this system will appear here

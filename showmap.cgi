@@ -17,6 +17,7 @@ use cities;
 my %shortname = (
 #	Alchemist => 'A',
 	'Cottage Hospital' => 'H',
+	Den => '*',
 	'Doctor' => 'H',
 	'E. Market Outlet' => 'm',
 	'E. Market Local Office' => 'o',
@@ -280,6 +281,13 @@ if (!$public) {
 	print "</td>";
 }
 
+my $want_ephemerals = param('ephemerals');
+print "<td>";
+print checkbox(-name=>'ephemerals',
+	-checked=>$want_ephemerals,
+	-onchange=>'document.tools.submit();');
+print "</td>";
+
 # debug..
 #print "<td>public==$public</td>";
 
@@ -374,10 +382,14 @@ while ($row>$min_y-1) {
 	my $lookup = $dbh->prepare_cached(qq{
 		SELECT x,y,class,name,visits
 		FROM map
-		WHERE realm=? AND x>=? AND x<=? AND y=?
-		ORDER BY x
+		WHERE (realm=? OR realm=?) AND x>=? AND x<=? AND y=?
+		ORDER BY x, realm DESC
 	});
-	$lookup->execute($realm,$min_x,$max_x,$row);
+	if ($want_ephemerals) {
+		$lookup->execute($realm.':ephemeral',$realm,$min_x,$max_x,$row);
+	} else {
+		$lookup->execute($realm,$realm,$min_x,$max_x,$row);
+	}
 
 	my $skip = 0;
 	my $lastcol;
@@ -391,6 +403,13 @@ while ($row>$min_y-1) {
 		if (!defined $lastcol) {
 			$lastcol = $min_x-1;
 		}
+
+		# there was a ephermal entry first, so skip this one
+		if ($lastcol == $col) {
+			next;
+		}
+
+		# have we skipped any columns?
 		if ($col > ($lastcol+1)) {
 			$skip = $col - ($lastcol+1);
 		}

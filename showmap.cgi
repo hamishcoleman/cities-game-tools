@@ -389,7 +389,7 @@ while ($row>$min_y-1) {
 		my $visits = $res->[4];
 
 		if (!defined $lastcol) {
-			$lastcol = $min_x;
+			$lastcol = $min_x-1;
 		}
 		if ($col > ($lastcol+1)) {
 			$skip = $col - ($lastcol+1);
@@ -401,7 +401,11 @@ while ($row>$min_y-1) {
 		}
 
 		if ($skip) {
-			print "<td colspan=$skip></td>";
+			if ($skip == 1) {
+				print "<td></td>";
+			} else {
+				print "<td colspan=$skip></td>";
+			}
 			$skip=0;
 		}
 		if ($want_zoom) {

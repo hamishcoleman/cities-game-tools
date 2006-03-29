@@ -65,6 +65,7 @@ if ($d->{_state} eq 'loggedin') {
 			|| $i eq 'act_say' || $i eq 'act_shout'
 			|| $i eq 'act_cols'
 			# act_exit exits the elevator
+			# act_enter enters the elevator
 		) {
 			next;
 		}

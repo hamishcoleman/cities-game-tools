@@ -9,7 +9,7 @@ use warnings;
 
 my $robot_logname = '_LOGNAME_';
 my $robot_password = '_PASSWORD_';
-my $controltitle = 'Space Elevator Entrance:';
+my $controltitle = 'Exit:';
 
 
 my $d;

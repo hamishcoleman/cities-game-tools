@@ -44,6 +44,7 @@ my %shortname = (
 	'Nightfall Shrine' => '*',
 	'N. Market Outlet' => 'm',
 	'N. Market Local Office' => 'o',
+	Nobby => 'H',
 	'Northern Marker' => '.',
 	'Northern Market' => 'm',
 	'Northern Market Office' => 'o',
@@ -370,28 +371,29 @@ while ($row>$min_y-1) {
 		print "<td>&nbsp;</td>";
 	}
 
+	my $lookup = $dbh->prepare_cached(qq{
+		SELECT x,y,class,name,visits
+		FROM map
+		WHERE realm=? AND x>=? AND x<=? AND y=?
+		ORDER BY x
+	});
+	$lookup->execute($realm,$min_x,$max_x,$row);
+
 	my $skip = 0;
-	for my $col ($min_x..$max_x) {
+	my $lastcol;
+	while (my $res = $lookup->fetch) {
+		my $col = $res->[0];
+		my $thisy = $res->[1];
+		my $class = $res->[2];
+		my $name = $res->[3];
+		my $visits = $res->[4];
 
-		my $lookup = $dbh->prepare_cached(qq{
-			SELECT class,name,visits
-			FROM map
-			WHERE realm=? AND x=? AND y=?
-		});
-
-		$lookup->execute($realm,$col,$row);
-		my $res = $lookup->fetch;
-		$lookup->finish();
-
-		if (!$res) {
-			# no data for this location...
-			$skip++;
-			next;
+		if (!defined $lastcol) {
+			$lastcol = $min_x;
 		}
-
-		my $class = $res->[0];
-		my $name = $res->[1];
-		my $visits = $res->[2];
+		if ($col > ($lastcol+1)) {
+			$skip = $col - ($lastcol+1);
+		}
 
 		if ($class) {
 			$class =~ s/location //;
@@ -447,7 +449,9 @@ while ($row>$min_y-1) {
 			print "&nbsp;"
 		}
 		print '</td>';
+		$lastcol=$col;
 	}
+	$lookup->finish();
 
 	# 
 	if ($skip) {

@@ -6,7 +6,8 @@ files    := game.cgi other.cgi \
 	    showmap.cgi map.cgi \
 	    showlog.cgi \
 	    cities.pm proxy.pm \
-	    game.css black.jpg
+	    game.css black.jpg \
+	    movingmaptest.html
 
 all:
 	@echo I think you want make test or make local
@@ -63,7 +64,7 @@ prof1:
 	dprofpp
 
 prof2:
-	perl -d:DProf ./showmap.cgi 1 10 1 10 >/dev/null
+	perl -d:DProf ./showmap.cgi 1 21 1 21 >/dev/null
 	dprofpp
 
 profmap:

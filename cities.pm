@@ -697,14 +697,16 @@ sub lookup($$$) {
 
 sub dumptodb($) {
 	my ($d) = @_;
+	my $realm;
 
 	# use the defined timevalue
 	my $time = $d->{_time};
 
-	if (!defined $d->{_x} || !defined $d->{_y}) {
-		# TODO - use the realms feature to add unknown locations
+	if (!defined $d->{_x} || !defined $d->{_y} || $d->{_realm}) {
 		return;
 	}
+	$realm = $d->{_realm};
+		
 
 	my $dbh = dbopen();
 
@@ -720,6 +722,7 @@ sub dumptodb($) {
 	# dump the map data
 	for my $x (keys %{$d->{_map}}) {
 		for my $y (keys %{$d->{_map}->{$x}}) {
+			my $thisrealm = $realm;
 			my $class = $d->{_map}->{$x}->{$y}->{class};
 			my $name = $d->{_map}->{$x}->{$y}->{name};
 
@@ -732,15 +735,17 @@ sub dumptodb($) {
 
 			# TODO - generalise these exceptions
 			# Argh!
-			if ($class eq 'loc_vashka') {
-				next;
-			}
-			if ($class eq 'loc_boat') {
-				next;
+			if (
+				$class eq 'loc_vashka' ||
+				$class eq 'loc_boat' ||
+				$class eq 'loc_smoke' ||
+				$class eq 'loc_flood'
+			) {
+				$thisrealm='ephermal';
 			}
 
-			#print "XXX: $d->{_realm},$thisx,$thisy\n";
-			my ($ok,$cur_class,$cur_name) = lookup($d->{_realm},$thisx,$thisy);
+			#print "XXX: $thisrealm,$thisx,$thisy\n";
+			my ($ok,$cur_class,$cur_name) = lookup($thisrealm,$thisx,$thisy);
 			if (!$ok) {
 				# record does not exist, add it
 				my $visits = $d->{_map}->{$x}->{$y}->{visits};
@@ -750,7 +755,7 @@ sub dumptodb($) {
 					INTO map(realm,x,y,class,name,visits,lastseen,lastchanged,lastchangedby)
 					VALUES(?,?,?,?,?,?,?,?,?)
 				}) or die $dbh->errstr;
-				$insert->execute($d->{_realm},$thisx,$thisy,
+				$insert->execute($thisrealm,$thisx,$thisy,
 					$class,
 					$name,
 					$visits,
@@ -790,8 +795,8 @@ sub dumptodb($) {
 					WHERE realm=? AND x=? AND y=?
 				}) || die $dbh->errstr;
 				$rollback->execute(
-					"from $d->{_realm}",
-					$d->{_realm},$thisx,$thisy
+					"from $thisrealm",
+					$thisrealm,$thisx,$thisy
 				);
 				$rollback->finish();
 
@@ -805,7 +810,7 @@ sub dumptodb($) {
 					$class,
 					$name,
 					$time,$time,$d->{_logname},
-					$d->{_realm},$thisx,$thisy);
+					$thisrealm,$thisx,$thisy);
 				next;
 			}
 
@@ -817,7 +822,7 @@ sub dumptodb($) {
 			}) or die $dbh->errstr;
 			$seen->execute(
 				$time,
-				$d->{_realm},$thisx,$thisy);
+				$thisrealm,$thisx,$thisy);
 		}
 	}
 
@@ -829,7 +834,7 @@ sub dumptodb($) {
 	}) or die $dbh->errstr;
 	$visits->execute(
 		$time,
-		$d->{_realm},($d->{_x}),($d->{_y}));
+		$realm,($d->{_x}),($d->{_y}));
 
 	$dbh->commit();
 

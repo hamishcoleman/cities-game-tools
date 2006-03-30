@@ -402,12 +402,16 @@ sub computelocation($) {
 	dbloaduser($d);
 
 	# set a new realm if we need it
-	if ((!defined $d->{_db}->{realm}) || ($d->{_db}->{realm} eq '0')) {
-		dbnewrealm($d);
+	if (defined $d->{_db}->{realm}) {
+		if ($d->{_db}->{realm} eq '0') {
+			dbnewrealm($d);
+		} else {
+			$d->{_realm} = $d->{_db}->{realm};
+			$d->{_x} = $d->{_db}->{lastx} || 0;
+			$d->{_y} = $d->{_db}->{lasty} || 0;
+		}
 	} else {
-		$d->{_realm} = $d->{_db}->{realm};
-		$d->{_x} = $d->{_db}->{lastx} || 0;
-		$d->{_y} = $d->{_db}->{lasty} || 0;
+			dbnewrealm($d);
 	}
 
 	my $s = $d->{_textin} || '';
@@ -471,6 +475,11 @@ sub computelocation($) {
 	#		"The taxi driver asks you if you saw the match..."
 	#		"Nice weather..."
 	#		"You arrive at The Festival"
+	# limbo:
+	#  enter:	"Due to a week of inactivity the gods decide to move you to Limbo."
+	#		"You are in limbo..."
+	#  exit:	"You step onto the teleporter..."
+	#
 	# talisman:
 	# emergency flare:
 	# tunnels:
@@ -659,6 +668,7 @@ sub dbsaveuser($) {
 	if (!defined $d->{_realm} || !defined $d->{_x}
 		|| !defined $d->{_y} || !defined $d->{_time}) {
 		# cannot save without information
+		addtexttolog($d,"undefined values in dbsaveuser");
 		return 0;
 	}
 
@@ -702,12 +712,11 @@ sub dumptodb($) {
 	# use the defined timevalue
 	my $time = $d->{_time};
 
-	if (!defined $d->{_x} || !defined $d->{_y} || $d->{_realm}) {
+	if (!defined $d->{_x} || !defined $d->{_y} || !defined $d->{_realm}) {
 		return;
 	}
 	$realm = $d->{_realm};
-		
-
+	
 	my $dbh = dbopen();
 
 	# save the user's last known position

@@ -57,16 +57,34 @@ $sth->execute($want_name);
 print "<table border=1>";
 
 while (my $res = $sth->fetch()) {
+	my ($realm,$x,$y,$gametime);
+
+	if (defined $res->[0]) {
+		$realm = $res->[0];
+	} else {
+		$realm = 'unknown';
+	}
+	if (defined $res->[1]) {
+		$x = $res->[1];
+	} else {
+		$x = '?';
+	}
+	if (defined $res->[2]) {
+		$y = $res->[2];
+	} else {
+		$y = '?';
+	}
+
 	print "<tr>";
 	print "<td valign=top>\n";
 	#print "gametime: $res->[4]\n";
-	if ($res->[4]) {
+	if (defined $res->[4]) {
 		print "$res->[4]<br>\n";
 	} else {
 		print time2isoz($res->[3]),"<br>\n";
 	}
 	print time2iso($res->[3]),"<br>\n";
-	print "LOC: $res->[0]/$res->[1]/$res->[2]<br>\n";
+	print "LOC: $realm/$x/$y<br>\n";
 	print "</td><td valign=top>\n<pre>";
 	print "$res->[5]";
 	print "</pre>\n</td>";

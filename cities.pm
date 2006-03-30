@@ -382,6 +382,13 @@ sub computelocation($) {
 		}
 		# FIXME - I am not checking for errors in the above..
 		$d->{_realm} = '0';
+
+		# FIXME - generalise these exeptions
+		if ($d->{_y} > 510) {
+			$d->{_realm} = 'Barbelith';
+		} elsif ($d->{_y} > 200) {
+			$d->{_realm} = 'new:North of 200';
+		}
 		return;
 	}
 
@@ -479,6 +486,9 @@ sub computelocation($) {
 	#  enter:	"Due to a week of inactivity the gods decide to move you to Limbo."
 	#		"You are in limbo..."
 	#  exit:	"You step onto the teleporter..."
+	# barbeleith:
+	#  enter:	"As you break the Barbelith Talisman you are engulfed in a vortex."
+	#  enters at random location?  Also, has intrinsic location available
 	#
 	# talisman:
 	# emergency flare:
@@ -487,7 +497,6 @@ sub computelocation($) {
 	# kansas:
 	# cloud land:
 	# the arena:
-	# barbeleith:
 }
 
 sub screenscrape($$) {

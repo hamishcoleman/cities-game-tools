@@ -189,18 +189,14 @@ if (url(-relative=>1) eq 'showmap.cgi') {
 	$public=0;
 }
 
-if ($public) {
-	# this is a public map...
-	$want_visits = 0;		# never allowed publicly
-	if ($max_y>200) {$max_y=200;}	# hide the mess
-	if ($map_max_y>200) {$map_max_y=200;}	# hide the mess
-}
-
-
 print start_form(-method=>'GET',name=>"tools");
 if (param('wn')) {
 	print hidden('wn',param('wn'));
 }
+if (param('x1')) { print hidden('x1',param('x1')); }
+if (param('x2')) { print hidden('x2',param('x2')); }
+if (param('y1')) { print hidden('y1',param('y1')); }
+if (param('y2')) { print hidden('y2',param('y2')); }
 
 print "<table border=1><tr>";
 
@@ -230,6 +226,20 @@ print "<td>";
 }
 print "</td>";
 #print "<td>Showing: $realm</td>\n";
+
+if ($public) {
+	# this is a public map...
+	$want_visits = 0;		# never allowed publicly
+	if ($realm eq '0') {
+		if ($max_y>200) {$max_y=200;}		# always hide the mess
+		if ($map_max_y>200) {$map_max_y=200;}	# always hide the mess
+	}
+} else {
+	if (!(defined param('y2') || $ARGV[3]) && $max_y>200 && $realm eq '0') {
+		$max_y=200;		# hide the mess, unless we asked for it
+	}
+}
+
 
 print "<td>map size [$map_min_x,$map_max_y] - [$map_max_x,$map_min_y]</td>\n";
 if (defined $d->{_logname}) {

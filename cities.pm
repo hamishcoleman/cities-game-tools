@@ -526,6 +526,13 @@ sub screenscrape($$) {
 		$d->{_state} = 'loggedin';
 	}
 
+	$node = $tree->look_down('id','maxap');
+	if (!$node) {
+		# logged out?  definitly not normal in any case...
+		$d->{_state} = 'maxapnotfound';
+		return;
+	}
+
 	# FIXME - very fragile
 	$node = $tree->look_down(
 		'_tag', 'div',

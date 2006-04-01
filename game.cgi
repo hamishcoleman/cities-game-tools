@@ -60,10 +60,16 @@ if ($d->{_state} eq 'loggedin') {
 			|| $i eq 'act_e.x' || $i eq 'act_e.y'
 			|| $i eq 'act_w.x' || $i eq 'act_w.y'
 			|| $i eq 'act_fast1' || $i eq 'act_setfast1'
+			|| $i eq 'act_fast2' || $i eq 'act_setfast2'
+			|| $i eq 'act_fast3' || $i eq 'act_setfast3'
 			|| $i eq 'act_null'
 			|| $i eq 'act_eqpane'
 			|| $i eq 'act_say' || $i eq 'act_shout'
 			|| $i eq 'act_cols'
+			|| $i eq 'tarot_monstertype'
+			|| $i eq 'act_item_use'
+			|| $i eq 'username' || $i eq 'password'
+			|| $i =~ m/^act_build_/
 			# act_exit exits the elevator
 			# act_enter enters the elevator
 		) {

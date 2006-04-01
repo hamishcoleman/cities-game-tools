@@ -487,6 +487,15 @@ while ($row>$min_y-1) {
 	$lookup->finish();
 
 	# 
+	if (!defined $lastcol) {
+		$lastcol = $min_x-1;
+	}
+
+	# have we skipped any columns?
+	if ($max_x > ($lastcol+1)) {
+		$skip = $max_x - ($lastcol+1);
+	}
+
 	if ($skip) {
 		print "<td colspan=$skip></td>";
 		$skip=0;

@@ -370,6 +370,9 @@ sub dbnewrealm($) {
 sub computelocation($) {
 	my ($d) = @_;
 
+	# TODO - be more paranoid.  once we have an x/y pos, check that the
+	# new map is comparable to the stored map, otherwise, create a new realm
+
 	if (defined $d->{lat} && defined $d->{long}) {
 		#long = x, lat = y
 		if ($d->{long} =~ m/([\d]+)([EW])/) {
@@ -384,7 +387,9 @@ sub computelocation($) {
 		$d->{_realm} = '0';
 
 		# FIXME - generalise these exeptions
-		if ($d->{_y} > 510) {
+		if ($d->{_y} > 520) {
+			$d->{_realm} = 'new:North of 520';
+		} elsif ($d->{_y} > 510) {
 			$d->{_realm} = 'Barbelith';
 		} elsif ($d->{_y} > 200) {
 			$d->{_realm} = 'new:North of 200';
@@ -767,6 +772,14 @@ sub dumptodb($) {
 				$class eq 'loc_flood'
 			) {
 				$thisrealm=$realm.':ephemeral';
+			} else {
+				# delete any ephemeral on this spot
+				my $delete = $dbh->prepare_cached(qq{
+					DELETE FROM map
+					WHERE realm=? AND x=? AND y=?
+				}) || die $dbh->errstr;
+				$delete->execute($thisrealm.':ephemeral',$thisx,$thisy);
+				$delete->finish();
 			}
 
 			#print "XXX: $thisrealm,$thisx,$thisy\n";

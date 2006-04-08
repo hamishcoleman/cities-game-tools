@@ -31,6 +31,7 @@ my %shortname = (
 	Healer => 'H',
 	'Healing Field' => 'H',
 	'Herbert the Healer' => 'H',
+	Hole => '#',
 	Hospital => 'H',
 	'Hospital Satellite' => 'H',
 	'Ice Station' => 'I',
@@ -67,6 +68,8 @@ my %shortname = (
 	'W. Market Outlet' => 'm',
 	'W. Market Local Office' => 'o',
 	'Western Marker' => '.',
+	'Western Market Office' => 'o',
+	'Western Market' => 'm',
 #	Well
 #	'Wizards Tower' => 'W',
 
@@ -197,6 +200,9 @@ if (param('x1')) { print hidden('x1',param('x1')); }
 if (param('x2')) { print hidden('x2',param('x2')); }
 if (param('y1')) { print hidden('y1',param('y1')); }
 if (param('y2')) { print hidden('y2',param('y2')); }
+if (defined param('centersize')) {
+	print hidden('centersize',param('centersize'));
+}
 
 print "<table border=1><tr>";
 
@@ -266,7 +272,7 @@ if (defined $d->{_logname}) {
 	print "</td>";
 }
 
-my $center_size=10;
+my $center_size= param('centersize') || 10;
 if ($want_center && defined $d->{_logname}) {
 	if ($max_x > $lastx+$center_size) {$max_x = $lastx+$center_size;}
 	if ($min_x < $lastx-$center_size) {$min_x = $lastx-$center_size;}

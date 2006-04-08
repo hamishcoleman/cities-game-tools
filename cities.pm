@@ -202,16 +202,22 @@ sub addviewport($$) {
 			next;
 		}
 		my $class = $square->attr('class');
+		my $name;
 		if ($class =~ /(loc_dark|loc_bright)/) {
+			# could use Ephemermal..
 			# We are not able to see anything here, so dont log it
 			next;
+		} else {
+			# dark and bright dont have a div, so this is an error
+			# for them.
+			$name = $div->as_trimmed_text();
 		}
 
 		my $x = $mapping{$id}[0];
 		my $y = $mapping{$id}[1];
 		
 		$d->{_map}->{$x}->{$y}->{class} = $class;
-		$d->{_map}->{$x}->{$y}->{name} = $div->as_trimmed_text();
+		$d->{_map}->{$x}->{$y}->{name} = $name;
 	}
 
 	# Secondly try to add the directions that are valid to move in..
@@ -343,7 +349,8 @@ sub dbmakenewrealmname($) {
 	} else {
 		$realm = $res->[0];
 
-		($realmnr) = ($realm =~ m/:(\d+)$/);
+		$realm =~ m/new:([^:]+):(\d+)/;
+		$realmnr = $2;
 	}
 
 	# TODO - actually verify that there will not be any races.
@@ -389,6 +396,12 @@ sub computelocation($) {
 		# FIXME - generalise these exeptions
 		if ($d->{_y} > 520) {
 			$d->{_realm} = 'new:North of 520';
+
+			# the only north-of-520 realms that I have searched
+			# appear to have a 1-1 correspondance to the '0' realm
+			# with a 1000 offset.
+			$d->{_x}-=1000;
+			$d->{_y}-=1000;
 		} elsif ($d->{_y} > 510) {
 			$d->{_realm} = 'Barbelith';
 		} elsif ($d->{_y} > 200) {
@@ -769,7 +782,9 @@ sub dumptodb($) {
 				$class eq 'loc_vashka' ||
 				$class eq 'loc_boat' ||
 				$class eq 'loc_smoke' ||
-				$class eq 'loc_flood'
+				$class eq 'loc_flood' ||
+				$class eq 'loc_dark' ||
+				$class eq 'loc_bright'
 			) {
 				$thisrealm=$realm.':ephemeral';
 			} else {

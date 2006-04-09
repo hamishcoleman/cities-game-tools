@@ -472,6 +472,12 @@ sub computelocation($) {
 		dbnewrealm($d);
 	} elsif ( $s =~ m/The taxi driver asks you/ms) {
 		dbnewrealm($d);
+	} elsif ( $s =~ m/you are engulfed in a vortex/ms) {
+		# this should catch talismans + stones/knifes/swords etc.
+		dbnewrealm($d);
+
+		# TODO - I could extract the city name from the elemental
+		#	teleports and use that for a location fix
 
 	# Magic locations..
 	} elsif ( $d->{_db}->{realm} eq '0' && $d->{_x}==29 && $d->{_y}==40) {

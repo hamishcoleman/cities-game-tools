@@ -61,6 +61,7 @@ my %shortname = (
 	'Southern Marker' => '.',
 	'Standing Stone' => 'S',
 	'Stone Circle' => '*',
+	Teleport => 't',
 	'Track' => '~',
 	'Trading Post' => 'T',
 	'Trading Satellite' => 'T',
@@ -174,10 +175,10 @@ my $maximums = $sth->fetch;
 $sth->finish();
 
 # map extants rectangle
-my $map_min_x= $maximums->[0];
-my $map_max_x= $maximums->[1];
-my $map_min_y= $maximums->[2];
-my $map_max_y= $maximums->[3];
+my $map_min_x= $maximums->[0] ||0;
+my $map_max_x= $maximums->[1] ||10;
+my $map_min_y= $maximums->[2] ||0;
+my $map_max_y= $maximums->[3] ||10;
 
 # Display area rectangle
 my $min_x=param('x1') || $ARGV[0] || $map_min_x;
@@ -223,6 +224,9 @@ print "<td>";
 
 	if (defined $d->{_logname}) {
 		unshift @realms,"CURRENT";
+	}
+	if (!defined $maximums->[0]) {
+		unshift @realms,$want_realm;
 	}
 
 	print	popup_menu(-name=>'realm',
@@ -309,6 +313,11 @@ print "</td>";
 
 print "</tr></table>\n";
 print end_form;
+
+if (!defined $maximums->[0]) {
+	print "that realm does not exist. please choose a realm that does exist";
+	exit;
+}
 
 ###
 ### Dump the map key
@@ -503,6 +512,8 @@ while ($row>$min_y-1) {
 	}
 
 	if ($skip) {
+		# FIXME - figure out where this off-by-one error comes from
+		$skip++;
 		print "<td colspan=$skip></td>";
 		$skip=0;
 	}

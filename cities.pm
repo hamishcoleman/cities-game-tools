@@ -256,12 +256,16 @@ sub addmap($$) {
 
 	my ($size,$offset);
 
+	# FIXME - should auto-size the damn map..
 	if (defined $map->address(".14.14")) {
 		$size = 14;
 		$offset = 7;
 	} elsif (defined $map->address(".10.10")) {
 		$size = 10;
 		$offset = 5;
+	} elsif (defined $map->address(".6.6")) {
+		$size = 6;
+		$offset = 3;
 	} else {
 		$size = 4;
 		$offset = 2;

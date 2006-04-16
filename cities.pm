@@ -201,6 +201,16 @@ sub addviewport($$) {
 			# Something is wrong
 			next;
 		}
+
+		# FIXME
+		# crazy altars have a nested content
+		#if ($div->attr('_tag') eq 'table') {
+		#	my $div2 = $div->look_down('id',$id);
+		#	if (defined $div2) {
+		#		$div = $div2;
+		#	}
+		#}
+
 		my $class = $square->attr('class');
 		my $name;
 		if ($class =~ /(loc_dark|loc_bright)/) {
@@ -258,18 +268,22 @@ sub addmap($$) {
 
 	# FIXME - should auto-size the damn map..
 	if (defined $map->address(".14.14")) {
-		$size = 14;
+		$size = 14;	# 15x15
 		$offset = 7;
+	# maybe 13x13
 	} elsif (defined $map->address(".10.10")) {
-		$size = 10;
+		$size = 10;	# 11x11
 		$offset = 5;
+	# maybe 9x9
 	} elsif (defined $map->address(".6.6")) {
-		$size = 6;
+		$size = 6;	# 7x7
 		$offset = 3;
 	} else {
-		$size = 4;
+		$size = 4;	# 5x5
 		$offset = 2;
 	}
+
+	# FIXME - should check that the guessed center of the map has an 'X'
 
 	for my $row (0..$size) {
 		for my $col (0..$size) {
@@ -398,10 +412,10 @@ sub computelocation($) {
 		$d->{_realm} = '0';
 
 		# FIXME - generalise these exeptions
-		if ($d->{_y} > 520) {
-			$d->{_realm} = 'new:North of 520';
+		if ($d->{_y} > 990) {
+			$d->{_realm} = 'Underground';
 
-			# the only north-of-520 realms that I have searched
+			# the only y > 520 realms that I have searched
 			# appear to have a 1-1 correspondance to the '0' realm
 			# with a 1000 offset.
 			$d->{_x}-=1000;
@@ -471,6 +485,7 @@ sub computelocation($) {
 		dbnewrealm($d);
 	} elsif ( $s =~ m/You step onto the teleporter/ms) {
 		# gauntlet, south road teleporter (and limbo teleporters)
+		# tunnel teleporters.
 		dbnewrealm($d);
 	} elsif ( $s =~ m/It seems that you have been summoned/ms) {
 		dbnewrealm($d);
@@ -482,6 +497,9 @@ sub computelocation($) {
 
 		# TODO - I could extract the city name from the elemental
 		#	teleports and use that for a location fix
+	} elsif ( $s =~ m/You go down the hole/ms) {
+		# TODO: $d->{_realm}='Underground';
+		dbnewrealm($d);
 
 	# Magic locations..
 	} elsif ( $d->{_db}->{realm} eq '0' && $d->{_x}==29 && $d->{_y}==40) {
@@ -517,10 +535,11 @@ sub computelocation($) {
 	# barbeleith:
 	#  enter:	"As you break the Barbelith Talisman you are engulfed in a vortex."
 	#  enters at random location?  Also, has intrinsic location available
+	# tunnels:
+	#  enter1:	"You go down the hole."
 	#
 	# talisman:
 	# emergency flare:
-	# tunnels:
 	# tokyo4:
 	# kansas:
 	# cloud land:

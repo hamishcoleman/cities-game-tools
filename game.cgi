@@ -68,6 +68,7 @@ if ($d->{_state} eq 'loggedin') {
 			|| $i eq 'act_cols'
 			|| $i eq 'tarot_monstertype'
 			|| $i eq 'act_item_use'
+			|| $i eq 'act_bean'
 			|| $i eq 'username' || $i eq 'password'
 			|| $i =~ m/^act_build_/
 			# act_exit exits the elevator
@@ -92,6 +93,13 @@ for my $i ($tree->look_down(
 		'_tag', 'td',
 		'class', 'loc_stone map_loc')) {
 	$i->push_content("S");
+}
+
+my $title = $tree->look_down('_tag','title');
+if ($title) {
+	# TODO - error if not title?
+
+	$title->push_content(" - $d->{_realm}");
 }
 
 ##########################################################################

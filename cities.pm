@@ -500,6 +500,9 @@ sub computelocation($) {
 	} elsif ( $s =~ m/You go down the hole/ms) {
 		# TODO: $d->{_realm}='Underground';
 		dbnewrealm($d);
+	} elsif ( $s =~ m/You return to your previous location/ms) {
+		# leaving Barbelith
+		dbnewrealm($d);
 
 	# Magic locations..
 	} elsif ( $d->{_db}->{realm} eq '0' && $d->{_x}==29 && $d->{_y}==40) {
@@ -535,6 +538,7 @@ sub computelocation($) {
 	# barbeleith:
 	#  enter:	"As you break the Barbelith Talisman you are engulfed in a vortex."
 	#  enters at random location?  Also, has intrinsic location available
+	#  leave:	"You return to your previous location."
 	# tunnels:
 	#  enter1:	"You go down the hole."
 	#

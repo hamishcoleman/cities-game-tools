@@ -503,6 +503,8 @@ sub computelocation($) {
 	} elsif ( $s =~ m/You return to your previous location/ms) {
 		# leaving Barbelith
 		dbnewrealm($d);
+	} elsif ( $s =~ m/You are taken to the ARENA/ms) {
+		dbnewrealm($d);
 
 	# Magic locations..
 	} elsif ( $d->{_db}->{realm} eq '0' && $d->{_x}==29 && $d->{_y}==40) {
@@ -541,13 +543,14 @@ sub computelocation($) {
 	#  leave:	"You return to your previous location."
 	# tunnels:
 	#  enter1:	"You go down the hole."
+	# the arena:
+	#  enter:	"Poof! You are taken to the ARENA!"
 	#
 	# talisman:
 	# emergency flare:
 	# tokyo4:
 	# kansas:
 	# cloud land:
-	# the arena:
 }
 
 sub screenscrape($$) {

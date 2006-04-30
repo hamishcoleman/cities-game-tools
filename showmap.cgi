@@ -78,6 +78,88 @@ my %shortname = (
 	'Unknown Building' => '?',
 );
 
+my $dbh;
+sub dbopen() {
+	return DBI->connect( "dbi:SQLite:$cities::db" ) || die "Cannot connect: $DBI::errstr";
+}
+
+sub getuserrealm($$) {
+	my ($name,$want_realm) = @_;
+
+	my ($realm,$lastx,$lasty,$lastrealm);
+
+	# FIXME - should use dbloaduser...
+
+	my $sth = $dbh->prepare(qq{
+		SELECT realm,lastx,lasty
+		FROM user
+		WHERE name = ?
+	}) || die $dbh->errstr;
+	$sth->execute($name);
+	my $xy = $sth->fetch;
+	$sth->finish();
+	if ($xy) {
+		$lastrealm = $xy->[0];
+		$lastx = $xy->[1];
+		$lasty = $xy->[2];
+	}
+
+	# if there no selected realm, choose the users current one
+	if (!defined $want_realm) {
+		$realm = $lastrealm;
+	}
+
+	# if the selected realm is the CURRENT one, set that
+	if ($want_realm && $want_realm eq 'CURRENT') {
+		$realm = $lastrealm;
+	}
+
+	# realm is the realm to show
+	# lastrealm is the last realm the user was actually in
+	return ($realm,$lastx,$lasty,$lastrealm);
+}
+
+sub getmapextants($) {
+	my ($realm) = @_;
+
+	my $sth = $dbh->prepare(qq{
+		SELECT min(x),max(x),min(y),max(y)
+		FROM map
+		WHERE realm=?
+	});
+	$sth->execute($realm);
+	my $maximums = $sth->fetch;
+	$sth->finish();
+
+	# map extants rectangle
+	my $map_min_x= $maximums->[0] ||0;
+	my $map_max_x= $maximums->[1] ||10;
+	my $map_min_y= $maximums->[2] ||0;
+	my $map_max_y= $maximums->[3] ||10;
+
+	return ($map_min_x,$map_max_x,$map_min_y,$map_max_y,defined $maximums->[0]);
+}
+
+sub getrealmlist() {
+	my @realms;
+	my $res;
+
+	my $sth = $dbh->prepare(qq{
+		SELECT DISTINCT realm
+		FROM map
+		ORDER BY realm
+	}) || die $dbh->errstr;
+	$sth->execute();
+
+	while ($res = $sth->fetch()) {
+		# TODO - if (!defined $d->{_logname} && $res->[0] =~ /^new:/) {next;}
+		push @realms,$res->[0];
+	}
+	$sth->finish();
+
+	return @realms;
+}
+
 my $query = new CGI;
 print $query->header();
 
@@ -105,13 +187,14 @@ function togglekey() {
 EOF
 ;
 
-my $dbh = DBI->connect( "dbi:SQLite:$cities::db" ) || die "Cannot connect: $DBI::errstr";
+$dbh = dbopen();
 
 my $lastx=20000;
 my $lasty=20000;
 my $lastrealm='0';
 
 my $want_realm = param('realm');
+my $want_other = param('other');
 my $realm;
 
 my $d;
@@ -123,32 +206,7 @@ if (!defined $d->{_logname}) {
 }
 
 if ($d->{_logname}) {
-
-	# FIXME - should use dbloaduser...
-
-	my $sth = $dbh->prepare(qq{
-		SELECT realm,lastx,lasty
-		FROM user
-		WHERE name = ?
-	}) || die $dbh->errstr;
-	$sth->execute($d->{_logname});
-	my $xy = $sth->fetch;
-	$sth->finish();
-	if ($xy) {
-		$lastrealm = $xy->[0];
-		$lastx = $xy->[1];
-		$lasty = $xy->[2];
-	}
-
-	# if there no selected realm, choose the users current one
-	if (!defined $want_realm) {
-		$realm = $lastrealm;
-	}
-
-	# if the selected realm is the CURRENT one, set that
-	if ($want_realm && $want_realm eq 'CURRENT') {
-		$realm = $lastrealm;
-	}
+	($realm,$lastx,$lasty,$lastrealm) = getuserrealm($d->{_logname},$want_realm);
 }
 
 # if we dont yet have a realm set use the selected one
@@ -165,26 +223,20 @@ if (!defined $realm) {
 # 	When you first visit the showmap and are logged in, the CURRENT
 #	realm is selected, but I have not programmed that to happen...
 
-my $sth = $dbh->prepare(qq{
-	SELECT min(x),max(x),min(y),max(y)
-	FROM map
-	WHERE realm=?
-});
-$sth->execute($realm);
-my $maximums = $sth->fetch;
-$sth->finish();
+my ($map_min_x,$map_max_x,$map_min_y,$map_max_y,$map_exists) = getmapextants($realm);
 
-# map extants rectangle
-my $map_min_x= $maximums->[0] ||0;
-my $map_max_x= $maximums->[1] ||10;
-my $map_min_y= $maximums->[2] ||0;
-my $map_max_y= $maximums->[3] ||10;
-
+# TODO - if !defined $d->{_logname} smaller map
 # Display area rectangle
 my $min_x=param('x1') || $ARGV[0] || $map_min_x;
 my $max_x=param('x2') || $ARGV[1] || $map_max_x;
 my $min_y=param('y1') || $ARGV[2] || $map_min_y;
 my $max_y=param('y2') || $ARGV[3] || $map_max_y;
+
+my $width = $max_x-$min_x+1;
+my $height = $max_y-$min_y+1;
+
+# TODO - if N/S/E/W/NE/NW/SE/SW move viewport by width or height as indicated
+# and set x1,x2,y1,y2 params
 
 my $want_visits = param('visits') || $ARGV[4];
 
@@ -208,32 +260,23 @@ if (defined param('centersize')) {
 print "<table border=1><tr>";
 
 print "<td>";
-{
-	my $sth = $dbh->prepare(qq{
-		SELECT DISTINCT realm
-		FROM map
-		ORDER BY realm
-	}) || die $dbh->errstr;
-	$sth->execute();
-	my @realms;
-	my $res;
-	while ($res = $sth->fetch()) {
-		push @realms,$res->[0];
-	}
-	$sth->finish();
 
-	if (defined $d->{_logname}) {
-		unshift @realms,"CURRENT";
-	}
-	if (!defined $maximums->[0]) {
-		unshift @realms,$want_realm;
-	}
+my @realms = getrealmlist();
 
-	print	popup_menu(-name=>'realm',
-			-default=>$want_realm,
-			-values=>\@realms,
-			-onchange=>'document.tools.submit();'),
+# TODO - if (!defined $d->{_logname} && $realm =~ /^new:/) {next;}
+
+if (defined $d->{_logname}) {
+	unshift @realms,"CURRENT";
 }
+if (!$map_exists) {
+	unshift @realms,$want_realm;
+}
+
+print	popup_menu(-name=>'realm',
+		-default=>$want_realm,
+		-values=>\@realms,
+		-onchange=>'document.tools.submit();');
+
 print "</td>";
 #print "<td>Showing: $realm</td>\n";
 
@@ -301,20 +344,26 @@ if (!$public) {
 	print "</td>";
 }
 
-my $want_ephemerals = param('ephemerals');
-print "<td>";
-print checkbox(-name=>'ephemerals',
-	-checked=>$want_ephemerals,
-	-onchange=>'document.tools.submit();');
-print "</td>";
-
 # debug..
 #print "<td>public==$public</td>";
 
-print "</tr></table>\n";
+print "</tr>";
+print "<tr><td>";
+unshift @realms,'NONE';
+print popup_menu(-name=>'other',
+		-default=>$want_other,
+		-values=>\@realms,
+		-onchange=>'document.tools.submit();');
+print "</td>";
+my ($other_min_x,$other_max_x,$other_min_y,$other_max_y,$other_exists) = getmapextants($want_other);
+if ($other_exists) {
+	print "<td>map size [$other_min_x,$other_max_y] - [$other_max_x,$other_min_y]</td>\n";
+}
+print "</tr>";
+print "</table>\n";
 print end_form;
 
-if (!defined $maximums->[0]) {
+if (!$map_exists) {
 	print "that realm does not exist. please choose a realm that does exist";
 	exit;
 }
@@ -380,7 +429,8 @@ print "<td>";
 ### 
 print "<table border=0 cellpadding=0 cellspacing=0>\n";
 
-# Stick an index along the top
+# TODO - if defined param('hideruler') skip ruler
+# Stick a ruler along the top
 print "<tr>";
 my $skip = 2;
 for my $col ($min_x..$max_x) {
@@ -410,8 +460,8 @@ while ($row>$min_y-1) {
 		WHERE (realm=? OR realm=?) AND x>=? AND x<=? AND y=?
 		ORDER BY x, realm DESC
 	});
-	if ($want_ephemerals) {
-		$lookup->execute($realm.':ephemeral',$realm,$min_x,$max_x,$row);
+	if ($other_exists) {
+		$lookup->execute($want_other,$realm,$min_x,$max_x,$row);
 	} else {
 		$lookup->execute($realm,$realm,$min_x,$max_x,$row);
 	}

@@ -373,8 +373,9 @@ sub dbmakenewrealmname($) {
 
 	# TODO - actually verify that there will not be any races.
 	# FIXME - player names ending in numbers... (a separator?)
-	
-	$realm = 'new:'. $d->{_logname} .':'. ($realmnr+1);
+
+	my $newnr = sprintf("%02i",$realmnr+1);
+	$realm = 'new:'. $d->{_logname} .':'. $newnr;
 
 	return $realm;
 }

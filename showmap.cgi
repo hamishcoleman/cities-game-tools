@@ -78,10 +78,8 @@ my %shortname = (
 	'Unknown Building' => '?',
 );
 
+# Argh, globals!!!
 my $dbh;
-sub dbopen() {
-	return DBI->connect( "dbi:SQLite:$cities::db" ) || die "Cannot connect: $DBI::errstr";
-}
 
 sub getuserrealm($$) {
 	my ($name,$want_realm) = @_;
@@ -297,8 +295,8 @@ if ($public) {
 print "<td>map size [$map_min_x,$map_max_y] - [$map_max_x,$map_min_y]</td>\n";
 if (defined $d->{_logname}) {
 	print "<td>";
-	print "USER: $d->{_logname}";
-	print " (Location: $lastx, $lasty, realm: $lastrealm)\n";
+	print "$d->{_logname}";
+	print " ($lastrealm/$lastx/$lasty)\n";
 	print "</td>";
 }
 
@@ -349,16 +347,43 @@ if (!$public) {
 
 print "</tr>";
 print "<tr><td>";
+
+# FIXME - if we do not want the overlay, we dont need any extants
+my ($other_min_x,$other_max_x,$other_min_y,$other_max_y,$other_exists) = getmapextants($want_other);
+my $want_overlay = param('overlay') && $other_exists;
+
+# FIXME - kludge
+shift @realms;	# remove the "CURRENT"
 unshift @realms,'NONE';
+
 print popup_menu(-name=>'other',
 		-default=>$want_other,
 		-values=>\@realms,
-		-onchange=>'document.tools.submit();');
+		-onchange=> ($want_overlay?'document.tools.submit();':undef) );
 print "</td>";
-my ($other_min_x,$other_max_x,$other_min_y,$other_max_y,$other_exists) = getmapextants($want_other);
+
+print "<td>";
 if ($other_exists) {
-	print "<td>map size [$other_min_x,$other_max_y] - [$other_max_x,$other_min_y]</td>\n";
+	print "map size [$other_min_x,$other_max_y] - [$other_max_x,$other_min_y]";
 }
+print "</td>";
+
+print "<td>";
+my $overlay_name;
+if ($want_other lt $realm) {
+	$overlay_name = "Underlay";
+} else {
+	$overlay_name = "Overlay";
+}
+print checkbox(-name=>'overlay',
+	-label=>$overlay_name,
+	-checked=>$want_overlay,
+	-onchange=>'document.tools.submit();');
+print "</td>";
+
+# TODO - put in overlay offset controls
+#print "<td></td>";
+
 print "</tr>";
 print "</table>\n";
 print end_form;
@@ -455,12 +480,12 @@ while ($row>$min_y-1) {
 	}
 
 	my $lookup = $dbh->prepare_cached(qq{
-		SELECT x,y,class,name,visits
+		SELECT realm,x,y,class,name,visits
 		FROM map
 		WHERE (realm=? OR realm=?) AND x>=? AND x<=? AND y=?
 		ORDER BY x, realm DESC
 	});
-	if ($other_exists) {
+	if ($want_overlay) {
 		$lookup->execute($want_other,$realm,$min_x,$max_x,$row);
 	} else {
 		$lookup->execute($realm,$realm,$min_x,$max_x,$row);
@@ -469,11 +494,12 @@ while ($row>$min_y-1) {
 	my $skip = 0;
 	my $lastcol;
 	while (my $res = $lookup->fetch) {
-		my $col = $res->[0];
-		my $thisy = $res->[1];
-		my $class = $res->[2];
-		my $name = $res->[3];
-		my $visits = $res->[4];
+		my $this_realm = $res->[0];
+		my $col = $res->[1];
+		my $thisy = $res->[2];
+		my $class = $res->[3];
+		my $name = $res->[4];
+		my $visits = $res->[5];
 
 		if (!defined $lastcol) {
 			$lastcol = $min_x-1;
@@ -502,11 +528,15 @@ while ($row>$min_y-1) {
 			}
 			$skip=0;
 		}
+		my $style = '';
+		if ($want_overlay && $this_realm eq $want_other) {
+			$style='style="border: 1px solid #000;"';
+		}
 		if ($want_zoom) {
-			print '<td class="location ', $class, '">';
+			print '<td class="location ', $class, '" ',$style,'>';
 			print '<div>',($name||'&nbsp;'),'</div>';
 		} else {
-			print '<td class="', $class, ' map_loc">';
+			print '<td class="', $class, ' map_loc" ',$style,'>';
 		}
 		my $empty=1;
 

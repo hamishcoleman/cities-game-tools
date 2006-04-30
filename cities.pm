@@ -776,6 +776,33 @@ sub lookup($$$) {
 	return ('ok',$res->[0],$res->[1]);
 }
 
+# Merge the contents of realm2/x2/y2 into realm/x/y
+# if realm3 is specified, copy the results into that realm (this allows a test)
+# otherwise, just update the realm/x/y values
+sub dbmergesquare($$$$$$$) {
+	my ($realm,$x,$y,$realm2,$x2,$y2,$realm3) = @_;
+	my $dbh = dbopen();
+
+	# load square1
+	# load square2
+
+	# visitsR = visits1+visits2
+	# lastvisitedR = max(lastvisited1,lastvisited2)
+
+	#Assume that the square2 is more special
+	# if textnote2 then textnoteR = textnote2
+
+	# newer seen is squareN
+	# older seen is squareO
+
+	# classR = classN
+	# if classN != classO then nameR = nameN
+	# if nameN then nameR = nameN else nameR = nameO
+
+	# if realm3 then realmR = realm3 else realmR = realm1
+	# xR = x1, yR = y1
+}
+
 sub dumptodb($) {
 	my ($d) = @_;
 	my $realm;
@@ -869,17 +896,10 @@ sub dumptodb($) {
 			# else no name now or no change
 
 			if ($diff) {
-
-				# delete the square from 'rollback'
-				my $delete = $dbh->prepare_cached(qq{
-					DELETE FROM map
-					WHERE realm=? AND x=? AND y=?
-				}) || die $dbh->errstr;
-				$delete->execute($thisrealm.':rollback',$thisx,$thisy);
-				$delete->finish();
 				# insert the square into 'rollback'
 				my $rollback = $dbh->prepare_cached(qq{
-					INSERT INTO map(realm,x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote)
+					INSERT OR REPLACE
+					INTO map(realm,x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote)
 					SELECT ?,x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote
 					FROM map
 					WHERE realm=? AND x=? AND y=?
@@ -940,7 +960,8 @@ sub addtexttolog($$) {
 	my $dbh = dbopen();
 
 	my $sth = $dbh->prepare_cached(qq{
-		INSERT INTO userlog(name,date,gametime,realm,x,y,text)
+		INSERT
+		INTO userlog(name,date,gametime,realm,x,y,text)
 		VALUES(?,?,?,?,?,?,?);
 	}) or die $dbh->errstr;
 	$sth->execute(
@@ -977,6 +998,7 @@ sub dumptextintodb($) {
 
 	addtexttolog($d,$d->{_textin});
 }
+
 
 1;
 

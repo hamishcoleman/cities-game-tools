@@ -49,7 +49,6 @@ if ($d->{_state} eq 'loggedin') {
 	computelocation($d);
 	dumptogamelog($d);
 	dumptodb($d);
-	dumptextintodb($d);
 
 	my @list;
 	for my $i ($query->param) {
@@ -82,24 +81,27 @@ if ($d->{_state} eq 'loggedin') {
 	if ($paramlist) {
 		addtexttolog($d,"Params: ".$paramlist);
 	}
-}
+	# FIXME - the Params could be logged at lastx/lasty ...
 
-##########################################################################
-#
-# Modify the tree to include data from our database
+	dumptextintodb($d);
 
-# simple insert of standing stones onto the map
-for my $i ($tree->look_down(
-		'_tag', 'td',
-		'class', 'loc_stone map_loc')) {
-	$i->push_content("S");
-}
+	#########################################################################
+	#
+	# Modify the tree to include data from our database
 
-my $title = $tree->look_down('_tag','title');
-if ($title) {
-	# TODO - error if not title?
+	# simple insert of standing stones onto the map
+	for my $i ($tree->look_down(
+			'_tag', 'td',
+			'class', 'loc_stone map_loc')) {
+		$i->push_content("S");
+	}
 
-	$title->push_content(" - $d->{_realm}");
+	my $title = $tree->look_down('_tag','title');
+	if ($title) {
+		# TODO - error if not title?
+
+		$title->push_content(" - $d->{_realm}");
+	}
 }
 
 ##########################################################################

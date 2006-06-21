@@ -250,13 +250,20 @@ sub addmap($$) {
 		my $title = $item->look_down(
 			'_tag','span',
 			'class','control_title');
-		if (!defined $title) {
-			# Something is wrong
-			next;
+		if (defined $title) {
+			# FIXME - this is fragile
+			if ($title->as_trimmed_text =~ m/(Big Map|Map|Small Map|Small Magic Map):/) {
+				$map = $item->look_down('_tag','table');
+				next;
+			}
 		}
-		# FIXME - this is fragile
-		if ($title->as_trimmed_text =~ m/(Big Map|Map|Small Map|Small Magic Map):/) {
+
+		my $td = $item->look_down(
+			'_tag','td',
+			'class', qr/ map_loc/);
+		if (defined $td) {
 			$map = $item->look_down('_tag','table');
+			next;
 		}
 	}
 	if (!$map) {
@@ -499,8 +506,9 @@ sub computelocation($) {
 		# TODO - I could extract the city name from the elemental
 		#	teleports and use that for a location fix
 	} elsif ( $s =~ m/You go down the hole/ms) {
-		# TODO: $d->{_realm}='Underground';
-		dbnewrealm($d);
+		# TODO: ensure that this is the only place that holes go to
+		$d->{_realm}='Underground';
+		#dbnewrealm($d);
 	} elsif ( $s =~ m/You return to your previous location/ms) {
 		# leaving Barbelith
 		dbnewrealm($d);

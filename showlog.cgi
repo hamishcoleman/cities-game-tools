@@ -51,6 +51,7 @@ my $sth = $dbh->prepare(qq{
 	FROM userlog
 	WHERE name=?
 	ORDER BY entry DESC
+	LIMIT 400
 }) || die $dbh->errstr;
 $sth->execute($want_name);
 

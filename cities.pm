@@ -41,12 +41,14 @@ sub adjusturls($$) {
 			"_tag", "link",
 			"rel", "stylesheet")) {
 		$i->attr('href',resolve_url($realpage,$i->attr('href')));
+		#$i->attr('href',$otherurl . '?realpage='.resolve_url($realpage,$i->attr('href')));
 	}
 
 	#images
 	for my $i ($tree->look_down(
 			"_tag", "img" )) {
 		$i->attr('src',resolve_url($realpage,$i->attr('src')));
+		#$i->attr('src',$otherurl . '?realpage='.resolve_url($realpage,$i->attr('src')));
 	}
 
 	# um, not an img but displays an img ??
@@ -54,6 +56,7 @@ sub adjusturls($$) {
 			"_tag", "input" )) {
 		if ($i->attr('src')) {
 			$i->attr('src',resolve_url($realpage,$i->attr('src')));
+			#$i->attr('src',$otherurl . '?realpage='.resolve_url($realpage,$i->attr('src')));
 		}
 	}
 
@@ -517,7 +520,7 @@ sub computelocation($) {
 
 	# Magic locations..
 	} elsif ( $d->{_db}->{realm} eq '0' && $d->{_x}==29 && $d->{_y}==40) {
-		$d->{_realm} = "elevator";
+		$d->{_realm} = "Elevator";
 	}
 
 	# TODO - no message when exiting the space elevator
@@ -847,6 +850,7 @@ sub dumptodb($) {
 			# we dont need this extra guff poluting the db (i hope)
 			$class =~ s/location //;
 			$class =~ s/ map_loc//;
+			$class =~ s/ indoor//;
 
 			# TODO - generalise these exceptions
 			# Argh!

@@ -860,7 +860,8 @@ sub dumptodb($) {
 				$class eq 'loc_smoke' ||
 				$class eq 'loc_flood' ||
 				$class eq 'loc_dark' ||
-				$class eq 'loc_bright'
+				$class eq 'loc_bright' ||
+				$class eq 'loc_snow'
 			) {
 				$thisrealm=$realm.':ephemeral';
 			} else {

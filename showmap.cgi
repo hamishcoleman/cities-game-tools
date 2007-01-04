@@ -479,13 +479,6 @@ my $row=$max_y;
 while ($row>$min_y-1) {
 	print "<tr>";
 	
-	# Index the left
-	if ($row%10==0) {
-		print "<td>$row</td>";
-	} else {
-		print "<td>&nbsp;</td>";
-	}
-
 	if ($want_overlay) {
 		$lookup->execute($want_other,$realm,$min_x,$max_x,$row);
 	} else {
@@ -494,6 +487,7 @@ while ($row>$min_y-1) {
 
 	my $skip = 0;
 	my $lastcol;
+	my $doneleftindex;
 	while (my $res = $lookup->fetch) {
 		my $this_realm = $res->[0];
 		my $col = $res->[1];
@@ -501,6 +495,16 @@ while ($row>$min_y-1) {
 		my $class = $res->[3];
 		my $name = $res->[4];
 		my $visits = $res->[5];
+
+		if (!$doneleftindex) {
+			# Print Index on the left
+			if ($row%10==0) {
+				print "<td>$row</td>";
+			} else {
+				print "<td>&nbsp;</td>";
+			}
+			$doneleftindex=1;
+		}
 
 		if (!defined $lastcol) {
 			$lastcol = $min_x-1;
@@ -582,26 +586,32 @@ while ($row>$min_y-1) {
 	}
 	$lookup->finish();
 
-	# 
-	if (!defined $lastcol) {
-		$lastcol = $min_x-1;
-	}
+	# If we have not done the left index, then the row is empty and we can leave it that way
+	#
+	# FIXME - this will skip blank bits in the middle of the map as well as at the ends
+	# TODO - increase the min_y if we skip rows - watch out for the end of the map...
+	if ($doneleftindex) {
 
-	# have we skipped any columns?
-	if ($max_x > ($lastcol+1)) {
-		$skip = $max_x - ($lastcol+1);
-	}
+		if (!defined $lastcol) {
+			$lastcol = $min_x-1;
+		}
 
-	if ($skip) {
-		# FIXME - figure out where this off-by-one error comes from
-		$skip++;
-		print "<td colspan=$skip></td>";
-		$skip=0;
-	}
+		# have we skipped any columns?
+		if ($max_x > ($lastcol+1)) {
+			$skip = $max_x - ($lastcol+1);
+		}
 
-	# Index the right
-	if ($row%10==0) {
-		print "<td>$row</td>";
+		if ($skip) {
+			# FIXME - figure out where this off-by-one error comes from
+			$skip++;
+			print "<td colspan=$skip></td>";
+			$skip=0;
+		}
+
+		# Index the right
+		if ($row%10==0) {
+			print "<td>$row</td>";
+		}
 	}
 
 	print "</tr>\n";

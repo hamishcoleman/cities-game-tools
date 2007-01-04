@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+#
+# Reading a file from The Great Cities Mapping Project and inserting it into my map
+#
+# Project:	http://www.glendale.org.uk/cities/index.jsp
+# Data file:	http://www.glendale.org.uk/cities/data.txt
+#
+
+#my db='~/WWW/cities/db/gamelog.sqlite';
+
+if (! $ARGV[0]) {
+	print "Usage: import-data data.txt\n";
+	exit 1;
+}
+
+print "BEGIN;\n";
+print "DELETE FROM map WHERE realm='$GMP';\n";
+while (<>) {
+	chomp;
+	my @fields = split /\t/;
+
+	print "INSERT INTO map VALUES('$GMP',$fields[0],$fields[1],'$fields[2]','$fields[4]',0,$fields[3],$fields[3],$fields[3],'$GMP',NULL);\n";
+}
+print "COMMIT;\n";
+

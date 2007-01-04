@@ -70,6 +70,7 @@ if ($d->{_state} eq 'loggedin') {
 			|| $i eq 'act_fast2' || $i eq 'act_setfast2'
 			|| $i eq 'act_fast3' || $i eq 'act_setfast3'
 			|| $i eq 'act_fast4' || $i eq 'act_setfast4'
+			|| $i eq 'stone_gate'
 			|| $i eq 'act_null'
 			|| $i eq 'act_eqpane'
 			|| $i eq 'act_say' || $i eq 'act_shout'
@@ -78,6 +79,9 @@ if ($d->{_state} eq 'loggedin') {
 			|| $i eq 'act_item_use'
 			|| $i eq 'act_bean'
 			|| $i eq 'username' || $i eq 'password'
+			|| $i eq 'act_item_equip'
+			|| $i eq 'act_equip_MoonStoneBling_unequip'
+			|| $i eq 'act_item_power'
 			|| $i =~ m/^act_build_/
 			# act_exit exits the elevator
 			# act_enter enters the elevator

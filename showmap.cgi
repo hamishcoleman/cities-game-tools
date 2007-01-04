@@ -468,6 +468,13 @@ for my $col ($min_x..$max_x) {
 }
 print "</tr>\n";
 
+my $lookup = $dbh->prepare_cached(qq{
+	SELECT realm,x,y,class,name,visits
+	FROM map
+	WHERE (realm=? OR realm=?) AND x>=? AND x<=? AND y=?
+	ORDER BY x, realm DESC
+});
+
 my $row=$max_y;
 while ($row>$min_y-1) {
 	print "<tr>";
@@ -479,12 +486,6 @@ while ($row>$min_y-1) {
 		print "<td>&nbsp;</td>";
 	}
 
-	my $lookup = $dbh->prepare_cached(qq{
-		SELECT realm,x,y,class,name,visits
-		FROM map
-		WHERE (realm=? OR realm=?) AND x>=? AND x<=? AND y=?
-		ORDER BY x, realm DESC
-	});
 	if ($want_overlay) {
 		$lookup->execute($want_other,$realm,$min_x,$max_x,$row);
 	} else {

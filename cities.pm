@@ -277,14 +277,24 @@ sub addmap($$) {
 	my ($size,$offset);
 
 	# FIXME - should auto-size the damn map..
-	if (defined $map->address(".14.14")) {
+	if (defined $map->address(".15.15")) {
+		# it is larger than expected ...
+		# skip it to avoid issues...
+		# FIXME - log a warning message
+		return;
+	} elsif (defined $map->address(".14.14")) {
 		$size = 14;	# 15x15
 		$offset = 7;
-	# maybe 13x13
+	# I have never seen a 13x13 map
+	} elsif (defined $map->address(".12.12")) {
+		$size = 12;	# 13x13
+		$offset = 6;
 	} elsif (defined $map->address(".10.10")) {
 		$size = 10;	# 11x11
 		$offset = 5;
-	# maybe 9x9
+	} elsif (defined $map->address(".8.8")) {
+		$size = 8;	# 9x9
+		$offset = 4;
 	} elsif (defined $map->address(".6.6")) {
 		$size = 6;	# 7x7
 		$offset = 3;
@@ -516,6 +526,8 @@ sub computelocation($) {
 		# leaving Barbelith
 		dbnewrealm($d);
 	} elsif ( $s =~ m/You are taken to the ARENA/ms) {
+		dbnewrealm($d);
+	} elsif ( $s =~ m/The Diagnora pulls you under/ms) {
 		dbnewrealm($d);
 
 	# Magic locations..
@@ -861,7 +873,8 @@ sub dumptodb($) {
 				$class eq 'loc_flood' ||
 				$class eq 'loc_dark' ||
 				$class eq 'loc_bright' ||
-				$class eq 'loc_snow'
+				$class eq 'loc_snow' ||
+				$class eq 'loc_muddry'
 			) {
 				$thisrealm=$realm.':ephemeral';
 			} else {
@@ -898,30 +911,34 @@ sub dumptodb($) {
 			# FIXME - there is still some bugs in this logic
 			if ($cur_class ne $class) {
 				# the square has changed class
-				$diff=1;
+				$diff='newclass';
 			} elsif (!defined $cur_name && defined $name) {
 				# we have a name now, but did not previously
-				$diff=1
+				$diff='name';
 			} elsif (defined $cur_name && defined $name && $cur_name ne $name) {
 				# The name has changed
-				$diff=1;
+				$diff='newname';
 			}
 			# else no name now or no change
 
 			if ($diff) {
-				# insert the square into 'rollback'
-				my $rollback = $dbh->prepare_cached(qq{
-					INSERT OR REPLACE
-					INTO map(realm,x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote)
-					SELECT ?,x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote
-					FROM map
-					WHERE realm=? AND x=? AND y=?
-				}) || die $dbh->errstr;
-				$rollback->execute(
-					$thisrealm.':rollback',
-					$thisrealm,$thisx,$thisy
-				);
-				$rollback->finish();
+				# dont insert rollback entries for adding a name to a square
+				# with no current name
+				if ($diff ne 'name') {
+					# insert the square into 'rollback'
+					my $rollback = $dbh->prepare_cached(qq{
+						INSERT OR REPLACE
+						INTO map(realm,x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote)
+						SELECT ?,x,y,class,name,visits,lastseen,lastvisited,lastchanged,lastchangedby,textnote
+						FROM map
+						WHERE realm=? AND x=? AND y=?
+					}) || die $dbh->errstr;
+					$rollback->execute(
+						$thisrealm.':rollback',
+						$thisrealm,$thisx,$thisy
+					);
+					$rollback->finish();
+				}
 
 				# something is different, update the entry
 				my $update = $dbh->prepare_cached(qq{

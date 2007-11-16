@@ -223,7 +223,7 @@ sub addviewport($$) {
 		} else {
 			# dark and bright dont have a div, so this is an error
 			# for them.
-			$name = $div->as_trimmed_text();
+			$name = $div->address('.0')->as_trimmed_text();
 		}
 
 		my $x = $mapping{$id}[0];
@@ -501,6 +501,14 @@ sub computelocation($) {
 		$d->{_realm} = "The Pit";
 		$d->{_x} = 0;
 		$d->{_y} = 0;
+	} elsif ( $s =~ m/You are absorbed into the mall/ms) {
+		#$d->{_realm} = "The Mall Lobby";
+		# FIXME - different entrances...
+		dbnewrealm($d);
+	} elsif ( $s =~ m/\*bing\*.* Floor: /ms) {
+		# FIXME - examine string
+		dbnewrealm($d);
+		
 	} elsif ( $s =~ m/You climb out of the tunnel. It comes out in the wilderness/ms) {
 		# exiting the pit
 		dbnewrealm($d);

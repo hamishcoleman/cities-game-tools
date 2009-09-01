@@ -43,6 +43,7 @@ if (!$d->{_logname}) {
 }
 
 my $want_name = param('wn') || $d->{_logname};
+my $count= param('count') || 100;
 
 print $want_name,"\n";
 
@@ -59,6 +60,10 @@ print "<table border=1>";
 
 while (my $res = $sth->fetch()) {
 	my ($realm,$x,$y,$gametime);
+
+	if (!$count--) {
+		last;
+	}
 
 	if (defined $res->[0]) {
 		$realm = $res->[0];

@@ -8,7 +8,6 @@ use warnings;
 
 my $robot_logname = '_LOGNAME_';
 my $robot_password = '_PASSWORD_';
-my @inputname = ('act_fight_n', 'act_fight_s', 'act_fight_w', 'act_fight_e');
 
 my $d;
 $d->{_state} = 'initializing';
@@ -68,6 +67,10 @@ computelocation($d);
 dumptextintodb($d);
 #print "User is at $d->{_realm}/$d->{_x}/$d->{_y}\n";
 
+#########################################
+# Select this weapon
+#
+
 # TODO - if (item_select) then ...
 $form->value('item','CruelBlade');
 my $input = $form->find_input('act_null');
@@ -87,21 +90,31 @@ if ($res->content_type ne 'text/html') {
 	die "robot: received ", $res->content_type;
 }
 
+#########################################
+
 $form = HTML::Form->parse($res);
 screenscrape($tree,$d);
 if ($d->{_state} ne 'loggedin') {
 	die "not logged in";
 }
 
-my $done;
+# TODO
+# - select 'best' weapon (dont use cruel blade if not needed)
+# - watch out for breaking weapons and stop before all are used
+# - stop fighting if our hp gets too low
+# - keep fighting if the monster is still alive
 
-while (!$done) {
-	my $inputname = shift @inputname;
-	if (!$inputname) {
-		$done=1;
-		last;
+for my $dir (keys %{$d->{_dir}}) {
+	if ($d->{_dir}{$dir}{state} ne 'fight') {
+		# nothing to fight
+		next;
+	}
+	if ($d->{_dir}{$dir}{hp} > 5) {
+		# too big to auto-fight
+		next;
 	}
 
+	my $inputname = 'act_fight_'.$dir;
 	my $input = $form->find_input($inputname);
 	if (!$input) {
 		print "No button called $inputname\n";

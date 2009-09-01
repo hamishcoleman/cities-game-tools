@@ -148,16 +148,13 @@ sub addidvalue($$$$$) {
 sub adddirection($$$) {
 	my ($tree,$d,$name) = @_;
 
-	my $node = $tree->look_down('name',$name);
-	if (!$node) {
-		return undef;
-	}
-
-	my $src = $node->attr('src');
-	if ($src =~ m/fight.png/) {
+	my $node = $tree->look_down('name','act_move_'.$name);
+	if ($node) {
+		$d->{_dir}->{$name}->{state} = 'move';
+	} elsif ($node = $tree->look_down('name','act_fight_'.$name)) {
 		$d->{_dir}->{$name}->{state} = 'fight';
 	} else {
-		$d->{_dir}->{$name}->{state} = 'move';
+		return undef;
 	}
 
 	my $div = $node->parent->look_down('_tag','div');
@@ -173,9 +170,10 @@ sub adddirection($$$) {
 sub addviewport($$) {
 	my ($tree,$d) = @_;
 
-	my $viewport = $tree->look_down('id','viewport');
+	my $viewport = $tree->look_down('id','control_pane');
 	if (!$viewport) {
 		# Something is wrong
+		warn "Could not find id=control_pane";
 		return;
 	}
 
@@ -235,10 +233,10 @@ sub addviewport($$) {
 
 	# Secondly try to add the directions that are valid to move in..
 
-	adddirection($tree,$d,'act_n');
-	adddirection($tree,$d,'act_s');
-	adddirection($tree,$d,'act_e');
-	adddirection($tree,$d,'act_w');
+	adddirection($tree,$d,'n');
+	adddirection($tree,$d,'s');
+	adddirection($tree,$d,'e');
+	adddirection($tree,$d,'w');
 }
 
 sub addmap($$) {

@@ -1011,6 +1011,7 @@ sub addtexttolog($$) {
 		$d->{_y},
 		$text
 	);
+	$sth->finish();
 	$dbh->commit();
 }
 

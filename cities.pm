@@ -485,7 +485,7 @@ sub computelocation($) {
 			dbnewrealm($d);
 	}
 
-	my $s = $d->{_textin} || '';
+	my $s = $d->{_messages} || '';
 
 
 	# inertial navigation
@@ -644,7 +644,16 @@ sub screenscrape($$) {
 		'_tag','textarea',
 		'class','textin');
 	if ($node) {
-		$d->{_textin} = $node->as_text();
+		$d->{_messages} = $node->as_text();
+	} else {
+		# try using new fangled interface
+		$node = $tree->look_down(
+			'_tag','div',
+			'id','messages',
+			'class','textin');
+		if ($node) {
+			$d->{_messages} = $node->as_text();
+		}
 	}
 
 	# id="inventory"
@@ -733,7 +742,7 @@ sub dumptogamelog($) {
 		print LOG "REALM: $d->{_realm}\n";
 		$haveloc=1;
 	}
-	print LOG $d->{_textin};
+	print LOG $d->{_messages};
 
 	# map data now goes to the database
 	#return;
@@ -1025,16 +1034,16 @@ sub addtexttolog($$) {
 sub dumptextintodb($) {
 	my ($d) = @_;
 
-	if (!$d->{_textin}) {
+	if (!$d->{_messages}) {
 		return;
 	}
 
 	# remove unsavory comments..
-	$d->{_textin} =~ s/^You go (North|South|East|West). ?$//ms;
-	$d->{_textin} =~ s/^Now using .*$//ms;
-	chomp($d->{_textin});
+	$d->{_messages} =~ s/^You go (North|South|East|West). ?$//ms;
+	$d->{_messages} =~ s/^Now using .*$//ms;
+	chomp($d->{_messages});
 
-	if (!$d->{_textin}) {
+	if (!$d->{_messages}) {
 		return;
 	}
 
@@ -1046,7 +1055,7 @@ sub dumptextintodb($) {
 		$d->{_time} = time();
 	}
 
-	addtexttolog($d,$d->{_textin});
+	addtexttolog($d,$d->{_messages});
 }
 
 

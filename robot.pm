@@ -264,6 +264,48 @@ sub populate_items_list {
 	1;
 }
 
+sub populate_items_list_ajax {
+	# use the new fangled interface for getting the items list
+	my ($self) = @_;
+
+	my $req = HTTP::Request->new(GET => "$cities::baseurl/cgi-bin/ajaxitems?cat=all");
+	my $res = $self->{_ua}->request($req);
+
+	if (!$res->is_success) {
+		die "ajax: ", $res->status_line;
+	}
+
+	if ($res->content_type ne 'text/html') {
+		# awooga, awooga, this is not a parseable document...
+		die "ajax: received ", $res->content_type;
+	}
+
+	# TODO - fixup maketreefromreq
+	my $tree = HTML::TreeBuilder->new;
+	$tree->store_comments(1);
+	$tree->parse($res->content);
+	$tree->eof;
+	$tree->elementify;
+
+	for my $i ($tree->look_down('_tag','a')) {
+		my $text = $i->as_trimmed_text();
+		my $href = $i->attr('href');
+		my $id;
+		if ($href =~ m/item=(.*)/) {
+			$id = $1;
+		} else {
+			# filter out the quickdraw <a>'s
+			next;
+		}
+
+		my $item = Cities::Item->new($id,$text);
+		$item->container($self);
+
+		$self->{_items}{$id} = $item;
+	}
+	1;
+}
+
 sub populate_actions_list {
 	my ($self) = @_;
 
@@ -451,25 +493,33 @@ sub _wield {
 		$self->{_form} || die "No form data";
 	}
 
-	my $olditem = $self->item($self->{_form}->value('item'));
+	if ($self->{_form}->find_input('item')) {
+		# old interface
+		my $olditem = $self->item($self->{_form}->value('item'));
 
-	if (!$item) {
-		die "Cannot wield a null value"
+		if (!$item) {
+			die "Cannot wield a null value"
+		}
+
+		$self->{_form}->value('item',$item->value);
+
+		# make it active
+		$self->request($self->{_form}->click('act_null'));
+
+		return $olditem;
 	}
 
-	$self->{_form}->value('item',$item->value);
-
-	# make it active
-	$self->request($self->{_form}->click('act_null'));
-
-	return $olditem;
+	# new fangled ajax interface
+	my $id = $item->value;
+	my $req = HTTP::Request->new(GET => "$cities::baseurl/cgi-bin/game?item=$id");
+	$self->request($req);
 }
 
 sub item {
 	my ($self,$item) = @_;
 
 	if (!$self->{_items}) {
-		$self->request;
+		$self->populate_items_list_ajax;
 		$self->{_items} || die "No items";
 	}
 

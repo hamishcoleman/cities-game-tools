@@ -24,11 +24,13 @@ sub new {
 }
 
 sub click {
+	my ($self) = @_;
 	warn "Attempting to click a null action ($self->{_id})";
 	return undef;
 }
 
 sub wield {
+	my ($self) = @_;
 	warn "Attempting to wield a null item ($self->{_id})";
 	return undef;
 }
@@ -297,6 +299,9 @@ sub populate_scrape_data {
 	$tree->eof;
 	$tree->elementify;
 
+	# Keep a copy for debugging
+	$self->{_resold} = $self->{_res};
+
 	# Done with the two users of the results
 	delete $self->{_res};
 
@@ -307,6 +312,10 @@ sub populate_scrape_data {
 	if ($self->{_d}->{_state} ne 'loggedin') {
 		die "not logged in";
 	}
+
+	# FIXME - dbloaduser depends on _logname
+	# computlocation calls dbloaduser if it needs some inertial tracking
+	$self->{_d}->{_logname} = $self->{_username};
 
 	# Determine our x,y location and guess a realm
 	computelocation($self->{_d});
@@ -402,6 +411,8 @@ sub session {
 	});
 	$sth->execute($value,$self->{_username});
 	$self->{_dbh}->commit();
+	# convince the DBI to _STOP_ITS_WHINGING_
+	$sth->finish();
 
 	return $value;
 }
@@ -530,6 +541,7 @@ sub ap {
 1;
 __END__
 
+
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
@@ -537,6 +549,8 @@ $Data::Dumper::Sortkeys = 1;
 use robot;
 
 my $r = Robot->new('_LOGNAME_','_PASSWORD_');
+my $r = Robot->new('_LOGNAME_','_PASSWORD_');
+
 $r->login;
 print "Robot is at ",join('/',$r->rxy),"\n";
 $r->item('CruelBlade')->wield;

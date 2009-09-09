@@ -40,7 +40,7 @@ sub name {
 	}
 	if ($name =~ m/ \((\d+) (\d+)%\)( x |$)/) {
 		$self->{_damage} = $1;
-		$self->{_tohit} = '0.'.$2;
+		$self->{_tohit} = $2/100;
 		$self->{_weapon} = 1;
 	}
 }
@@ -79,6 +79,15 @@ sub wield {
 	return $self->{_container}->_wield($self);
 }
 
+sub avgdamage {
+	my ($self) = @_;
+
+	if (!$self->{_weapon}) {
+		return 0;
+	}
+
+	return $self->{_damage} * $self->{_tohit};
+}
 
 #
 # The main robot system
@@ -343,7 +352,7 @@ sub item {
 	if ($item) {
 		return $self->{_items}{$item};
 	}
-	return $self->{_items};
+	return values %{$self->{_items}};
 }
 
 sub rxy {
@@ -365,10 +374,14 @@ $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
 use robot;
+
 my $r = Robot->new('_LOGNAME_','_PASSWORD_');
 $r->login;
 print "Robot is at ",join('/',$r->rxy),"\n";
 $r->item('CruelBlade')->wield;
+
+$r->monster - returns a direction object list
+$r
 
 
 #########################################

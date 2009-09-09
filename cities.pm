@@ -151,6 +151,14 @@ sub adddirection($$$) {
 	my $node = $tree->look_down('name','act_move_'.$name);
 	if ($node) {
 		$d->{_dir}->{$name}->{state} = 'move';
+		my $s = $node->attr('onmouseover');
+		if (!$s) {
+			# try new fangled interface
+			$s = $node->attr('title');
+		}
+		if ($s =~ m/will cost (\d+) AP/) {
+			$d->{_dir}->{$name}->{ap} = $1;
+		}
 	} elsif ($node = $tree->look_down('name','act_fight_'.$name)) {
 		$d->{_dir}->{$name}->{state} = 'fight';
 	} else {
@@ -1015,6 +1023,10 @@ sub addtexttolog($$) {
 
 sub dumptextintodb($) {
 	my ($d) = @_;
+
+	if (!$d->{_textin}) {
+		return;
+	}
 
 	# remove unsavory comments..
 	$d->{_textin} =~ s/^You go (North|South|East|West). ?$//ms;

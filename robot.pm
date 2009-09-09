@@ -41,15 +41,15 @@ sub wield {
 package Cities::Action;
 
 sub new {
-	my ($class,$name,$value) = @_;
+	my ($class,$id,$text) = @_;
 	my $self = {};
 	bless $self, $class;
 
-	if (!$name) {
-		die "Actions must have names";
+	if (!$id) {
+		die "Actions must have ids";
 	}
-	$self->name($name);
-	$self->value($value);
+	$self->id($id);
+	$self->text($text);
 
 	return $self;
 }
@@ -61,11 +61,11 @@ sub container {
 	return $self->{_container};
 }
 
-sub name {
+sub id {
 	my ($self,$v) = @_;
 
-	$v && ($self->{_name} = $v);
-	return $self->{_name};
+	$v && ($self->{_id} = $v);
+	return $self->{_id};
 }
 
 sub ap {
@@ -75,16 +75,16 @@ sub ap {
 	return $self->{_ap};
 }
 
-sub value {
+sub text {
 	my ($self,$v) = @_;
 
-	$v && ($self->{_value} = $v);
+	$v && ($self->{_text} = $v);
 
 	if ($v && $v =~ m/ \((\d+) AP\)$/) {
 		$self->ap($1);
 	}
 
-	return $self->{_value};
+	return $self->{_text};
 }
 
 sub click {
@@ -102,7 +102,7 @@ sub click {
 		return undef;
 	}
 
-	return $self->container->_click($self->name);
+	return $self->container->_click($self);
 }
 
 #
@@ -111,50 +111,50 @@ sub click {
 package Cities::Item;
 
 sub new {
-	my ($class,$value,$name) = @_;
+	my ($class,$id,$text) = @_;
 	my $self = {};
 	bless $self, $class;
 
-	if (!$value) {
+	if (!$id) {
 		die "Must have item codename"
 	}
-	$self->value($value);
-	$self->name($name);
+	$self->id($id);
+	$self->text($text);
 
 	return $self;
 }
 
-sub name {
-	my ($self,$name) = @_;
+sub text {
+	my ($self,$text) = @_;
 
-	if (!$name) {
+	if (!$text) {
 		# get
-		return $self->{_name};
+		return $self->{_text};
 	}
 
 	# set
-	$self->{_name} = $name;
+	$self->{_text} = $text;
 
-	if ($name =~ m/ x (\d+)$/) {
+	if ($text =~ m/ x (\d+)$/) {
 		$self->{_count} = $1;
 	}
-	if ($name =~ m/ \((\d+) (\d+)%\)( x |$)/) {
+	if ($text =~ m/ \((\d+) (\d+)%\)( x |$)/) {
 		$self->{_damage} = $1;
 		$self->{_tohit} = $2/100;
 		$self->{_weapon} = 1;
 	}
 }
 
-sub value {
-	my ($self,$value) = @_;
+sub id {
+	my ($self,$id) = @_;
 
-	if (!$value) {
+	if (!$id) {
 		# get
-		return $self->{_value};
+		return $self->{_id};
 	}
 
 	#set
-	$self->{_value}=$value;
+	$self->{_id}=$id;
 }
 
 sub container {
@@ -501,7 +501,7 @@ sub _wield {
 			die "Cannot wield a null value"
 		}
 
-		$self->{_form}->value('item',$item->value);
+		$self->{_form}->value('item',$item->id);
 
 		# make it active
 		$self->request($self->{_form}->click('act_null'));
@@ -510,7 +510,7 @@ sub _wield {
 	}
 
 	# new fangled ajax interface
-	my $id = $item->value;
+	my $id = $item->id;
 	my $req = HTTP::Request->new(GET => "$cities::baseurl/cgi-bin/game?item=$id");
 	$self->request($req);
 }
@@ -528,7 +528,7 @@ sub item {
 		if ($item) {
 			return $item;
 		}
-		return Cities::Null->new;
+		return Cities::Null->new($item);
 	}
 	return values %{$self->{_items}};
 }
@@ -545,7 +545,7 @@ sub _click {
 		die "Cannot action a null value"
 	}
 
-	$self->request($self->{_form}->click($action->name));
+	$self->request($self->{_form}->click($action->id));
 }
 
 sub action {
@@ -561,7 +561,7 @@ sub action {
 		if ($action) {
 			return $action;
 		}
-		return Cities::Null->new;
+		return Cities::Null->new($action);
 	}
 	return values %{$self->{_actions}};
 }

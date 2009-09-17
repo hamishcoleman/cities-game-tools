@@ -83,6 +83,7 @@ if ($d->{_state} eq 'loggedin') {
 			|| $i eq 'act_equip_MoonStoneBling_unequip'
 			|| $i eq 'act_item_power'
 			|| $i =~ m/^act_build_/
+			|| $i eq 'reps' || $i eq 'repminap' || $i eq 'repminhp'
 			# act_exit exits the elevator
 			# act_enter enters the elevator
 		) {

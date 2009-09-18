@@ -144,35 +144,65 @@ sub addidvalue($$$$$) {
 	return undef;
 }
 
-# trys to extract the status of each direction from the viewport
-sub adddirection($$$) {
-	my ($tree,$d,$name) = @_;
+# Look through the viewport and find all the monsters and their details
+# Also adds in the movement cost for directions with no monster
+sub addmonsters($$) {
+	my ($viewport,$d) = @_;
 
-	my $node = $tree->look_down('name','act_move_'.$name);
-	if ($node) {
-		$d->{_dir}->{$name}->{state} = 'move';
-	} elsif ($node = $tree->look_down('name','act_fight_'.$name)) {
-		$d->{_dir}->{$name}->{state} = 'fight';
-	} else {
-		return undef;
+	my $table = $viewport->look_down('_tag','table');
+	if (!$table) {
+		warn "could not find table";
+		return;
 	}
 
-	my $s = $node->attr('onmouseover');
-	if (!$s) {
-		# try new fangled interface
-		$s = $node->attr('title');
-	}
-	if ($s =~ m/will cost (\d+) AP/) {
-		$d->{_dir}->{$name}->{ap} = $1;
-	}
+	my %mapping = (
+		'n,w' => '.2.0',
+		'n,e' => '.2.1',
+		'w,n' => '.4.2',
+		'n'   => '.4.6',
+		'e,n' => '.4.10',
+		'w'   => '.6.0',
+		'e'   => '.6.1',
+		'w,s' => '.8.2',
+		's'   => '.8.6',
+		'e,s' => '.8.10',
+		's,w' => '.10.0',
+		's,e' => '.10.1',
+	);
 
-	my $div = $node->parent->look_down('_tag','div');
-	if ($div) {
-		my $text = $div->as_trimmed_text();
-		$d->{_dir}->{$name}->{text}=$text;
-		my ($mname,$mhp)=($text=~ m/(.*) \((.+)\)/);
-		$d->{_dir}->{$name}->{monster}=$mname;
-		$d->{_dir}->{$name}->{hp}=$mhp;
+	for my $dir (keys %mapping) {
+		my $road = $table->address($mapping{$dir});
+		if (!$road) {
+			# invisible?
+			next;
+		}
+
+		my $node = $road->look_down('name','act_move_'.$dir);
+		if ($node) {
+			$d->{_dir}->{$dir}->{state} = 'move';
+		} elsif ($node = $road->look_down('name','act_fight_'.$dir)) {
+			$d->{_dir}->{$dir}->{state} = 'fight';
+		}
+
+		if ($node) {
+			my $s = $node->attr('onmouseover');
+			if (!$s) {
+				# try new fangled interface
+				$s = $node->attr('title');
+			}
+			if ($s =~ m/will cost (\d+) AP/) {
+				$d->{_dir}->{$dir}->{ap} = $1;
+			}
+		}
+
+		my $div = $road->look_down('_tag','div');
+		if ($div) {
+			my $text = $div->as_trimmed_text();
+			$d->{_dir}->{$dir}->{text}=$text;
+			my ($mname,$mhp)=($text=~ m/(.*) \((.+)\)/);
+			$d->{_dir}->{$dir}->{monster}=$mname;
+			$d->{_dir}->{$dir}->{hp}=$mhp;
+		}
 	}
 }
 
@@ -241,11 +271,9 @@ sub addviewport($$) {
 	}
 
 	# Secondly try to add the directions that are valid to move in..
+	# and the visible monsters..
 
-	adddirection($tree,$d,'n');
-	adddirection($tree,$d,'s');
-	adddirection($tree,$d,'e');
-	adddirection($tree,$d,'w');
+	addmonsters($viewport,$d);
 }
 
 sub addmap($$) {

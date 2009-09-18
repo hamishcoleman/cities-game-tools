@@ -35,6 +35,10 @@ sub wield {
 	return undef;
 }
 
+sub id {
+	return undef;
+}
+
 #
 # An Action is any of the buttons on the screen
 #
@@ -544,6 +548,9 @@ sub _click {
 	if (!$action) {
 		die "Cannot action a null value"
 	}
+
+	# clicking on something could change the inventory, so delete it
+	delete $self->{_items};
 
 	$self->request($self->{_form}->click($action->id));
 }

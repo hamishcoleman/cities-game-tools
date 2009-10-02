@@ -18,13 +18,13 @@ my $r = Robot->new('_LOGNAME_','_PASSWORD_');
 
 $r->login;
 
-if ($r->action('act_retreat')) {
+if ($r->action('act_retreat')->id) {
 	# If possible, use a monastry
 	$r->action('act_retreat')->click;
 }
 
 
-if ($r->item('Cornucopia')) {
+if ($r->item('Cornucopia')->id) {
 	# If possible, use the cornucopia
 	$r->item('Cornucopia')->wield;
 

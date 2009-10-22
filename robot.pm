@@ -265,6 +265,8 @@ sub populate_items_list {
 
 		$self->{_items}{$_->{value}} = $item;
 	}
+	$self->{_current_item} = $menu->value();
+
 	1;
 }
 
@@ -372,6 +374,12 @@ sub populate_scrape_data {
 
 	$self->populate_items_list;
 	$self->populate_actions_list;
+
+	# FIXME - populate current_item from new fangled interface
+	# look_down id=current_item, look_down _tag=a
+	# href="http://wiki.cities.totl.net/index.php?title=RustySword"
+	# title=RustySword
+	# current_item=title
 
 	return 1;
 }
@@ -537,6 +545,12 @@ sub item {
 	return values %{$self->{_items}};
 }
 
+sub current_item {
+	my ($self) = @_;
+
+	return $self->item($self->{_current_item});
+}
+
 sub _click {
 	my ($self,$action) = @_;
 
@@ -610,6 +624,8 @@ my $r = Robot->new('_LOGNAME_','_PASSWORD_');
 
 $r->login;
 print "Robot is at ",join('/',$r->rxy),"\n";
+$r->dump('out.txt');
+
 $r->item('CruelBlade')->wield;
 
 # If possible, use a monastry

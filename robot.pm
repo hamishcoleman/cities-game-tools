@@ -40,6 +40,235 @@ sub id {
 }
 
 #
+# A Location is one of the map squares
+#
+package Cities::Location;
+
+sub validxy($$) {
+	my ($x,$y) = @_;
+
+	if (int($x) != $x) {
+		return undef;
+	}
+	if (int($y) != $y) {
+		return undef;
+	}
+	return 1;
+}
+
+sub new {
+	my ($invocant,$x,$y) = @_;
+	my $class = ref($invocant) || $invocant;
+
+	# FIXME - realms! and zero locations
+	#if (!$x || !$y) {
+	#	die "Locations must have both x and y";
+	#}
+	if (!validxy($x,$y)) {
+		die "Locations must be integers";
+	}
+
+	my $self = {};
+	bless $self, $class;
+
+	$self->{_x} = $x;
+	$self->{_y} = $y;
+
+	return $self;
+}
+
+sub is_location {
+	return 1;
+}
+
+sub is_road {
+	return undef;
+}
+
+sub xy {
+	my ($self) = @_;
+	return ($self->{_x},$self->{_y});
+}
+
+sub name {
+	my ($self,$v) = @_;
+
+	$v && ($self->{_name} = $v);
+	return $self->{_name};
+}
+
+sub char {
+	my ($self) = @_;
+
+	my $name = $self->name();
+	if ($name) {
+		return substr($name,0,1);
+	}
+	return '#';
+}
+
+#
+# A Road is one of the links between Locations
+#
+package Cities::Road;
+
+sub validxy($$) {
+	my ($x,$y) = @_;
+
+	if ($x-int($x) == 0.5) {
+		return 1;
+	}
+	if ($y-int($y) == 0.5) {
+		return 1;
+	}
+	return undef;
+}
+
+sub new {
+	my ($invocant,$x,$y) = @_;
+	my $class = ref($invocant) || $invocant;
+
+	# FIXME - realms! and zero locations
+	#if (!$x || !$y) {
+	#	die "Locations must have both x and y";
+	#}
+	if (!validxy($x,$y)) {
+		die "Locations must be half-steps";
+	}
+
+	my $self = {};
+	bless $self, $class;
+
+	$self->{_x} = $x;
+	$self->{_y} = $y;
+
+	return $self;
+}
+
+sub is_location {
+	return undef;
+}
+
+sub is_road {
+	return 1;
+}
+
+sub xy {
+	my ($self) = @_;
+	return ($self->{_x},$self->{_y});
+}
+
+sub monster {
+	my ($self,$v) = @_;
+
+	$v && ($self->{_monster} = $v);
+	return $self->{_monster};
+}
+
+sub state {
+	my ($self,$v) = @_;
+
+	$v && ($self->{_state} = $v);
+	return $self->{_state};
+}
+
+sub char {
+	my ($self) = @_;
+
+	my $monster = $self->monster();
+	if ($monster) {
+		return '*';
+	}
+	return '+';
+}
+
+#
+# A Map is a collection of Locations and Roads
+#
+package Cities::Map;
+
+sub new {
+	my ($invocant) = @_;
+	my $class = ref($invocant) || $invocant;
+
+	my $self = {};
+	bless $self, $class;
+
+	return $self;
+}
+
+# set current location
+sub current {
+	my ($self,$v) = @_;
+
+	$v && ($self->{_current} = $v);
+	return $self->{_current};
+}
+
+sub add {
+	my ($self,$v) = @_;
+	my ($x,$y) = $v->xy();
+	$self->{_map}{$x}{$y}=$v;
+}
+
+sub _extents {
+	my ($self) = @_;
+
+	my ($x_min,$x_max,$y_min,$y_max);
+
+	for my $x (keys %{$self->{_map}}) {
+		if (!$x_min || $x < $x_min) {
+			$x_min = $x;
+		}
+		if (!$x_max || $x > $x_max) {
+			$x_max = $x;
+		}
+		for my $y (keys %{$self->{_map}{$x}}) {
+			if (!$y_min || $y < $y_min) {
+				$y_min = $y;
+			}
+			if (!$y_max || $y > $y_max) {
+				$y_max = $y;
+			}
+		}
+	}
+	my $d = {};
+	$d->{x}{min}=$x_min;
+	$d->{x}{max}=$x_max;
+	$d->{y}{min}=$y_min;
+	$d->{y}{max}=$y_max;
+	return $d;
+}
+
+sub _get {
+	my ($self,$x,$y) = @_;
+	return $self->{_map}{$x}{$y};
+}
+
+sub print {
+	my ($self) = @_;
+
+	my $extent=$self->_extents();
+
+	my $y = $extent->{y}{max};
+	while ($y>=$extent->{y}{min}) {
+		my $x = $extent->{x}{min};
+		while ($x<=$extent->{x}{max}) {
+			my $l = $self->_get($x,$y);
+			$x+=0.5;
+
+			if (!$l) {
+				print " ";
+				next;
+			}
+			print $l->char();
+		}
+		print "\n";
+		$y-=0.5;
+	}
+}
+
+#
 # An Action is any of the buttons on the screen
 #
 package Cities::Action;
@@ -244,6 +473,8 @@ sub new {
 
 	$self->{_dbh} = dbopen();
 
+	$self->{_map} = Cities::Map->new();
+
 	bless $self, $class;
 	return $self;
 }
@@ -329,6 +560,41 @@ sub populate_actions_list {
 	1;
 }
 
+sub populate_locations {
+	my ($self) = @_;
+
+	my $x = $self->{_d}{_x};
+	my $y = $self->{_d}{_y};
+
+	for my $dx (keys %{$self->{_d}{_map}}) {
+		for my $dy (keys %{$self->{_d}{_map}{$dx}}) {
+			my $l = Cities::Location->new($x+$dx,$y+$dy);
+			$l->name($self->{_d}{_map}{$dx}{$dy}{name});
+
+			$self->{_map}->add($l);
+		}
+	}
+}
+
+sub populate_roads {
+	my ($self) = @_;
+
+	my $x = $self->{_d}{_x};
+	my $y = $self->{_d}{_y};
+
+	for my $dx (keys %{$self->{_d}{_dir}}) {
+		for my $dy (keys %{$self->{_d}{_dir}{$dx}}) {
+			my $dirent = $self->{_d}{_dir}{$dx}{$dy};
+			my $l = Cities::Road->new($x+$dx,$y+$dy);
+
+			$l->monster($dirent->{monster});
+			$l->state($dirent->{state});
+
+			$self->{_map}->add($l);
+		}
+	}
+}
+
 sub populate_scrape_data {
 	my ($self) = @_;
 
@@ -374,6 +640,9 @@ sub populate_scrape_data {
 
 	$self->populate_items_list;
 	$self->populate_actions_list;
+
+	$self->populate_locations;
+	$self->populate_roads;
 
 	# FIXME - populate current_item from new fangled interface
 	# look_down id=current_item, look_down _tag=a
@@ -636,7 +905,8 @@ $r->action('act_item_eat')->click;
 $r->action('act_item_drink')->click;
 
 $r->monster - returns a direction object list
-$r
+$r->{_map}->_extents();
+$r->{_map}->print();
 
 
 #########################################

@@ -156,32 +156,37 @@ sub addmonsters($$) {
 	}
 
 	my %mapping = (
-		'n,w' => '.2.0',
-		'n,e' => '.2.1',
-		'w,n' => '.4.2',
-		'n'   => '.4.6',
-		'e,n' => '.4.10',
-		'w'   => '.6.0',
-		'e'   => '.6.1',
-		'w,s' => '.8.2',
-		's'   => '.8.6',
-		'e,s' => '.8.10',
-		's,w' => '.10.0',
-		's,e' => '.10.1',
+		'.2.0'  => ['n,w',-0.5, 1],
+		'.2.1'  => ['n,e', 0.5, 1],
+		'.4.2'  => ['w,n',-1,   0.5],
+		'.4.6'  => ['n',   0,   0.5],
+		'.4.10' => ['e,n', 1,   0.5],
+		'.6.0'  => ['w',  -0.5, 0],
+		'.6.1'  => ['e',   0.5, 0],
+		'.8.2'  => ['w,s',-1,  -0.5],
+		'.8.6'  => ['s',   0,  -0.5],
+		'.8.10' => ['e,s', 1,  -0.5],
+		'.10.0' => ['s,w',-0.5,-1],
+		'.10.1' => ['s,e', 0.5,-1],
 	);
 
-	for my $dir (keys %mapping) {
-		my $road = $table->address($mapping{$dir});
+	for my $addr (keys %mapping) {
+		my ($dir,$dx,$dy) = @{$mapping{$addr}};
+
+		my $road = $table->address($addr);
 		if (!$road) {
 			# invisible?
 			next;
 		}
 
+		$d->{_dir}{$dx}{$dy} = {};
+		my $dirent = $d->{_dir}{$dx}{$dy};
+
 		my $node = $road->look_down('name','act_move_'.$dir);
 		if ($node) {
-			$d->{_dir}->{$dir}->{state} = 'move';
+			$dirent->{state} = 'move';
 		} elsif ($node = $road->look_down('name','act_fight_'.$dir)) {
-			$d->{_dir}->{$dir}->{state} = 'fight';
+			$dirent->{state} = 'fight';
 		}
 
 		if ($node) {
@@ -191,17 +196,17 @@ sub addmonsters($$) {
 				$s = $node->attr('title');
 			}
 			if ($s =~ m/will cost (\d+) AP/) {
-				$d->{_dir}->{$dir}->{ap} = $1;
+				$dirent->{ap} = $1;
 			}
 		}
 
 		my $div = $road->look_down('_tag','div');
 		if ($div) {
 			my $text = $div->as_trimmed_text();
-			$d->{_dir}->{$dir}->{text}=$text;
+			$dirent->{text}=$text;
 			my ($mname,$mhp)=($text=~ m/(.*) \((.+)\)/);
-			$d->{_dir}->{$dir}->{monster}=$mname;
-			$d->{_dir}->{$dir}->{hp}=$mhp;
+			$dirent->{monster}=$mname;
+			$dirent->{hp}=$mhp;
 		}
 	}
 }

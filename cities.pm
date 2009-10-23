@@ -184,8 +184,10 @@ sub addmonsters($$) {
 
 		my $node = $road->look_down('name','act_move_'.$dir);
 		if ($node) {
+			$dirent->{action} = 'act_move_'.$dir;
 			$dirent->{state} = 'move';
 		} elsif ($node = $road->look_down('name','act_fight_'.$dir)) {
+			$dirent->{action} = 'act_fight_'.$dir;
 			$dirent->{state} = 'fight';
 		}
 

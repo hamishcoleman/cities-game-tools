@@ -387,6 +387,13 @@ sub click {
 	return $self->container->_click($self);
 }
 
+sub location {
+	my ($self,$v) = @_;
+
+	$v && ($self->{_location} = $v);
+	return $self->{_location};
+}
+
 #
 # An Item that can be in your inventory
 #
@@ -637,7 +644,16 @@ sub populate_roads {
 			$l->monster($dirent->{monster});
 			$l->state($dirent->{state});
 
-			$self->{_map}->add($l);
+			$l = $self->{_map}->add($l);
+
+			if ($dirent->{action}) {
+				my $action = $self->action($dirent->{action});
+				if ($action->id) {
+					$action->ap($dirent->{ap});
+					$action->location($l);
+				}
+			}
+
 		}
 	}
 }

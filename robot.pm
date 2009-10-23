@@ -117,14 +117,40 @@ sub name {
 	return $self->{_name};
 }
 
+# Map key translations
+my %shortname = (
+	'Cottage Hospital' => 'H',
+	'Doctor' => 'H',
+	'First Aid Point' => 'H',
+	'Herbert the Healer' => 'H',
+	'Hospital' => 'H',
+	'Hospital Satellite' => 'H',
+	'Jude' => 'H',
+	'Kill or Cure' => 'H',
+	'Medic' => 'H',
+	'Nobby' => 'H',
+	'Road' => '#',
+	'Teleport' => 't',
+	'Ice Trail' => '~',
+	'Track' => '~',
+	'Trail' => '~',
+
+	'Plains' => '_',
+	'Field' => '_',
+	'Valley' => '_',
+);
+
 sub char {
 	my ($self) = @_;
 
 	my $name = $self->name();
 	if ($name) {
+		if ($shortname{$name}) {
+			return $shortname{$name};
+		}
 		return substr($name,0,1);
 	}
-	return '#';
+	return '?';
 }
 
 #
@@ -927,7 +953,6 @@ $r->login;
 print "Robot is at ",join('/',$r->rxy),"\n";
 $r->dump('out.txt');
 
-$r->map->_extents();
 $r->map->print();
 
 $r->item('CruelBlade')->wield;

@@ -221,7 +221,7 @@ sub add {
 		return $l;
 	}
 	$self->{_map}{$x}{$y}=$v;
-	return $self;
+	return $v;
 }
 
 sub _extents {
@@ -274,6 +274,16 @@ sub print {
 				print " ";
 				next;
 			}
+
+			if ($l == $self->current) {
+				# reverse vid
+				print "\e[7m";
+				print $l->char();
+				# standard
+				print "\e[0m";
+				next;
+			}
+
 			print $l->char();
 		}
 		print "\n";
@@ -576,8 +586,7 @@ sub populate_actions_list {
 sub populate_locations {
 	my ($self) = @_;
 
-	my $x = $self->{_d}{_x};
-	my $y = $self->{_d}{_y};
+	my ($x,$y) = $self->{_map}->current()->xy();
 
 	for my $dx (keys %{$self->{_d}{_map}}) {
 		for my $dy (keys %{$self->{_d}{_map}{$dx}}) {
@@ -587,15 +596,12 @@ sub populate_locations {
 			$self->{_map}->add($l);
 		}
 	}
-
-	$self->{_map}->current(Cities::Location->new($x,$y));
 }
 
 sub populate_roads {
 	my ($self) = @_;
 
-	my $x = $self->{_d}{_x};
-	my $y = $self->{_d}{_y};
+	my ($x,$y) = $self->{_map}->current()->xy();
 
 	for my $dx (keys %{$self->{_d}{_dir}}) {
 		for my $dy (keys %{$self->{_d}{_dir}{$dx}}) {
@@ -652,6 +658,13 @@ sub populate_scrape_data {
 	# Dump out the user and map data to the db
 	#dumptodb($self->{_d});
 	dumptextintodb($self->{_d});
+
+	$self->{_map}->current(
+		Cities::Location->new(
+			$self->{_d}{_x},
+			$self->{_d}{_y}
+		)
+	);
 
 	$self->populate_items_list;
 	$self->populate_actions_list;
@@ -879,7 +892,7 @@ sub rxy {
 		$self->{_d} || die "No scrape data";
 	}
 
-	return ($self->{_d}{_realm},$self->{_d}{_x},$self->{_d}{_y});
+	return ($self->{_d}{_realm},$self->{_map}->current()->xy());
 }
 
 sub ap {
@@ -891,6 +904,11 @@ sub ap {
 	}
 
 	return ($self->{_d}{ap});
+}
+
+sub map {
+	my ($self) = @_;
+	return ($self->{_map});
 }
 
 1;
@@ -909,8 +927,8 @@ $r->login;
 print "Robot is at ",join('/',$r->rxy),"\n";
 $r->dump('out.txt');
 
-$r->{_map}->_extents();
-$r->{_map}->print();
+$r->map->_extents();
+$r->map->print();
 
 $r->item('CruelBlade')->wield;
 

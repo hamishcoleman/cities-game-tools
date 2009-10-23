@@ -40,12 +40,62 @@ sub id {
 }
 
 #
+# A Map entry is an object that can appear on the map
+# this is either a map square or a road between squares
+#
+package Cities::Map::Entry;
+
+sub new {
+	my ($invocant,$x,$y) = @_;
+	my $class = ref($invocant) || $invocant;
+	my $self = {};
+	bless $self, $class;
+
+	# FIXME - realms! and zero locations
+	#if (!$x || !$y) {
+	#	die "Locations must have both x and y";
+	#}
+	if (!$self->validxy($x,$y)) {
+		die "Location $x, $y is not valid";
+	}
+
+	$self->{_x} = $x;
+	$self->{_y} = $y;
+
+	return $self;
+}
+
+sub xy {
+	my ($self) = @_;
+	return ($self->{_x},$self->{_y});
+}
+
+sub distance {
+	my ($self,$l2) = @_;
+	my ($x1,$y1) = $self->xy;
+	my ($x2,$y2) = $l2->xy;
+
+	my $dx = abs($x1-$x2);
+	my $dy = abs($y1-$y2);
+
+	return sqrt($dx ** 2 + $dy ** 2);
+}
+
+sub char {
+	return "?";
+}
+
+sub is_location { return undef;}
+sub is_road {return undef;}
+
+#
 # A Location is one of the map squares
 #
 package Cities::Location;
+our @ISA = "Cities::Map::Entry";
 
-sub validxy($$) {
-	my ($x,$y) = @_;
+sub validxy {
+	my ($self,$x,$y) = @_;
 
 	if (int($x) != $x) {
 		return undef;
@@ -56,38 +106,8 @@ sub validxy($$) {
 	return 1;
 }
 
-sub new {
-	my ($invocant,$x,$y) = @_;
-	my $class = ref($invocant) || $invocant;
-
-	# FIXME - realms! and zero locations
-	#if (!$x || !$y) {
-	#	die "Locations must have both x and y";
-	#}
-	if (!validxy($x,$y)) {
-		die "Locations must be integers";
-	}
-
-	my $self = {};
-	bless $self, $class;
-
-	$self->{_x} = $x;
-	$self->{_y} = $y;
-
-	return $self;
-}
-
 sub is_location {
 	return 1;
-}
-
-sub is_road {
-	return undef;
-}
-
-sub xy {
-	my ($self) = @_;
-	return ($self->{_x},$self->{_y});
 }
 
 sub name {
@@ -111,9 +131,10 @@ sub char {
 # A Road is one of the links between Locations
 #
 package Cities::Road;
+our @ISA = "Cities::Map::Entry";
 
-sub validxy($$) {
-	my ($x,$y) = @_;
+sub validxy {
+	my ($self,$x,$y) = @_;
 
 	if ($x-int($x) == 0.5) {
 		return 1;
@@ -124,38 +145,8 @@ sub validxy($$) {
 	return undef;
 }
 
-sub new {
-	my ($invocant,$x,$y) = @_;
-	my $class = ref($invocant) || $invocant;
-
-	# FIXME - realms! and zero locations
-	#if (!$x || !$y) {
-	#	die "Locations must have both x and y";
-	#}
-	if (!validxy($x,$y)) {
-		die "Locations must be half-steps";
-	}
-
-	my $self = {};
-	bless $self, $class;
-
-	$self->{_x} = $x;
-	$self->{_y} = $y;
-
-	return $self;
-}
-
-sub is_location {
-	return undef;
-}
-
 sub is_road {
 	return 1;
-}
-
-sub xy {
-	my ($self) = @_;
-	return ($self->{_x},$self->{_y});
 }
 
 sub monster {
@@ -200,15 +191,37 @@ sub new {
 # set current location
 sub current {
 	my ($self,$v) = @_;
-
-	$v && ($self->{_current} = $v);
+	if ($v) {
+		$v = $self->add($v);
+		$self->{_current} = $v;
+	}
 	return $self->{_current};
 }
 
 sub add {
 	my ($self,$v) = @_;
+
+	if ($v->can('name') && $v->name()) {
+		# TODO - keep the closest one
+		$self->{_recent}{$v->name()}=$v;
+	}
+
 	my ($x,$y) = $v->xy();
+
+	my $l = $self->{_map}{$x}{$y};
+	if ($l) {
+		# copy the location data, dont replace existing object
+		# this means that existing refs stay valid
+		# but also means that "add" essentially consumes the object
+		# FIXME - doesnt cope if the class has changed
+
+		for my $i (keys %{$v}) {
+			$l->{$i} = $v->{$i};
+		}
+		return $l;
+	}
 	$self->{_map}{$x}{$y}=$v;
+	return $self;
 }
 
 sub _extents {
@@ -240,7 +253,7 @@ sub _extents {
 	return $d;
 }
 
-sub _get {
+sub get {
 	my ($self,$x,$y) = @_;
 	return $self->{_map}{$x}{$y};
 }
@@ -254,7 +267,7 @@ sub print {
 	while ($y>=$extent->{y}{min}) {
 		my $x = $extent->{x}{min};
 		while ($x<=$extent->{x}{max}) {
-			my $l = $self->_get($x,$y);
+			my $l = $self->get($x,$y);
 			$x+=0.5;
 
 			if (!$l) {
@@ -574,6 +587,8 @@ sub populate_locations {
 			$self->{_map}->add($l);
 		}
 	}
+
+	$self->{_map}->current(Cities::Location->new($x,$y));
 }
 
 sub populate_roads {
@@ -889,11 +904,13 @@ $Data::Dumper::Sortkeys = 1;
 use robot;
 
 my $r = Robot->new('_LOGNAME_','_PASSWORD_');
-my $r = Robot->new('_LOGNAME_','_PASSWORD_');
 
 $r->login;
 print "Robot is at ",join('/',$r->rxy),"\n";
 $r->dump('out.txt');
+
+$r->{_map}->_extents();
+$r->{_map}->print();
 
 $r->item('CruelBlade')->wield;
 
@@ -904,9 +921,8 @@ $r->action('act_retreat')->click;
 $r->action('act_item_eat')->click;
 $r->action('act_item_drink')->click;
 
+my $r = Robot->new('_LOGNAME_','_PASSWORD_');
 $r->monster - returns a direction object list
-$r->{_map}->_extents();
-$r->{_map}->print();
 
 
 #########################################

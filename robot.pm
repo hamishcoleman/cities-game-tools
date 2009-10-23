@@ -227,11 +227,6 @@ sub current {
 sub add {
 	my ($self,$v) = @_;
 
-	if ($v->can('name') && $v->name()) {
-		# TODO - keep the closest one
-		$self->{_recent}{$v->name()}=$v;
-	}
-
 	my ($x,$y) = $v->xy();
 
 	my $l = $self->{_map}{$x}{$y};
@@ -244,9 +239,16 @@ sub add {
 		for my $i (keys %{$v}) {
 			$l->{$i} = $v->{$i};
 		}
-		return $l;
+		$v = $l;
+	} else {
+		$self->{_map}{$x}{$y}=$v;
 	}
-	$self->{_map}{$x}{$y}=$v;
+
+	if ($v->can('name') && $v->name()) {
+		# TODO - keep the closest one
+		$self->{_recent}{$v->name()}=$v;
+	}
+
 	return $v;
 }
 

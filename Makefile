@@ -6,7 +6,7 @@ files    := game.cgi other.cgi \
 	    showmap.cgi map.cgi \
 	    showlog.cgi \
 	    cities.pm proxy.pm \
-	    game.css black.jpg \
+	    black.jpg \
 	    movingmaptest.html
 
 all:

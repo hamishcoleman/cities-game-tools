@@ -428,6 +428,8 @@ sub text {
 
 	if ($text =~ m/ x (\d+)$/) {
 		$self->{_count} = $1;
+	} else {
+		$self->{_count} = 1;
 	}
 	if ($text =~ m/ \((\d+) (\d+)%\)( x |$)/) {
 		$self->{_damage} = $1;
@@ -478,6 +480,29 @@ sub avgdamage {
 	}
 
 	return $self->{_damage} * $self->{_tohit};
+}
+
+sub isautoweapon {
+	my ($self) = @_;
+
+	return 0 if !$self->{_weapon};
+	return 0 if $self->{_count}<5;
+
+	# TODO
+	# return false if self->breaks;
+	# return false if self->breakpercent > x;
+	return 0 if $self->id eq 'GoldenGun';
+	return 0 if $self->id eq 'GlassSword';
+	return 0 if $self->id eq 'Lance';
+	return 0 if $self->id eq 'Poison';
+
+	return 1;
+}
+
+sub tostr {
+	my ($self) = @_;
+	return sprintf("%5.2f %2i %s",
+		$self->avgdamage,$self->{_count},$self->text);
 }
 
 #
@@ -890,6 +915,23 @@ sub item {
 	return values %{$self->{_items}};
 }
 
+sub bestweapon {
+	my ($self) = @_;
+
+	my @items = sort { $b->avgdamage <=> $a->avgdamage } $self->item;
+
+	if (wantarray) {
+		return @items;
+	}
+
+	for my $i (@items) {
+		if ($i->isautoweapon) {
+			return $i;
+		}
+	}
+	return undef;
+}
+
 sub current_item {
 	my ($self) = @_;
 
@@ -976,6 +1018,8 @@ print "Robot is at ",join('/',$r->rxy),"\n";
 $r->dump('out.txt');
 
 $r->map->print();
+
+$r->bestweapon->tostr;
 
 $r->item('CruelBlade')->wield;
 

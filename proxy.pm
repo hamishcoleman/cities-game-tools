@@ -139,6 +139,14 @@ sub maketreefromreq($) {
 		return ($res,undef);
 	}
 
+	# FIXME HACK
+	# current html has a close div around the (dark) location, but no
+	# open div.  Since this completly fucks the tree parser, we need to
+	# fix it before it is parsed (see also earlier work around for
+	# loc_dark and loc_bright in cities.pm
+	my $content = $res->content;
+	$content =~ s/(?<!<div>)\(dark\)<\/div>/<div>(dark)<\/div>/g;
+
 	######################################################################
 	#
 	# Create a document tree from the returned data
@@ -146,7 +154,7 @@ sub maketreefromreq($) {
 	#$tree->ignore_ignorable_whitespace(0);
 	#$tree->no_space_compacting(1);
 	$tree->store_comments(1);
-	$tree->parse($res->content);
+	$tree->parse($content);
 	$tree->eof;
 	$tree->elementify;
 

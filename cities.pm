@@ -263,6 +263,7 @@ sub addviewport($$) {
 		if ($class =~ /(loc_dark|loc_bright)/) {
 			# could use Ephemermal..
 			# We are not able to see anything here, so dont log it
+			# FIXME - current html has a close div around dark...
 			next;
 		} else {
 			# dark and bright dont have a div, so this is an error

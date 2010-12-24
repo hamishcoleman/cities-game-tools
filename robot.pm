@@ -671,10 +671,14 @@ sub populate_scrape_data {
 	$self->{_form} = HTML::Form->parse($self->{_res});
 	$self->{_form}->strict(1);
 
+	my $content = $self->{_res}->content;
+        $content =~ s/(?<!<div>)\(dark\)<\/div>/<div>(dark)<\/div>/g;
+
 	# TODO - fixup maketreefromreq
 	my $tree = HTML::TreeBuilder->new;
 	$tree->store_comments(1);
-	$tree->parse($self->{_res}->content);
+	#$tree->parse($self->{_res}->content);
+	$tree->parse($content);
 	$tree->eof;
 	$tree->elementify;
 

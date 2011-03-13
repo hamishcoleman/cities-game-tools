@@ -963,19 +963,19 @@ sub _wield {
 }
 
 sub item {
-	my ($self,$item) = @_;
+	my ($self,$wantitem) = @_;
 
 	if (!$self->{_items}) {
 		$self->populate_items_list_ajax;
 		$self->{_items} || die "No items";
 	}
 
-	if ($item) {
-		my $item = $self->{_items}{$item};
+	if ($wantitem) {
+		my $item = $self->{_items}{$wantitem};
 		if ($item) {
 			return $item;
 		}
-		return Cities::Null->new($item);
+		return Cities::Null->new($wantitem);
 	}
 	return values %{$self->{_items}};
 }
@@ -1037,19 +1037,19 @@ sub _click {
 }
 
 sub action {
-	my ($self,$action) = @_;
+	my ($self,$wantaction) = @_;
 
 	if (!$self->{_actions}) {
 		$self->request;
 		$self->{_actions} || die "No items";
 	}
 
-	if ($action) {
-		my $action = $self->{_actions}{$action};
+	if ($wantaction) {
+		my $action = $self->{_actions}{$wantaction};
 		if ($action) {
 			return $action;
 		}
-		return Cities::Null->new($action);
+		return Cities::Null->new($wantaction);
 	}
 	return values %{$self->{_actions}};
 }

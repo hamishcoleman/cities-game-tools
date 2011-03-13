@@ -997,6 +997,21 @@ sub bestweapon {
 	return undef;
 }
 
+sub current_time {
+	my ($self) = @_;
+
+	my $time = $self->{_d}{_clock};
+	if ($time =~ m/(\d\d?):(\d\d)(am|pm)/) {
+		my $hour=$1;
+		my $min=$2;
+		if ($3 eq 'pm') {
+			$hour+=12;
+		}
+		return sprintf("%02i:%02i",$hour,$min);
+	}
+	return undef;
+}
+
 sub current_item {
 	my ($self) = @_;
 
@@ -1080,6 +1095,7 @@ my $r = Robot->new('_LOGNAME_','_PASSWORD_');
 
 $r->login;
 print "Robot is at ",join('/',$r->rxy),"\n";
+print "Time is ",$r->current_time,"\n";
 $r->dump('out.txt');
 
 $r->map->print();

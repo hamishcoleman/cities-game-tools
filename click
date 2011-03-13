@@ -25,14 +25,15 @@ if ($r->action('act_retreat')->id) {
 	$r->action('act_retreat')->click;
 }
 
+# Only do these actions once a day
+if ($r->current_time() =~ m/^12:/) {
+	if ($r->item('Cornucopia')->id) {
+		# If possible, use the cornucopia
+		$r->item('Cornucopia')->wield;
 
-if ($r->item('Cornucopia')->id) {
-	# If possible, use the cornucopia
-	$r->item('Cornucopia')->wield;
-
-	# TODO - state storage so we only drink/eat once a day
-	$r->action('act_item_eat')->click;
-	$r->action('act_item_drink')->click;
+		$r->action('act_item_eat')->click;
+		$r->action('act_item_drink')->click;
+	}
 }
 
 $old_item->wield;

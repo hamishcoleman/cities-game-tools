@@ -189,6 +189,27 @@ sub state {
 	return $self->{_state};
 }
 
+#sub action {
+#	my ($self,$v) = @_;
+#
+#	$v && ($self->{_action} = $v);
+#	return $self->{_action};
+#}
+#			# link
+#			if ($dirent->{state}) {
+#				my $key = "$dx,$dy";
+#				my %mapping = (
+#					'0,1' => 'n',
+#					'1,0' => 'e',
+#					'0,-1' => 's',
+#					'-1,0' => 'w',
+#				);
+#				my $act = $self->action('act_move_'.$mapping{$key});
+#				if ($act->id) {
+#					$l->action($act);
+#			}
+#
+
 sub char {
 	my ($self) = @_;
 
@@ -320,9 +341,10 @@ sub print {
 }
 
 #
-# An Action is any of the buttons on the screen
+# An Actions Entry is any of the buttons on the screen and is
+# generally found via its list in the Actions object
 #
-package Cities::Action;
+package Cities::Actions::Entry;
 
 sub new {
 	my ($class,$id,$text) = @_;
@@ -332,7 +354,7 @@ sub new {
 	if (!$id) {
 		die "Actions must have ids";
 	}
-	$self->id($id);
+	$self->{_id} = $id;
 	$self->text($text);
 
 	return $self;
@@ -346,9 +368,7 @@ sub container {
 }
 
 sub id {
-	my ($self,$v) = @_;
-
-	$v && ($self->{_id} = $v);
+	my ($self) = @_;
 	return $self->{_id};
 }
 
@@ -394,6 +414,51 @@ sub location {
 
 	$v && ($self->{_location} = $v);
 	return $self->{_location};
+}
+
+#
+# A container full of Actions
+#
+package Cities::Actions;
+
+sub new {
+	my ($invocant) = @_;
+	my $class = ref($invocant) || $invocant;
+
+	my $self = {};
+	bless $self, $class;
+
+	return $self;
+}
+
+sub add {
+	my ($self,$v) = @_;
+	if (!$v->id) {
+		# dont handle null objects
+		return undef;
+	}
+	$self->{_actions}{$v->id} = $v;
+	return $v;
+}
+
+sub del {
+	my ($self,$v) = @_;
+	if (!$v->id) {
+		# dont handle null objects
+		return undef;
+	}
+	delete $self->{_actions}{$v->id};
+	return $v;
+}
+
+sub get {
+	my ($self,$v) = @_;
+	my $r = $self->{_actions}{$v};
+	if (!$r) {
+		# Return a fake "do nothing" object
+		return Cities::Null->new($v);
+	}
+	return $r;
 }
 
 #
@@ -635,7 +700,7 @@ sub populate_actions_list {
 
 	for ($self->{_form}->find_input) {
 		next if (!$_->name);
-		my $action = Cities::Action->new($_->name,$_->value);
+		my $action = Cities::Actions::Entry->new($_->name,$_->value);
 		$action->container($self);
 
 		$self->{_actions}{$_->{name}} = $action;

@@ -384,7 +384,7 @@ sub text {
 
 	$v && ($self->{_text} = $v);
 
-	if ($v && $v =~ m/ \((\d+) AP\)$/) {
+	if ($v && $v =~ m/ \((\d+) ?AP\)$/) {
 		$self->ap($1);
 	}
 
@@ -560,6 +560,7 @@ sub isautoweapon {
 	return 0 if $self->id eq 'GlassSword';
 	return 0 if $self->id eq 'Lance';
 	return 0 if $self->id eq 'Poison';
+	return 0 if $self->id eq 'Bottle';
 
 	return 1;
 }

@@ -162,10 +162,10 @@ our @ISA = "Cities::Map::Entry";
 sub validxy {
 	my ($self,$x,$y) = @_;
 
-	if ($x-int($x) == 0.5) {
+	if (abs($x-int($x)) == 0.5) {
 		return 1;
 	}
-	if ($y-int($y) == 0.5) {
+	if (abs($y-int($y)) == 0.5) {
 		return 1;
 	}
 	return undef;
@@ -339,6 +339,25 @@ sub print {
 		$y-=0.5;
 	}
 }
+
+#
+# A Monster object defines a monster we have seen
+#
+package Cities::Monster;
+
+sub new {
+	my ($invocant,$x,$y) = @_;
+	my $class = ref($invocant) || $invocant;
+	my $self = {};
+	bless $self, $class;
+
+	$self->{_x} = $x;
+	$self->{_y} = $y;
+
+	return $self;
+}
+
+
 
 #
 # An Actions Entry is any of the buttons on the screen and is

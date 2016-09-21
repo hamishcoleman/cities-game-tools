@@ -109,7 +109,7 @@ for my $dir (keys %{$d->{_dir}}) {
 		# nothing to fight
 		next;
 	}
-	if ($d->{_dir}{$dir}{hp} > 5) {
+	if ($d->{_dir}{$dir}{hp} > 10) {
 		# too big to auto-fight
 		next;
 	}

@@ -3,10 +3,7 @@
 tmon.out
 
 # kept log files
-gamelog-20051129.txt.gz
-gamelog-20051208.txt.gz
-gamelog-20060127.txt.gz
-gamelog-20060323.txt.gz
+gamelog-*.txt.gz
 
 # output from make
 gamelog.sqlite

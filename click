@@ -18,7 +18,9 @@ $Data::Dumper::Sortkeys = 1;
 
 use robot;
 
-my $r = Robot->new('_LOGNAME_','_PASSWORD_');
+my $robot_username = shift @ARGV || die "need username";
+my $robot_password = shift @ARGV || die "need password";
+my $r = Robot->new($robot_username, $robot_password);
 
 $r->login;
 

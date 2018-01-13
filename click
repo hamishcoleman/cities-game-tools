@@ -6,6 +6,10 @@
 use strict;
 use warnings;
 
+# allow the libs to be in the bin dir
+use FindBin;
+use lib $FindBin::RealBin;
+
 use robot;
 
 use Data::Dumper;

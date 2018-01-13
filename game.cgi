@@ -7,6 +7,10 @@ use warnings;
 # This script handles the /cgi-bin/game page
 #
 
+# allow the libs to be in the bin dir
+use FindBin;
+use lib $FindBin::RealBin;
+
 ##########################################################################
 #
 # Libs we need.

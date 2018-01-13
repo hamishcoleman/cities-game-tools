@@ -5,6 +5,11 @@ use warnings;
 # Print out the user's log
 #
 #
+
+# allow the libs to be in the bin dir
+use FindBin;
+use lib $FindBin::RealBin;
+
 use CGI qw/:all -nosticky/;
 use CGI::Carp qw(fatalsToBrowser);
 use Data::Dumper;

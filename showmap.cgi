@@ -6,6 +6,11 @@ use warnings;
 #
 # TODO - move those translations into the database
 #
+
+# allow the libs to be in the bin dir
+use FindBin;
+use lib $FindBin::RealBin;
+
 use CGI qw/:all -nosticky/;
 use CGI::Carp qw(fatalsToBrowser);
 use Data::Dumper;

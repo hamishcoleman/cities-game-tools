@@ -8,6 +8,10 @@ use warnings;
 # /cgi-bin/game
 #
 
+# allow the libs to be in the bin dir
+use FindBin;
+use lib $FindBin::RealBin;
+
 ##########################################################################
 #
 # Libs we need.

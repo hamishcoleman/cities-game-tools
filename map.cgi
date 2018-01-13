@@ -4,6 +4,10 @@ use strict;
 # output one map tile
 #
 
+# allow the libs to be in the bin dir
+use FindBin;
+use lib $FindBin::RealBin;
+
 use CGI ':all';
 use CGI::Carp qw(fatalsToBrowser);
 use DBI;

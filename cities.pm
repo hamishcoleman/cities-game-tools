@@ -11,7 +11,7 @@ use warnings;
 #
 # (nothing much right now)
 #
-glob $cities::baseurl = "http://cities.totl.net";
+glob $cities::baseurl = "https://cities.totl.net";
 glob $cities::logfile = "/home/hamish/WWW/cities/gamelog.txt";
 glob $cities::db = "/home/hamish/WWW/cities/db/gamelog.sqlite";
 
@@ -97,7 +97,7 @@ sub adjusturls($$) {
 		# Handle other urls with the "other.cgi" handler
 		my $ref = resolve_url($realpage,$href);
 		# FIXME - cities link hardcoded
-		if ($ref =~ m%^http://cities.totl.net/%) {
+		if ($ref =~ m%^https://cities.totl.net/%) {
 			$i->attr('href',$otherurl . '?realpage='.$ref);
 		}
 	}

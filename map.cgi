@@ -15,35 +15,35 @@ use DBI;
 use cities;
 
 my %images = (
-	'' => 'http://cities.totl.net/images/grass.jpg',
+	'' => 'https://cities.totl.net/images/grass.jpg',
 	loc_null => 'black.jpg',
-	loc_city => 'http://cities.totl.net/images/road.jpg',
-	loc_road => 'http://cities.totl.net/images/road.jpg',
-	loc_boat => 'http://cities.totl.net/images/boat.png',
-	loc_space => 'http://cities.totl.net/images/space.jpg',
-	loc_cloud => 'http://cities.totl.net/images/clouds.jpg',
-	loc_beach => 'http://cities.totl.net/images/beach.png',
-	loc_swamp => 'http://cities.totl.net/images/swamp.png',
-	loc_sewage => 'http://cities.totl.net/images/slime.jpg',
-	loc_lava => 'http://cities.totl.net/images/lava.jpg',
-	loc_water => 'http://cities.totl.net/images/water.png',
-	loc_ocean => 'http://cities.totl.net/images/water.png',
-	loc_cave => 'http://cities.totl.net/images/cave.png',
-	loc_mountain => 'http://cities.totl.net/images/crags.jpg',
-	loc_crags => 'http://cities.totl.net/images/crags.jpg',
-	loc_jungle => 'http://cities.totl.net/images/jungle.png',
-	loc_forest => 'http://cities.totl.net/images/forest.jpg',
-	loc_desert => 'http://cities.totl.net/images/badlands.png',
-	loc_badlands => 'http://cities.totl.net/images/badlands.png',
-	loc_stone => 'http://cities.totl.net/images/road.jpg',
-	loc_dragon => 'http://cities.totl.net/images/dragon.png',
-	loc_mudwet => 'http://cities.totl.net/images/mudwet.jpg',
-	loc_muddry => 'http://cities.totl.net/images/muddry.jpg',
-	loc_snow => 'http://cities.totl.net/images/snow.png',
-	loc_ice => 'http://cities.totl.net/images/ice.jpg',
-	loc_glacier => 'http://cities.totl.net/images/glacier.jpg',
-	loc_tunnel => 'http://cities.totl.net/images/tunnel.jpg',
-	loc_doore => 'http://cities.totl.net/images/doore.jpg',
+	loc_city => 'https://cities.totl.net/images/road.jpg',
+	loc_road => 'https://cities.totl.net/images/road.jpg',
+	loc_boat => 'https://cities.totl.net/images/boat.png',
+	loc_space => 'https://cities.totl.net/images/space.jpg',
+	loc_cloud => 'https://cities.totl.net/images/clouds.jpg',
+	loc_beach => 'https://cities.totl.net/images/beach.png',
+	loc_swamp => 'https://cities.totl.net/images/swamp.png',
+	loc_sewage => 'https://cities.totl.net/images/slime.jpg',
+	loc_lava => 'https://cities.totl.net/images/lava.jpg',
+	loc_water => 'https://cities.totl.net/images/water.png',
+	loc_ocean => 'https://cities.totl.net/images/water.png',
+	loc_cave => 'https://cities.totl.net/images/cave.png',
+	loc_mountain => 'https://cities.totl.net/images/crags.jpg',
+	loc_crags => 'https://cities.totl.net/images/crags.jpg',
+	loc_jungle => 'https://cities.totl.net/images/jungle.png',
+	loc_forest => 'https://cities.totl.net/images/forest.jpg',
+	loc_desert => 'https://cities.totl.net/images/badlands.png',
+	loc_badlands => 'https://cities.totl.net/images/badlands.png',
+	loc_stone => 'https://cities.totl.net/images/road.jpg',
+	loc_dragon => 'https://cities.totl.net/images/dragon.png',
+	loc_mudwet => 'https://cities.totl.net/images/mudwet.jpg',
+	loc_muddry => 'https://cities.totl.net/images/muddry.jpg',
+	loc_snow => 'https://cities.totl.net/images/snow.png',
+	loc_ice => 'https://cities.totl.net/images/ice.jpg',
+	loc_glacier => 'https://cities.totl.net/images/glacier.jpg',
+	loc_tunnel => 'https://cities.totl.net/images/tunnel.jpg',
+	loc_doore => 'https://cities.totl.net/images/doore.jpg',
 
 #.loc_goth {
 #	background-image: none;
@@ -109,7 +109,7 @@ if ($t eq 'html') {
 
 	print $query->header(-expires=>'+3d');
 	print "<html><head><title>Square $x,$y</title>\n";
-	print '<link type="text/css" media="all" rel="stylesheet" href="http://cities.totl.net/game.css" />';
+	print '<link type="text/css" media="all" rel="stylesheet" href="https://cities.totl.net/game.css" />';
 	print '</head><body>';
 	if ($class) {
 		print out_html_table($class,$name);
@@ -131,7 +131,7 @@ if ($t eq 'html') {
 	# something to include the javascript fragment
 	print $query->header(-expires=>'+3d');
 	print "<html><head><title>Square $x,$y</title>\n";
-	print '<link type="text/css" media="all" rel="stylesheet" href="http://cities.totl.net/game.css" />';
+	print '<link type="text/css" media="all" rel="stylesheet" href="https://cities.totl.net/game.css" />';
 	print "</head><body>\n";
 	print '<script type="text/javascript" src="?',"x=$x&y=$y&t=js",'"></script>';
 	print "</body>\n";
@@ -144,7 +144,7 @@ if ($t eq 'html') {
 		if (defined $image) {
 			print redirect($image);
 		} else {
-			print redirect('http://cities.totl.net/images/grass.jpg');
+			print redirect('https://cities.totl.net/images/grass.jpg');
 		}
 	} else {
 		print redirect('black.jpg');
@@ -153,7 +153,7 @@ if ($t eq 'html') {
 	# include the moving map image
 	print $query->header(-expires=>'+3d');
 	print "<html><head><title>Square $x,$y</title>\n";
-	print '<link type="text/css" media="all" rel="stylesheet" href="http://cities.totl.net/game.css" />';
+	print '<link type="text/css" media="all" rel="stylesheet" href="https://cities.totl.net/game.css" />';
 	print "</head><body>\n";
 	print '<img href="text/javascript" src="?',"x=$x&y=$y&t=mm",'">';
 	print "</body>\n";

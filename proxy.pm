@@ -34,7 +34,11 @@ sub resolve_url($$) {
 
 	if ($ref =~ m%^http://%) {
 		return $ref;
-	} 
+	}
+
+	if ($ref =~ m%^https://%) {
+		return $ref;
+	}
 
 	my ($base) = ($context =~ m%^([^:]+://[^/]+)/%);
 	if ($ref =~ m%^/%) {

@@ -186,7 +186,7 @@ h1.title {
 
 .road {
 	background-color: #cc8;
-	background-image: url(http://cities.totl.net/images/grass.jpg);
+	background-image: url(https://cities.totl.net/images/grass.jpg);
 	text-align: center;
 	padding: 3px;
 }
@@ -203,33 +203,33 @@ h1.title {
 	border-right: 2px dashed black;
 }
 .road_safe, .road_gauntlet, .road_cloudcastle, .road_gorganpalace, .road_pit, .road_dungeon, .road_safer, .road_undercroft {
-	background-image: url(http://cities.totl.net/images/road.jpg);
+	background-image: url(https://cities.totl.net/images/road.jpg);
 	background-color: #ccc;
 }
 .road_beach {
 	background-color: #cc8;
-	background-image: url(http://cities.totl.net/images/beach.png);
+	background-image: url(https://cities.totl.net/images/beach.png);
 }
 .road_gangplank {
-	background-image: url(http://cities.totl.net/images/boat.png);
+	background-image: url(https://cities.totl.net/images/boat.png);
 	color: white;
 }
 .road_boat {
-	background-image: url(http://cities.totl.net/images/boat.png);
+	background-image: url(https://cities.totl.net/images/boat.png);
 	color: white;
 }
 .road_space , .road_safespace{
 	color: #ccf;
 	background-color: #000;
-	background-image: url(http://cities.totl.net/images/space.jpg);
+	background-image: url(https://cities.totl.net/images/space.jpg);
 }
 .road_wild {
 	background-color: #cc8;
-	background-image: url(http://cities.totl.net/images/grass.jpg);
+	background-image: url(https://cities.totl.net/images/grass.jpg);
 }
 .road_wilder {
 	background-color: #cc8;
-	background-image: url(http://cities.totl.net/images/grass.jpg);
+	background-image: url(https://cities.totl.net/images/grass.jpg);
 }
 .road_limbo {
 	background-color: black;
@@ -237,61 +237,61 @@ h1.title {
 }
 .road_rocks {
 	background-color: #ccc;
-	background-image: url(http://cities.totl.net/images/crags.jpg);
+	background-image: url(https://cities.totl.net/images/crags.jpg);
 }
 .road_mountain, .road_safemountain {
 	background-color: #ccc;
-	background-image: url(http://cities.totl.net/images/crags.jpg);
+	background-image: url(https://cities.totl.net/images/crags.jpg);
 }
 .road_crags {
 	background-color: #ccc;
-	background-image: url(http://cities.totl.net/images/crags.jpg);
+	background-image: url(https://cities.totl.net/images/crags.jpg);
 }
 .road_jungle, .road_thickjungle {
 	background-color: #484;
-	background-image: url(http://cities.totl.net/images/jungle.png);
+	background-image: url(https://cities.totl.net/images/jungle.png);
 	color: white;
 }
 .road_forest, .road_tforest, .road_ozforest {
 	background-color: #484;
-	background-image: url(http://cities.totl.net/images/forest.jpg);
+	background-image: url(https://cities.totl.net/images/forest.jpg);
 	color: white;
 }
 .road_badlands, .road_kansas {
 	background-color: #884;
-	background-image: url(http://cities.totl.net/images/badlands.png);
+	background-image: url(https://cities.totl.net/images/badlands.png);
 	color: white;
 }
 .road_desert, .road_greatdesert {
 	background-color: #884;
-	background-image: url(http://cities.totl.net/images/badlands.png);
+	background-image: url(https://cities.totl.net/images/badlands.png);
 	color: white;
 }
 .road_ozplain {
 	background-color: #cc8;
-	background-image: url(http://cities.totl.net/images/grass.jpg);
+	background-image: url(https://cities.totl.net/images/grass.jpg);
 }
 .road_plain {
 	background-color: #cc8;
-	background-image: url(http://cities.totl.net/images/grass.jpg);
+	background-image: url(https://cities.totl.net/images/grass.jpg);
 }
 .road_cloud , .road_safecloud{
 	background-color: #fff;
-	background-image: url(http://cities.totl.net/images/clouds.jpg);
+	background-image: url(https://cities.totl.net/images/clouds.jpg);
 }
 .road_water, .road_ocean,.road_whaleocean, .road_pond, .road_flood, .road_safewater, .road_catacombpool, .road_ozwater, .road_oceanwizonly, .road_shrimp {
 	background-color: #8cc;
-	background-image: url(http://cities.totl.net/images/water.png);
+	background-image: url(https://cities.totl.net/images/water.png);
 }
 .road_mudwet {
 	background-color: #cc4;
 	color: white;
-	background-image: url(http://cities.totl.net/images/mudwet.jpg);
+	background-image: url(https://cities.totl.net/images/mudwet.jpg);
 }
 .road_muddry {
 	background-color: #cc4;
 	color: white;
-	background-image: url(http://cities.totl.net/images/muddry.jpg);
+	background-image: url(https://cities.totl.net/images/muddry.jpg);
 }
 .road_bright {
 	background-color: #fff;
@@ -305,73 +305,73 @@ h1.title {
 }
 .road_tree {
 	background-color: #444;
-	background-image: url(http://cities.totl.net/images/cave.png);
+	background-image: url(https://cities.totl.net/images/cave.png);
 	color: white;
 }
 .road_cave, .road_ozcave, .road_vault {
 	background-color: #444;
-	background-image: url(http://cities.totl.net/images/cave.png);
+	background-image: url(https://cities.totl.net/images/cave.png);
 	color: white;
 }
 .road_swamp, .road_fireswamp {
 	background-color: #cf4;
 	color: #000;
-	background-image: url(http://cities.totl.net/images/swamp.png);
+	background-image: url(https://cities.totl.net/images/swamp.png);
 }
 .road_coollava, .road_coolinglava {
 	background-color: #444;
 	color: #ccc;
-	background-image: url(http://cities.totl.net/images/coollava.png);
+	background-image: url(https://cities.totl.net/images/coollava.png);
 }
 .road_lava {
 	background-color: #cf4;
 	color: #ff0;
-	background-image: url(http://cities.totl.net/images/lava.jpg);
+	background-image: url(https://cities.totl.net/images/lava.jpg);
 }
 .road_sewage, .road_drain {
 	background-color: #cf4;
 	color: #ff0;
-	background-image: url(http://cities.totl.net/images/slime.jpg);
+	background-image: url(https://cities.totl.net/images/slime.jpg);
 }
 .road_tunnel, .road_minotaurlair, .road_catacomb {
 	background-color: #cc4;
 	color: white;
-	background-image: url(http://cities.totl.net/images/tunnel.jpg);
+	background-image: url(https://cities.totl.net/images/tunnel.jpg);
 }
 .road_snow, .road_icestation, .road_safesnow {
 	background-color: #fff;
 	color: #000;
-	background-image: url(http://cities.totl.net/images/snow.png);
+	background-image: url(https://cities.totl.net/images/snow.png);
 }
 .road_ice, .road_thinice, .road_thickice {
 	background-color: #ddf;
 	color: #000;
-	background-image: url(http://cities.totl.net/images/ice.jpg);
+	background-image: url(https://cities.totl.net/images/ice.jpg);
 }
 .road_glacier, .road_iceberg {
 	background-color: #bbd;
 	color: black;
-	background-image: url(http://cities.totl.net/images/glacier.jpg);
+	background-image: url(https://cities.totl.net/images/glacier.jpg);
 }
 .dragon_air {
 	color: white;
 	background-color: #000;
-	background-image: url(http://cities.totl.net/images/dragon_air.png);
+	background-image: url(https://cities.totl.net/images/dragon_air.png);
 }
 .dragon_water {
 	color: white;
 	background-color: #000;
-	background-image: url(http://cities.totl.net/images/dragon_water.png);
+	background-image: url(https://cities.totl.net/images/dragon_water.png);
 }
 .dragon_fire {
 	color: white;
 	background-color: #000;
-	background-image: url(http://cities.totl.net/images/dragon_fire.png);
+	background-image: url(https://cities.totl.net/images/dragon_fire.png);
 }
 .dragon_earth {
 	color: white;
 	background-color: #000;
-	background-image: url(http://cities.totl.net/images/dragon_earth.png);
+	background-image: url(https://cities.totl.net/images/dragon_earth.png);
 }
 	
 .map_loc_medium {
@@ -379,7 +379,7 @@ h1.title {
 	background-color: #cc8;
 	width: 30px;
 	height: 30px;
-	background-image: url(http://cities.totl.net/images/grass.jpg);
+	background-image: url(https://cities.totl.net/images/grass.jpg);
 	text-align: center;
 }
 	
@@ -389,7 +389,7 @@ h1.title {
 	background-color: #cc8;
 	width: 1px;
 	height: 1px;
-	background-image: url(http://cities.totl.net/images/grass.jpg);
+	background-image: url(https://cities.totl.net/images/grass.jpg);
 	text-align: center;
 }
 	
@@ -399,7 +399,7 @@ h1.title {
 	background-color: #cc8;
 	width: 20px;
 	height: 20px;
-	background-image: url(http://cities.totl.net/images/grass.jpg);
+	background-image: url(https://cities.totl.net/images/grass.jpg);
 	text-align: center;
 }
 .location {
@@ -407,12 +407,12 @@ h1.title {
 	text-align: center;
 	background-color: #cc8;
 	padding: 4px;
-	background-image: url(http://cities.totl.net/images/grass.jpg);
+	background-image: url(https://cities.totl.net/images/grass.jpg);
 }
 /*
 .location , .map_loc
 {
-	background-image: url(http://cities.totl.net/images/snow.png);
+	background-image: url(https://cities.totl.net/images/snow.png);
 	color: black;
 }
 */
@@ -425,31 +425,31 @@ h1.title {
 	padding: 2px;
 	border-width: 4px;
 	background-color: #999;
-	background-image: url(http://cities.totl.net/images/road.jpg);
+	background-image: url(https://cities.totl.net/images/road.jpg);
 	color: #fff;
 	font-weight: bold;
 }
 .loc_road {
 	background-color: #999;
-	background-image: url(http://cities.totl.net/images/road.jpg);
+	background-image: url(https://cities.totl.net/images/road.jpg);
 }
 .loc_boat {
-	background-image: url(http://cities.totl.net/images/boat.png);
+	background-image: url(https://cities.totl.net/images/boat.png);
 	color: white;
 }
 .loc_corpse
 {
-	background-image: url(http://cities.totl.net/images/corpse.jpg);
+	background-image: url(https://cities.totl.net/images/corpse.jpg);
 	color: white;
 }
 .loc_party {
-	background-image: url(http://cities.totl.net/images/party.gif);
+	background-image: url(https://cities.totl.net/images/party.gif);
 	background-position: center center;
 	font-weight: bold;
 	color: #00b;
 }
 .loc_display {
-	background: url(http://cities.totl.net/images/works.gif) center center no-repeat;
+	background: url(https://cities.totl.net/images/works.gif) center center no-repeat;
 	font-weight: bold;
 	min-width: 300;
 	min-height: 225;
@@ -457,25 +457,25 @@ h1.title {
 	color: #fff;
 }
 .loc_picnic {
-	background-image: url(http://cities.totl.net/images/picnic.png);
+	background-image: url(https://cities.totl.net/images/picnic.png);
 	font-weight: bold;
 	color: #00b;
 }
 .loc_plow {
-	background-image: url(http://cities.totl.net/images/plow.png);
+	background-image: url(https://cities.totl.net/images/plow.png);
 	color: white;
 }
 .loc_planted {
-	background-image: url(http://cities.totl.net/images/planted.png);
+	background-image: url(https://cities.totl.net/images/planted.png);
 	color: white;
 }
 .loc_ripe {
-	background-image: url(http://cities.totl.net/images/ripe.png);
+	background-image: url(https://cities.totl.net/images/ripe.png);
 	color: white;
 }
 
 .loc_wizisle, .road_wizisle {
-	background-image: url(http://cities.totl.net/images/wizisle.png);
+	background-image: url(https://cities.totl.net/images/wizisle.png);
 	color: #808;
 }
 
@@ -483,44 +483,44 @@ h1.title {
 .loc_space {
 	color: #ccf;
 	background-color: #000;
-	background-image: url(http://cities.totl.net/images/space.jpg);
+	background-image: url(https://cities.totl.net/images/space.jpg);
 }
 .loc_cloud {
 	background-color: #fff;
-	background-image: url(http://cities.totl.net/images/clouds.jpg);
+	background-image: url(https://cities.totl.net/images/clouds.jpg);
 }
 .loc_beach {
 	background-color: #ff8;
-	background-image: url(http://cities.totl.net/images/beach.png);
+	background-image: url(https://cities.totl.net/images/beach.png);
 }
 .loc_swamp {
 	background-color: #cf4;
 	color: #000;
-	background-image: url(http://cities.totl.net/images/swamp.png);
+	background-image: url(https://cities.totl.net/images/swamp.png);
 }
 .loc_sewage {
 	background-color: #cf4;
 	color: #ff0;
-	background-image: url(http://cities.totl.net/images/slime.jpg);
+	background-image: url(https://cities.totl.net/images/slime.jpg);
 }
 .loc_coollava {
 	background-color: #444;
 	color: #ccc;
-	background-image: url(http://cities.totl.net/images/coollava.png);
+	background-image: url(https://cities.totl.net/images/coollava.png);
 }
 .loc_lava {
 	background-color: #cf4;
 	color: #ff0;
-	background-image: url(http://cities.totl.net/images/lava.jpg);
+	background-image: url(https://cities.totl.net/images/lava.jpg);
 }
 .loc_water, .loc_ocean {
 	background-color: #8cc;
 	color: #fff;
-	background-image: url(http://cities.totl.net/images/water.png);
+	background-image: url(https://cities.totl.net/images/water.png);
 }
 .loc_cave {
 	background-color: #444;
-	background-image: url(http://cities.totl.net/images/cave.png);
+	background-image: url(https://cities.totl.net/images/cave.png);
 	color: white;
 }
 .loc_bright {
@@ -535,37 +535,37 @@ h1.title {
 }
 .loc_mountain {
 	background-color: #ccc;
-	background-image: url(http://cities.totl.net/images/crags.jpg);
+	background-image: url(https://cities.totl.net/images/crags.jpg);
 	font-weight: bold;
 }
 .loc_crags {
 	background-color: #ccc;
-	background-image: url(http://cities.totl.net/images/crags.jpg);
+	background-image: url(https://cities.totl.net/images/crags.jpg);
 	font-weight: bold;
 }
 .loc_jungle {
 	background-color: #484;
-	background-image: url(http://cities.totl.net/images/jungle.png);
+	background-image: url(https://cities.totl.net/images/jungle.png);
 	color: white;
 }
 .police {
-	background-image: url(http://cities.totl.net/images/police.png);
+	background-image: url(https://cities.totl.net/images/police.png);
 	padding: 1em;
 	color: white;
 }
 .loc_forest {
 	background-color: #484;
-	background-image: url(http://cities.totl.net/images/forest.jpg);
+	background-image: url(https://cities.totl.net/images/forest.jpg);
 	color: white;
 }
 .loc_desert {
 	background-color: #884;
-	background-image: url(http://cities.totl.net/images/badlands.png);
+	background-image: url(https://cities.totl.net/images/badlands.png);
 	color: white;
 }
 .loc_badlands {
 	background-color: #884;
-	background-image: url(http://cities.totl.net/images/badlands.png);
+	background-image: url(https://cities.totl.net/images/badlands.png);
 	color: white;
 }
 .loc_mountains {
@@ -573,7 +573,7 @@ h1.title {
 }
 .loc_stone {
 	background-color: #999;
-	background-image: url(http://cities.totl.net/images/road.jpg);
+	background-image: url(https://cities.totl.net/images/road.jpg);
 	color: #fff;
 	font-weight: bold;
 }
@@ -590,42 +590,42 @@ h1.title {
 .loc_dragon {
 	color: white;
 	background-color: #000;
-	background-image: url(http://cities.totl.net/images/dragon.png);
+	background-image: url(https://cities.totl.net/images/dragon.png);
 }
 .loc_mudwet {
 	background-color: #cc4;
 	color: white;
-	background-image: url(http://cities.totl.net/images/mudwet.jpg);
+	background-image: url(https://cities.totl.net/images/mudwet.jpg);
 }
 .loc_muddry {
 	background-color: #cc4;
 	color: white;
-	background-image: url(http://cities.totl.net/images/muddry.jpg);
+	background-image: url(https://cities.totl.net/images/muddry.jpg);
 }
 .loc_snow {
 	background-color: #ddf;
 	color: black;
-	background-image: url(http://cities.totl.net/images/snow.png);
+	background-image: url(https://cities.totl.net/images/snow.png);
 }
 .loc_ice {
 	background-color: #bbf;
 	color: black;
-	background-image: url(http://cities.totl.net/images/ice.jpg);
+	background-image: url(https://cities.totl.net/images/ice.jpg);
 }
 .loc_glacier {
 	background-color: #bbd;
 	color: black;
-	background-image: url(http://cities.totl.net/images/glacier.jpg);
+	background-image: url(https://cities.totl.net/images/glacier.jpg);
 }
 .loc_tunnel {
 	background-color: #cc4;
 	color: white;
-	background-image: url(http://cities.totl.net/images/tunnel.jpg);
+	background-image: url(https://cities.totl.net/images/tunnel.jpg);
 }
 .loc_doore {
 	background-color: #cc4;
 	color: white;
-	background-image: url(http://cities.totl.net/images/doore.jpg);
+	background-image: url(https://cities.totl.net/images/doore.jpg);
 }
 
 .loc_vashka {
@@ -638,7 +638,7 @@ h1.title {
 
 
 div.controls, div.footer {
-	background-image: url(http://cities.totl.net/images/parchment-dark.jpg);
+	background-image: url(https://cities.totl.net/images/parchment-dark.jpg);
 	background-color: #ccc;	
 	border: solid 2px #000;
 	padding: 4px;
@@ -653,19 +653,19 @@ div.footer {
 	font-family: sans-serif;
 }
 .textin {
-	background-image: url(http://cities.totl.net/images/parchment.jpg);
+	background-image: url(https://cities.totl.net/images/parchment.jpg);
 	border: solid black 1px;
 	padding: 3px;
 }
 .button {
-	background-image: url(http://cities.totl.net/images/button.jpg);
+	background-image: url(https://cities.totl.net/images/button.jpg);
 	border: solid black 1px;
 	padding: 3px;
 	color: #000;
 }
 
 body {
-	background-image: url(http://cities.totl.net/images/parchment-darker.jpg);
+	background-image: url(https://cities.totl.net/images/parchment-darker.jpg);
 }
 .moveicon
 {
@@ -674,13 +674,13 @@ body {
 }
 input.counter {
 	border:0; 
-	background-image: url(http://cities.totl.net/images/parchment-dark.jpg); 
+	background-image: url(https://cities.totl.net/images/parchment-dark.jpg); 
 	padding: 0;
 	font-family: serif;
 }
 /*
 option, input, textarea, select {
-	background-image: url(http://cities.totl.net/images/parchment.jpg);
+	background-image: url(https://cities.totl.net/images/parchment.jpg);
 	background-color: #ccc;	
 }
 */
@@ -791,14 +791,14 @@ option, input, textarea, select {
 .loc_badlands ,
 .loc_dragon 
   {
-	background-image: url(http://cities.totl.net/images/snow.png);
+	background-image: url(https://cities.totl.net/images/snow.png);
 	color: black;
 }
 */
 
 table.stats td { 
 	border: solid 1px black; 
-	background-image: url(http://cities.totl.net/images/parchment.jpg);
+	background-image: url(https://cities.totl.net/images/parchment.jpg);
 }
 
 td.map_loc .hideuntil, 
@@ -850,17 +850,17 @@ td.map_loc_medium:hover .hideuntil
 
 .ele1 {
 	background-color: #8193A8;
-	background-image: url(http://cities.totl.net/images/carpet.jpg);
+	background-image: url(https://cities.totl.net/images/carpet.jpg);
 	color: #fff;
 }
 .ele2 {
 	background-color: #E18C43 ;
-	background-image: url(http://cities.totl.net/images/carpet.jpg);
+	background-image: url(https://cities.totl.net/images/carpet.jpg);
 	color: #fff;
 }
 .ele3 {
 	background-color: #A76aB9 ; 
-	background-image: url(http://cities.totl.net/images/carpet.jpg);
+	background-image: url(https://cities.totl.net/images/carpet.jpg);
 	color: #fff;
 }
 .tab 
@@ -884,7 +884,7 @@ td.map_loc_medium:hover .hideuntil
 	padding: 1px; 
 	margin-right: 2px; 
 	border-bottom: none;
-	background-image: url(http://cities.totl.net/images/parchment.jpg);
+	background-image: url(https://cities.totl.net/images/parchment.jpg);
 }
 
 .acttab a
@@ -896,7 +896,7 @@ td.map_loc_medium:hover .hideuntil
 
 .tabbedinv 
 { 
-	background-image: url(http://cities.totl.net/images/parchment.jpg);
+	background-image: url(https://cities.totl.net/images/parchment.jpg);
 	border: solid black 1px; 
 	padding: 2px;
 }
@@ -943,61 +943,61 @@ td.map_loc_medium:hover .hideuntil
 
 
 .loc_coral, .road_coral {
-	background-image: url(http://cities.totl.net/images/coral.png);
+	background-image: url(https://cities.totl.net/images/coral.png);
 	color: white;
 }
 .magic_look {
 	color: white;
-	background: url(http://cities.totl.net/images/magic.gif) center center;
+	background: url(https://cities.totl.net/images/magic.gif) center center;
 }
 .magic_look a { color: white; }
 
 .loc_dreamtime, .road_dreamtime {
-	background: url(http://cities.totl.net/images/dreamtime.gif);
+	background: url(https://cities.totl.net/images/dreamtime.gif);
 	color: #ffffd0; 
 }
 .loc_bush, .road_bush {
-	background: url(http://cities.totl.net/images/bush.png);
+	background: url(https://cities.totl.net/images/bush.png);
 	color: #804000; 
 }
 .loc_ybr, .road_ybr {
-	background: yellow url(http://cities.totl.net/images/ybr.png);
+	background: yellow url(https://cities.totl.net/images/ybr.png);
 	font-weight: bold;
 	color: #00a000; 
 }
 
 .m1 {
-	background: #888 url(http://cities.totl.net/images/appr.png);
+	background: #888 url(https://cities.totl.net/images/appr.png);
 	color: white;
 	font-family: serif;
 	font-weight: bold;
 }
 .m2 {
-	background: #8f8 url(http://cities.totl.net/images/shaman.png);
+	background: #8f8 url(https://cities.totl.net/images/shaman.png);
 	color: white;
 	font-weight: bold;
 	font-size: 100%;
 	font-family: serif;
 }
 .m3 {
-	background: #008 url(http://cities.totl.net/images/wiz.jpg);
+	background: #008 url(https://cities.totl.net/images/wiz.jpg);
 	color: white;
 	font-family: serif;
 }
 .m1 a, .m2 a, .m3 a { color: white; }
 
 .arm1 {
-	background: #ccc url(http://cities.totl.net/images/arm1.jpg) ;
+	background: #ccc url(https://cities.totl.net/images/arm1.jpg) ;
 	font-weight: bold;
 }
 .arm2 {
-	background: #ccc url(http://cities.totl.net/images/arm2.jpg) center center;
+	background: #ccc url(https://cities.totl.net/images/arm2.jpg) center center;
 	font-weight: bold;
 	color:white;
 }
 .arm2 a {color: white;}
 .arm3 {
-	background: #ccc url(http://cities.totl.net/images/arm3.gif) center center;
+	background: #ccc url(https://cities.totl.net/images/arm3.gif) center center;
 	font-weight: bold;
 	color: #daf;
 }
@@ -1009,13 +1009,13 @@ td.map_loc_medium:hover .hideuntil
     z-index: 200;
 }
 .road_cutjungle, .loc_cutjungle {
-	background-image: url(http://cities.totl.net/images/cutjungle.png);
+	background-image: url(https://cities.totl.net/images/cutjungle.png);
 	background-color: #484;
 }
 .road_astral, .loc_astral {
-	background-image: url(http://cities.totl.net/images/astral.png);
+	background-image: url(https://cities.totl.net/images/astral.png);
 	background-color: #fff;
 }
 .road_pimp, .loc_pimp {
-	background: url(http://cities.totl.net/images/pimp.gif) center center;
+	background: url(https://cities.totl.net/images/pimp.gif) center center;
 }

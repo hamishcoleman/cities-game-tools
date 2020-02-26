@@ -580,6 +580,7 @@ sub isautoweapon {
 	return 0 if $self->id eq 'Lance';
 	return 0 if $self->id eq 'Poison';
 	return 0 if $self->id eq 'Bottle';
+        return 0 if $self->id eq 'Masher';
 
 	return 1;
 }

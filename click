@@ -48,24 +48,57 @@ if ($r->current_time() =~ m/^12:/) {
 if ($r->action('act_retreat')->id) {
 	# If possible, use a monastry
 	$r->action('act_retreat')->click;
-} else {
-	if ($r->item('Fleece')->wield) {
-		# remembering that ->click checks the remaining AP, this
-		# will do as much carding as possible
-		$r->action('act_build_carded_30')->click;
-		$r->action('act_build_carded_10')->click;
-		$r->action('act_build_carded_3')->click;
-		$r->action('act_build_carded_1')->click;
-	}
-	if ($r->item('Distaff')->wield) {
-		$r->action('act_build_wool_30')->click;
-		$r->action('act_build_wool_10')->click;
-		$r->action('act_build_wool_3')->click;
-		$r->action('act_build_wool_1')->click;
-	}
-	if ($r->item('Wood')->wield) {
-		$r->action('act_build_charcoal_100')->click;
-	}
+}
+
+if ($r->action('act_getsand100')->id) {
+    $r->action('act_getsand100')->click;
+}
+
+if ($r->item('Fleece')->wield) {
+    # remembering that ->click checks the remaining AP, this
+    # will do as much carding as possible
+    $r->action('act_build_carded_30')->click;
+    $r->action('act_build_carded_10')->click;
+    $r->action('act_build_carded_3')->click;
+    $r->action('act_build_carded_1')->click;
+}
+if ($r->item('Wad of Raw Wool')->id() && $r->item('Distaff')->wield) {
+    # FIXME - item name of "wad of raw wool"
+    $r->action('act_build_wool_30')->click;
+    $r->action('act_build_wool_10')->click;
+    $r->action('act_build_wool_3')->click;
+    $r->action('act_build_wool_1')->click;
+}
+if ($r->item('WoolShort')->wield) {
+    $r->action('act_build_woolnormal_30')->click;
+    $r->action('act_build_woolnormal_10')->click;
+    $r->action('act_build_woolnormal_3')->click;
+    $r->action('act_build_woolnormal_1')->click;
+}
+if ($r->item('Wool')->wield) {
+    $r->action('act_build_woollong_30')->click;
+    $r->action('act_build_woollong_10')->click;
+    $r->action('act_build_woollong_3')->click;
+    $r->action('act_build_woollong_1')->click;
+}
+
+# Dont forrage unless you are immune to poison
+#if ($r->action('act_forage')->id) {
+#    $r->item('Golden Sickle')->wield();
+#    $r->action('act_forage')->click();
+#}
+
+if ($r->action('act_getwood')->id) {
+    # TODO: wield an axe
+    # 30 wood for 30ap
+    $r->action('act_getmorewood')->click;
+    $r->action('act_getmorewood')->click;
+    $r->action('act_getmorewood')->click;
+    $r->action('act_getmorewood')->click;
+}
+
+if ($r->item('Wood')->wield) {
+    $r->action('act_build_charcoal_100')->click;
 }
 
 $old_item->wield;
